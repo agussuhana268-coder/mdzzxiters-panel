@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>INSANITY MAX — ADMIN</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100%;background:#07070f;color:#e8e8f0;font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased}
+:root{
+  --r:#e01212;--r2:#ff3030;--g:#22c55e;--y:#f59e0b;
+  --bg:#07070f;--card:rgba(14,14,24,.96);--card2:rgba(20,20,34,.9);
+  --brd:rgba(255,255,255,.07);--brd-r:rgba(224,18,18,.2);
+  --t1:#e8e8f0;--t2:#6060780;--t3:#303044;
+  --hud:'Orbitron',monospace;--mono:'Share Tech Mono',monospace;
+}
+/* ═══ LOGIN ═══ */
+#login-page{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:#07070f;z-index:100;
+  transition:opacity .4s ease;
+}
+#login-page.hide{opacity:0;pointer-events:none;}
+.login-box{
+  width:90%;max-width:360px;
+  background:var(--card);
+  border:1px solid var(--brd-r);
+  border-radius:20px;padding:32px 28px;
+  box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 60px rgba(224,18,18,.04);
+}
+.login-logo{
+  display:flex;align-items:center;gap:12px;margin-bottom:28px;
+}
+.login-m{
+  width:46px;height:46px;border-radius:50%;
+  background:radial-gradient(circle at 40%35%,#2a0000,#0c0005);
+  border:1.5px solid rgba(224,18,18,.45);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 14px rgba(224,18,18,.3);
+  font-family:var(--hud);font-size:18px;font-weight:900;
+  color:#e01212;text-shadow:0 0 10px rgba(224,18,18,.8);
+  font-family:'Black Ops One',cursive;
+}
+.login-title{font-family:var(--hud);font-size:14px;font-weight:900;color:var(--r);letter-spacing:1px;}
+.login-sub{font-family:var(--mono);font-size:9px;color:#505060;letter-spacing:1.5px;}
+.login-label{font-family:var(--hud);font-size:8px;letter-spacing:2px;color:#505060;display:block;margin-bottom:8px;}
+.login-input{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1px solid rgba(224,18,18,.18);border-radius:12px;
+  padding:14px 16px;color:var(--t1);
+  font-family:var(--mono);font-size:14px;
+  outline:none;letter-spacing:1px;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;margin-bottom:16px;
+}
+.login-input:focus{border-color:var(--r);box-shadow:0 0 0 3px rgba(224,18,18,.1);}
+.login-btn{
+  width:100%;padding:15px;
+  background:linear-gradient(150deg,#880000,var(--r));
+  border:none;border-radius:13px;
+  color:#fff;font-family:var(--hud);font-size:11px;font-weight:700;
+  letter-spacing:3px;cursor:pointer;
+  box-shadow:0 6px 24px rgba(224,18,18,.25);
+  transition:transform .1s,filter .15s;
+}
+.login-btn:active{transform:scale(.97);filter:brightness(.9);}
+.login-err{
+  margin-top:12px;padding:11px 14px;border-radius:10px;
+  background:rgba(224,18,18,.07);border:1px solid rgba(224,18,18,.2);
+  color:#ff4848;font-family:var(--mono);font-size:11px;text-align:center;
+  display:none;
+}
+
+/* ═══ MAIN DASHBOARD ═══ */
+#dashboard{display:none;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  background:rgba(7,7,15,.95);
+  border-bottom:1px solid var(--brd);
+  position:sticky;top:0;z-index:10;
+  backdrop-filter:blur(20px);
+}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.topbar-m{
+  width:34px;height:34px;border-radius:50%;
+  background:radial-gradient(circle at 40%35%,#2a0000,#0c0005);
+  border:1.5px solid rgba(224,18,18,.45);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Black Ops One',cursive;
+  font-size:14px;color:var(--r);
+  box-shadow:0 0 10px rgba(224,18,18,.25);
+  text-shadow:0 0 8px rgba(224,18,18,.8);
+}
+.topbar-name{font-family:var(--hud);font-size:12px;font-weight:900;color:var(--r);letter-spacing:1px;display:block;}
+.topbar-sub{font-family:var(--mono);font-size:8px;color:#404055;letter-spacing:2px;display:block;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn-sm{
+  padding:7px 14px;border-radius:8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.5px;
+  cursor:pointer;border:none;transition:all .15s;
+}
+.btn-logout{background:rgba(255,255,255,.06);color:#606078;border:1px solid var(--brd);}
+.btn-logout:active{background:rgba(255,255,255,.1);}
+.btn-refresh{background:rgba(224,18,18,.1);color:var(--r2);border:1px solid rgba(224,18,18,.2);}
+.btn-refresh:active{background:rgba(224,18,18,.2);}
+
+.page-content{padding:16px;}
+
+/* ═══ STATS ═══ */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.stat-card{
+  background:var(--card);border:1px solid var(--brd);
+  border-radius:16px;padding:16px 14px;
+  display:flex;align-items:center;gap:10px;
+}
+.stat-icon{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.stat-icon.red{background:rgba(224,18,18,.1);border:1px solid rgba(224,18,18,.18);}
+.stat-icon.green{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.18);}
+.stat-icon.gray{background:rgba(255,255,255,.05);border:1px solid var(--brd);}
+.stat-icon svg{width:18px;height:18px;}
+.stat-num{font-family:var(--hud);font-size:20px;font-weight:900;display:block;line-height:1;}
+.stat-num.red{color:var(--r);}
+.stat-num.green{color:#22c55e;}
+.stat-num.gray{color:#4a4a60;}
+.stat-label{font-family:var(--mono);font-size:8px;color:#404055;letter-spacing:1px;display:block;margin-top:2px;}
+
+/* ═══ SECTIONS ═══ */
+.section{background:var(--card);border:1px solid var(--brd);border-radius:18px;overflow:hidden;margin-bottom:16px;}
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border-bottom:1px solid var(--brd);
+  background:rgba(255,255,255,.015);
+}
+.section-title{font-family:var(--hud);font-size:10px;font-weight:700;color:var(--t1);letter-spacing:2px;}
+.section-count{font-family:var(--mono);font-size:9px;color:#404055;background:rgba(255,255,255,.05);padding:3px 8px;border-radius:5px;}
+
+/* Generate key area */
+.gen-area{padding:14px 16px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--brd);}
+.gen-input{
+  flex:1;background:rgba(255,255,255,.04);
+  border:1px solid var(--brd);border-radius:10px;
+  padding:10px 14px;color:var(--t1);
+  font-family:var(--mono);font-size:12px;letter-spacing:1px;
+  outline:none;
+}
+.gen-input:focus{border-color:rgba(224,18,18,.35);}
+.btn-gen{
+  padding:10px 18px;
+  background:linear-gradient(135deg,#7a0000,#cc0000);
+  border:1px solid rgba(224,18,18,.3);border-radius:10px;
+  color:#ff5050;font-family:var(--hud);font-size:9px;font-weight:700;
+  letter-spacing:1.5px;cursor:pointer;white-space:nowrap;
+  transition:all .15s;
+}
+.btn-gen:active{transform:scale(.95);}
+
+/* Keys list */
+.keys-list{max-height:300px;overflow-y:auto;scrollbar-width:none;}
+.keys-list::-webkit-scrollbar{display:none;}
+.key-row{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);
+  transition:background .15s;
+}
+.key-row:last-child{border-bottom:none;}
+.key-row:active{background:rgba(255,255,255,.03);}
+.key-val{
+  font-family:var(--mono);font-size:12px;color:var(--t1);
+  letter-spacing:.5px;flex:1;
+}
+.key-status{
+  font-family:var(--mono);font-size:8px;letter-spacing:.5px;
+  padding:3px 8px;border-radius:5px;flex-shrink:0;
+}
+.key-status.unused{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#22c55e;}
+.key-status.used{background:rgba(224,18,18,.08);border:1px solid rgba(224,18,18,.18);color:#ff5050;}
+.key-status.revoked{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:#404055;}
+.btn-revoke{
+  background:rgba(224,18,18,.08);border:1px solid rgba(224,18,18,.15);
+  border-radius:7px;padding:5px 10px;
+  color:#ff5050;font-family:var(--mono);font-size:9px;
+  cursor:pointer;flex-shrink:0;
+  transition:all .15s;
+}
+.btn-revoke:active{background:rgba(224,18,18,.2);}
+.btn-copy{
+  background:rgba(255,255,255,.05);border:1px solid var(--brd);
+  border-radius:7px;padding:5px 10px;
+  color:#606078;font-family:var(--mono);font-size:9px;
+  cursor:pointer;flex-shrink:0;
+  transition:all .15s;
+}
+.btn-copy:active{background:rgba(255,255,255,.1);color:#fff;}
+
+/* Sessions / User Monitor */
+.session-row{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.session-row:last-child{border-bottom:none;}
+.sess-avatar{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-family:var(--mono);font-size:11px;font-weight:700;
+}
+.sess-avatar.online{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#22c55e;}
+.sess-avatar.offline{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:#404055;}
+.sess-info{flex:1;min-width:0;}
+.sess-key{font-family:var(--mono);font-size:11px;color:var(--t1);display:block;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sess-meta{font-family:var(--mono);font-size:9px;color:#404055;display:block;margin-top:2px;}
+.sess-badge{
+  font-family:var(--mono);font-size:8px;letter-spacing:.5px;
+  padding:3px 8px;border-radius:5px;flex-shrink:0;
+}
+.sess-badge.online{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#22c55e;}
+.sess-badge.offline{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:#404055;}
+.online-dot{
+  width:6px;height:6px;border-radius:50%;background:#22c55e;
+  display:inline-block;margin-right:4px;
+  animation:pulse-g 2s ease infinite;
+}
+@keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.6);}50%{box-shadow:0 0 0 4px rgba(34,197,94,0);}}
+.offline-dot{width:6px;height:6px;border-radius:50%;background:#404055;display:inline-block;margin-right:4px;}
+
+/* Empty state */
+.empty-state{
+  padding:32px 16px;text-align:center;
+  font-family:var(--mono);font-size:11px;color:#404055;
+}
+
+/* Toast */
+#toast{
+  position:fixed;top:70px;left:50%;transform:translateX(-50%);
+  z-index:200;pointer-events:none;
+  display:flex;flex-direction:column;gap:6px;
+  width:88%;max-width:320px;
+}
+.t-item{
+  padding:12px 16px;border-radius:12px;
+  font-family:var(--mono);font-size:11px;
+  backdrop-filter:blur(20px);
+  animation:tin .28s ease;box-shadow:0 8px 30px rgba(0,0,0,.5);
+}
+.t-item.out{animation:tout .24s ease forwards;}
+.t-s{background:rgba(6,28,10,.97);border:1px solid rgba(34,197,94,.22);color:#22c55e;}
+.t-e{background:rgba(28,4,4,.97);border:1px solid rgba(224,18,18,.22);color:#ff5050;}
+.t-i{background:rgba(6,6,18,.97);border:1px solid rgba(255,255,255,.08);color:#8888a0;}
+@keyframes tin{from{opacity:0;transform:translateY(-12px) scale(.9);}to{opacity:1;transform:none;}}
+@keyframes tout{to{opacity:0;transform:translateY(-8px);}}
+
+/* Misc */
+.section-body{padding:0;}
+.no-keys{padding:24px;text-align:center;font-family:var(--mono);font-size:10px;color:#303044;}
+.key-time{font-family:var(--mono);font-size:8px;color:#303044;margin-top:2px;display:block;}
+.device-tag{font-family:var(--mono);font-size:8px;color:#505068;padding:2px 6px;background:rgba(255,255,255,.04);border-radius:4px;}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-m">M</div>
+      <div>
+        <div class="login-title">MDZZXITERS</div>
+        <div class="login-sub">INSANITY MAX · ADMIN PANEL</div>
+      </div>
+    </div>
+    <label class="login-label">ADMIN PASSWORD</label>
+    <input type="password" id="adm-pass" class="login-input"
+      placeholder="Enter admin password"
+      autocomplete="off" autocorrect="off"/>
+    <button class="login-btn" onclick="adminLogin()">ACCESS DASHBOARD</button>
+    <div class="login-err" id="adm-err">Wrong password. Access denied.</div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div id="toast"></div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="dashboard">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-m">M</div>
+      <div>
+        <span class="topbar-name">ADMIN PANEL</span>
+        <span class="topbar-sub">INSANITY MAX · DASHBOARD</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-sm btn-refresh" onclick="refreshAll()">↻ REFRESH</button>
+      <button class="btn-sm btn-logout" onclick="adminLogout()">LOGOUT</button>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon red">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="3" stroke="#e01212" stroke-width="1.5"/><line x1="7" y1="10" x2="13" y2="10" stroke="#e01212" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="7" x2="10" y2="13" stroke="#e01212" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><span class="stat-num red" id="s-total">—</span><span class="stat-label">TOTAL KEYS</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#22c55e" stroke-width="1.5"/><circle cx="10" cy="10" r="3" fill="#22c55e"/></svg>
+        </div>
+        <div><span class="stat-num green" id="s-online">—</span><span class="stat-label">ONLINE NOW</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon gray">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#505060" stroke-width="1.5"/><line x1="7" y1="10" x2="13" y2="10" stroke="#505060" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div><span class="stat-num gray" id="s-offline">—</span><span class="stat-label">OFFLINE</span></div>
+      </div>
+    </div>
+
+    <!-- KEY MANAGEMENT -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">KEY MANAGEMENT</span>
+        <span class="section-count" id="key-count">0 keys</span>
+      </div>
+      <div class="gen-area">
+        <input type="number" id="gen-qty" class="gen-input" placeholder="Qty (1–50)" min="1" max="50" value="1"/>
+        <button class="btn-gen" onclick="generateKeys()">+ GENERATE</button>
+      </div>
+      <div class="keys-list section-body" id="keys-list">
+        <div class="no-keys">Loading keys...</div>
+      </div>
+    </div>
+
+    <!-- USER MONITOR -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">USER MONITOR</span>
+        <span class="section-count" id="sess-count">0 users</span>
+      </div>
+      <div class="section-body" id="sess-list">
+        <div class="no-keys">Loading sessions...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+
+<script>
+/* ── ADMIN PASSWORD (change this to your own) ── */
+var ADMIN_PASS = 'MDZZX@ADMIN2024';
+
+/* ── Firebase init ── */
+firebase.initializeApp({
+  apiKey:"AIzaSyB2EZgrbnslC1tuyC0WtbIkA4SfJe5m2As",
+  authDomain:"mdzzxiters-panel-30d5a.firebaseapp.com",
+  projectId:"mdzzxiters-panel-30d5a",
+  storageBucket:"mdzzxiters-panel-30d5a.firebasestorage.app",
+  messagingSenderId:"515480722704",
+  appId:"1:515480722704:web:225d9105e3fea021125995"
+});
+var db = firebase.firestore();
+firebase.auth().signInAnonymously().catch(function(){});
+
+/* ── Toast ── */
+function toast(msg, type, ms) {
+  type = type||'i'; ms = ms||2400;
+  var c = document.getElementById('toast');
+  var el = document.createElement('div');
+  el.className = 't-item t-'+type;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(function(){el.classList.add('out');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},260);},ms);
+}
+
+/* ── Key generator ── */
+function genKey() {
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var seg = function(n){var s='';for(var i=0;i<n;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;};
+  return 'MDZZ-'+seg(4)+'-'+seg(4)+'-'+seg(4);
+}
+
+/* ── Format timestamp ── */
+function fmtTime(ts) {
+  if (!ts) return 'Never';
+  var d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString('id-ID',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function timeAgo(ts) {
+  if (!ts) return 'Never';
+  var d = ts.toDate ? ts.toDate() : new Date(ts);
+  var diff = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+/* ── Admin login ── */
+function adminLogin() {
+  var pass = document.getElementById('adm-pass').value;
+  if (pass === ADMIN_PASS) {
+    localStorage.setItem('_adm_auth', '1');
+    document.getElementById('login-page').classList.add('hide');
+    setTimeout(function(){
+      document.getElementById('login-page').style.display='none';
+      document.getElementById('dashboard').style.display='block';
+      loadAll();
+      startRealtimeListeners();
+    },400);
+  } else {
+    document.getElementById('adm-err').style.display='block';
+    document.getElementById('adm-pass').style.cssText='border-color:#e01212;box-shadow:0 0 0 3px rgba(224,18,18,.15)';
+    setTimeout(function(){document.getElementById('adm-pass').style.cssText='';},1600);
+  }
+}
+document.getElementById('adm-pass').addEventListener('keydown', function(e){if(e.key==='Enter')adminLogin();});
+
+function adminLogout() {
+  localStorage.removeItem('_adm_auth');
+  location.reload();
+}
+
+/* Check if already logged in */
+if (localStorage.getItem('_adm_auth') === '1') {
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  setTimeout(function(){loadAll();startRealtimeListeners();},300);
+}
+
+/* ── Load everything ── */
+function loadAll() {
+  loadKeys();
+  loadSessions();
+}
+
+function refreshAll() {
+  toast('Refreshing data...','i',1200);
+  loadAll();
+}
+
+/* ── Load keys ── */
+function loadKeys() {
+  db.collection('keys').orderBy('createdAt','desc').get()
+  .then(function(snap) {
+    var total = snap.size;
+    document.getElementById('key-count').textContent = total + ' keys';
+    document.getElementById('s-total').textContent = total;
+
+    var html = '';
+    if (snap.empty) {
+      html = '<div class="no-keys">No keys yet. Generate some above.</div>';
+    } else {
+      snap.forEach(function(doc) {
+        var d = doc.data();
+        var statusClass = !d.active ? 'revoked' : (d.used ? 'used' : 'unused');
+        var statusLabel = !d.active ? 'REVOKED' : (d.used ? 'IN USE' : 'AVAILABLE');
+        html += '<div class="key-row">';
+        html += '<div class="key-val">' + (d.key||'—') + '<span class="key-time">' + fmtTime(d.createdAt) + '</span></div>';
+        html += '<span class="key-status '+statusClass+'">'+statusLabel+'</span>';
+        html += '<button class="btn-copy" onclick="copyKey(\''+d.key+'\')">COPY</button>';
+        if (d.active) {
+          html += '<button class="btn-revoke" onclick="revokeKey(\''+doc.id+'\')">REVOKE</button>';
+        }
+        html += '</div>';
+      });
+    }
+    document.getElementById('keys-list').innerHTML = html;
+  })
+  .catch(function(e){toast('Error loading keys: '+e.message,'e');});
+}
+
+/* ── Load sessions ── */
+function loadSessions() {
+  db.collection('sessions').orderBy('lastSeen','desc').get()
+  .then(function(snap) {
+    var online = 0, offline = 0;
+    var html = '';
+    if (snap.empty) {
+      html = '<div class="empty-state">No users yet.</div>';
+    } else {
+      snap.forEach(function(doc) {
+        var d = doc.data();
+        var isOnline = d.online === true;
+        if (isOnline) online++; else offline++;
+        var initial = (d.platform||'?').charAt(0);
+        html += '<div class="session-row">';
+        html += '<div class="sess-avatar '+(isOnline?'online':'offline')+'">'+initial+'</div>';
+        html += '<div class="sess-info">';
+        html += '<span class="sess-key">'+(d.key||'—')+'</span>';
+        html += '<span class="sess-meta"><span class="device-tag">'+(d.platform||'?')+'</span> · '+timeAgo(d.lastSeen)+'</span>';
+        html += '</div>';
+        html += '<span class="sess-badge '+(isOnline?'online':'offline')+'">';
+        html += isOnline ? '<span class="online-dot"></span>ONLINE' : '<span class="offline-dot"></span>OFFLINE';
+        html += '</span></div>';
+      });
+    }
+    document.getElementById('sess-list').innerHTML = html;
+    document.getElementById('s-online').textContent = online;
+    document.getElementById('s-offline').textContent = offline;
+    document.getElementById('sess-count').textContent = snap.size + ' users';
+  })
+  .catch(function(e){toast('Error loading sessions: '+e.message,'e');});
+}
+
+/* ── Generate keys ── */
+function generateKeys() {
+  var qty = parseInt(document.getElementById('gen-qty').value) || 1;
+  if (qty < 1) qty = 1;
+  if (qty > 50) qty = 50;
+  var generated = [];
+  var promises = [];
+  for (var i = 0; i < qty; i++) {
+    var key = genKey();
+    generated.push(key);
+    promises.push(db.collection('keys').add({
+      key: key,
+      active: true,
+      used: false,
+      deviceId: null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      usedAt: null
+    }));
+  }
+  Promise.all(promises)
+  .then(function(){
+    toast(qty + ' key'+(qty>1?'s':'')+' generated!','s');
+    loadKeys();
+    if (qty === 1) {
+      copyToClipboard(generated[0]);
+      toast('Key copied to clipboard','i',1600);
+    }
+  })
+  .catch(function(e){toast('Error: '+e.message,'e');});
+}
+
+/* ── Revoke key ── */
+function revokeKey(keyId) {
+  if (!confirm('Revoke this key? The user will lose access.')) return;
+  db.collection('keys').doc(keyId).update({active: false})
+  .then(function(){toast('Key revoked.','s');loadKeys();})
+  .catch(function(e){toast('Error: '+e.message,'e');});
+}
+
+/* ── Copy key ── */
+function copyKey(key) {
+  copyToClipboard(key);
+  toast('Copied: '+key,'s',2000);
+}
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(function(){fallbackCopy(text);});
+  } else { fallbackCopy(text); }
+}
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* ── Realtime listeners ── */
+var _unsubKeys = null, _unsubSess = null;
+function startRealtimeListeners() {
+  /* Listen to sessions for live online count */
+  _unsubSess = db.collection('sessions').onSnapshot(function(snap){
+    var online = 0, offline = 0;
+    var html = '';
+    snap.forEach(function(doc){
+      var d = doc.data();
+      if (d.online) online++; else offline++;
+      var initial = (d.platform||'?').charAt(0);
+      var isOnline = d.online === true;
+      html += '<div class="session-row">';
+      html += '<div class="sess-avatar '+(isOnline?'online':'offline')+'">'+initial+'</div>';
+      html += '<div class="sess-info">';
+      html += '<span class="sess-key">'+(d.key||'—')+'</span>';
+      html += '<span class="sess-meta"><span class="device-tag">'+(d.platform||'?')+'</span> · '+timeAgo(d.lastSeen)+'</span>';
+      html += '</div>';
+      html += '<span class="sess-badge '+(isOnline?'online':'offline')+'">';
+      html += isOnline ? '<span class="online-dot"></span>ONLINE' : '<span class="offline-dot"></span>OFFLINE';
+      html += '</span></div>';
+    });
+    if (!html) html = '<div class="empty-state">No users yet.</div>';
+    document.getElementById('sess-list').innerHTML = html;
+    document.getElementById('s-online').textContent = online;
+    document.getElementById('s-offline').textContent = offline;
+    document.getElementById('sess-count').textContent = snap.size + ' users';
+  }, function(){});
+
+  /* Listen to keys for live count */
+  _unsubKeys = db.collection('keys').onSnapshot(function(snap){
+    document.getElementById('s-total').textContent = snap.size;
+    document.getElementById('key-count').textContent = snap.size + ' keys';
+  }, function(){});
+}
+</script>
+</body>
+</html>
