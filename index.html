@@ -847,6 +847,36 @@ input{
   <div class="scanlines"></div>
 </div>
 
+<!-- ══ SPLASH SCRIPT — standalone, runs immediately ══ -->
+<script>
+(function(){
+  var STEPS=['INITIALIZING SYSTEM...','LOADING BYPASS MODULE...','CONNECTING TO SERVER...','VERIFYING LICENSE...','PATCHING MEMORY...','LOADING FEATURES...','READY.'];
+  var fill=document.getElementById('sp-fill');
+  var txt=document.getElementById('sp-txt');
+  var pct=document.getElementById('sp-pct');
+  var p=0,step=0;
+  var iv=setInterval(function(){
+    p=Math.min(100,p+(50/3200*100)+Math.random()*.3);
+    fill.style.width=p.toFixed(1)+'%';
+    pct.textContent=Math.floor(p)+'%';
+    var ns=Math.floor(p/100*STEPS.length);
+    if(ns>step&&ns<STEPS.length){step=ns;txt.textContent=STEPS[step];}
+    if(p>=100){
+      clearInterval(iv);
+      pct.textContent='100%';
+      txt.textContent='READY.';
+      setTimeout(function(){
+        if(window._fbAfterSplash){window._fbAfterSplash();return;}
+        var sp=document.getElementById('sp');
+        var lg=document.getElementById('lg');
+        sp.classList.add('out');
+        setTimeout(function(){sp.classList.remove('on','out');lg.classList.add('on');},380);
+      },700);
+    }
+  },50);
+})();
+</script>
+
 <!-- ══════ LOGIN ══════ -->
 <div id="lg" class="scr">
   <div class="lg-wrap">
@@ -1012,7 +1042,7 @@ document.addEventListener('touchend',function(e){
   var now=Date.now();if(now-lastTap<300){e.preventDefault();}lastTap=now;
 },{passive:false});
 
-/* ── Audio ── */
+/* ── Audio (exposed globally for Firebase script) ── */
 var AC=null;
 function ensureAudio(){
   if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return;}}
@@ -1061,6 +1091,7 @@ var SFX={
   pop:function(){ensureAudio();tone(560,'sine',.09,.08);},
   cancel:function(){ensureAudio();tone(360,'sine',.08,.08);}
 };
+window.SFX=SFX;
 
 /* ── Particles ── */
 (function(){
@@ -1149,7 +1180,7 @@ var SFX={
 })();
 
 /* ── Constants ── */
-var VALID_KEY='MDZZX-ISANITY-2024';
+var VALID_KEY='MDZZ-XITERS-2026'; /* overridden by Firebase */
 var PKG_FF='com.garena.game.fof';
 var PKG_MX='com.garena.game.ffmax';
 var STEPS=['INITIALIZING SYSTEM...','LOADING BYPASS MODULE...','CONNECTING TO SERVER...','VERIFYING LICENSE...','PATCHING MEMORY...','LOADING FEATURES...','READY.'];
@@ -1178,7 +1209,6 @@ function goTo(fromId,toId){
     to.classList.add('on');
   },380);
 }
-window.goTo=goTo;
 
 /* ── Toast ── */
 var TIC={
@@ -1222,23 +1252,6 @@ function showPopup(icoKey,ti,msg,btns){
 }
 function closePopup(){SFX.cancel();gi('popov').classList.add('hidden');}
 window.closePopup=closePopup;
-
-/* ══ SPLASH ══ */
-var spFill=gi('sp-fill'),spTxt=gi('sp-txt'),spPct=gi('sp-pct');
-var spP=0,spStep=0;
-var spIv=setInterval(function(){
-  spP=Math.min(100, spP + (50/3200*100) + Math.random()*.3);
-  spFill.style.width=spP+'%';
-  spPct.textContent=Math.floor(spP)+'%';
-  var ns=Math.floor(spP/100*STEPS.length);
-  if(ns>spStep && ns<STEPS.length){spStep=ns;spTxt.textContent=STEPS[spStep];}
-  if(spP>=100){
-    clearInterval(spIv);
-    spPct.textContent='100%';
-    spTxt.textContent='READY.';
-    setTimeout(function(){if(window.afterSplash)window.afterSplash();else goTo('sp','lg');},700);
-  }
-},50);
 
 /* ══ LOGIN ══ */
 function toggleEye(){
@@ -1489,12 +1502,11 @@ function runInject(){
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-
-<!-- ══════ FIREBASE LOGIC ══════ -->
+<!-- ══════ FIREBASE KEY SYSTEM ══════ -->
 <script>
 (function(){
-  /* ── Init Firebase ── */
-  var FB_CFG={
+  /* ── Init ── */
+  var FB={
     apiKey:"AIzaSyB2EZgrbnslC1tuyC0WtbIkA4SfJe5m2As",
     authDomain:"mdzzxiters-panel-30d5a.firebaseapp.com",
     projectId:"mdzzxiters-panel-30d5a",
@@ -1502,12 +1514,12 @@ function runInject(){
     messagingSenderId:"515480722704",
     appId:"1:515480722704:web:225d9105e3fea021125995"
   };
-  firebase.initializeApp(FB_CFG);
+  firebase.initializeApp(FB);
   var db=firebase.firestore();
   firebase.auth().signInAnonymously().catch(function(){});
 
-  /* ── Device ID — persistent per browser ── */
-  function getDeviceId(){
+  /* ── Device ID ── */
+  function getDevId(){
     var id=localStorage.getItem('_mdz_did');
     if(!id){id='dev_'+Date.now().toString(36)+'_'+Math.random().toString(36).substr(2,8);localStorage.setItem('_mdz_did',id);}
     return id;
@@ -1519,52 +1531,70 @@ function runInject(){
     return'Browser';
   }
 
-  /* ── Heartbeat — update online every 30s ── */
+  /* ── Heartbeat every 30s ── */
   var _hb=null;
-  function startHeartbeat(did){
+  function startHB(did){
     if(_hb)clearInterval(_hb);
     _hb=setInterval(function(){
-      db.collection('sessions').doc(did).set({online:true,lastSeen:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});
+      db.collection('sessions').doc(did).set({
+        online:true,
+        lastSeen:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true}).catch(function(){});
     },30000);
   }
 
-  /* Set offline on close */
+  /* ── Set offline on tab close ── */
   window.addEventListener('beforeunload',function(){
     var s=JSON.parse(localStorage.getItem('_mdz_sess')||'null');
-    if(s&&s.did){db.collection('sessions').doc(s.did).set({online:false,lastSeen:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});}
+    if(s&&s.did){
+      db.collection('sessions').doc(s.did).set({
+        online:false,
+        lastSeen:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true}).catch(function(){});
+    }
   });
 
-  /* ── Helper: show feedback ── */
-  var gi=function(id){return document.getElementById(id);};
+  /* ── Helper: shortcut to getElementById ── */
+  function gi(id){return document.getElementById(id);}
 
-  /* ── Check existing session on splash end ── */
-  window.afterSplash=function(){
+  /* ── After splash: check saved session ── */
+  window._fbAfterSplash=function(){
     var s=JSON.parse(localStorage.getItem('_mdz_sess')||'null');
-    if(!s||!s.did||!s.keyId){goPanel(false);return;}
-    db.collection('keys').doc(s.keyId).get().then(function(snap){
-      if(snap.exists&&snap.data().active&&snap.data().deviceId===s.did){
-        db.collection('sessions').doc(s.did).set({online:true,lastSeen:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});
-        startHeartbeat(s.did);
-        goPanel(true);
-      }else{
-        localStorage.removeItem('_mdz_sess');
-        goPanel(false);
-      }
-    }).catch(function(){goPanel(false);});
-  };
-
-  function goPanel(skip){
-    if(skip){
-      /* go directly to main panel */
-      var sp=document.getElementById('sp'),mp=document.getElementById('mp');
-      sp.classList.add('out');
-      setTimeout(function(){sp.classList.remove('on','out');mp.classList.add('on');if(window.buildFeats)window.buildFeats();},380);
-    }else{
-      var sp=document.getElementById('sp'),lg=document.getElementById('lg');
+    if(!s||!s.did||!s.keyId){
+      /* no saved session → show login */
+      var sp=gi('sp'),lg=gi('lg');
       sp.classList.add('out');
       setTimeout(function(){sp.classList.remove('on','out');lg.classList.add('on');},380);
+      return;
     }
-  }
+    /* validate saved key still active & same device */
+    db.collection('keys').doc(s.keyId).get().then(function(snap){
+      if(snap.exists&&snap.data().active&&snap.data().deviceId===s.did){
+        /* still valid — go straight to panel */
+        db.collection('sessions').doc(s.did).set({
+          online:true,lastSeen:firebase.firestore.FieldValue.serverTimestamp()
+        },{merge:true}).catch(function(){});
+        startHB(s.did);
+        var sp=gi('sp'),mp=gi('mp');
+        sp.classList.add('out');
+        setTimeout(function(){
+          sp.classList.remove('on','out');
+          mp.classList.add('on');
+          if(window.buildFeats)window.buildFeats();
+        },380);
+      }else{
+        localStorage.removeItem('_mdz_sess');
+        var sp=gi('sp'),lg=gi('lg');
+        sp.classList.add('out');
+        setTimeout(function(){sp.classList.remove('on','out');lg.classList.add('on');},380);
+      }
+    }).catch(function(){
+      /* offline or error — show login */
+      var sp=gi('sp'),lg=gi('lg');
+      sp.classList.add('out');
+      setTimeout(function(){sp.classList.remove('on','out');lg.classList.add('on');},380);
+    });
+  };
 
   /* ── Override doLogin with Firebase version ── */
   window.doLogin=function(){
@@ -1574,62 +1604,91 @@ function runInject(){
     btn.disabled=true;bt.textContent='VERIFYING...';
     fb.className='fb hidden';
 
-    if(!raw||raw.length<8){
-      fb.textContent='INVALID KEY FORMAT';fb.className='fb no';
-      btn.disabled=false;bt.textContent='VERIFY KEY';return;
+    if(!raw||raw.length<6){
+      fb.textContent='INVALID KEY FORMAT';
+      fb.className='fb no';
+      btn.disabled=false;bt.textContent='VERIFY KEY';
+      return;
     }
 
-    var did=getDeviceId();
+    var did=getDevId();
 
-    db.collection('keys').where('key','==',raw).where('active','==',true).get()
-    .then(function(snap){
-      if(snap.empty){
-        fb.textContent='INVALID KEY — ACCESS DENIED';fb.className='fb no';
-        gi('kinp').style.cssText='border-color:#e01212;box-shadow:0 0 0 3px rgba(224,18,18,.18)';
-        if(window.toast)window.toast('WRONG KEY — TRY AGAIN','e');
-        setTimeout(function(){gi('kinp').style.cssText='';},1600);
-        btn.disabled=false;bt.textContent='VERIFY KEY';return;
-      }
-      var keyDoc=snap.docs[0];
-      var kd=keyDoc.data();
-      if(kd.used&&kd.deviceId&&kd.deviceId!==did){
-        fb.textContent='KEY ALREADY IN USE ON ANOTHER DEVICE';fb.className='fb no';
-        if(window.toast)window.toast('KEY LOCKED — OTHER DEVICE','e');
-        btn.disabled=false;bt.textContent='VERIFY KEY';return;
-      }
-      /* Claim key */
-      keyDoc.ref.update({used:true,deviceId:did,usedAt:firebase.firestore.FieldValue.serverTimestamp(),lastSeen:firebase.firestore.FieldValue.serverTimestamp()})
-      .then(function(){
-        return db.collection('sessions').doc(did).set({
-          key:raw,keyId:keyDoc.id,deviceId:did,
-          online:true,platform:getPlatform(),
-          ua:navigator.userAgent.substring(0,120),
-          lastSeen:firebase.firestore.FieldValue.serverTimestamp(),
-          createdAt:firebase.firestore.FieldValue.serverTimestamp()
-        },{merge:true});
+    db.collection('keys')
+      .where('key','==',raw)
+      .where('active','==',true)
+      .get()
+      .then(function(snap){
+        if(snap.empty){
+          /* key not found */
+          if(typeof SFX!=='undefined')SFX.fail();
+          fb.textContent='INVALID KEY — ACCESS DENIED';
+          fb.className='fb no';
+          gi('kinp').style.cssText='border-color:#e01212;box-shadow:0 0 0 3px rgba(224,18,18,.18)';
+          if(window.toast)window.toast('WRONG KEY — TRY AGAIN','e');
+          setTimeout(function(){gi('kinp').style.cssText='';},1600);
+          btn.disabled=false;bt.textContent='VERIFY KEY';
+          return;
+        }
+
+        var keyDoc=snap.docs[0];
+        var kd=keyDoc.data();
+
+        /* check device lock */
+        if(kd.used&&kd.deviceId&&kd.deviceId!==did){
+          if(typeof SFX!=='undefined')SFX.fail();
+          fb.textContent='KEY ALREADY USED ON ANOTHER DEVICE';
+          fb.className='fb no';
+          if(window.toast)window.toast('KEY LOCKED TO OTHER DEVICE','e',3000);
+          btn.disabled=false;bt.textContent='VERIFY KEY';
+          return;
+        }
+
+        /* claim key & create session */
+        keyDoc.ref.update({
+          used:true,
+          deviceId:did,
+          usedAt:firebase.firestore.FieldValue.serverTimestamp(),
+          lastSeen:firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function(){
+          return db.collection('sessions').doc(did).set({
+            key:raw,
+            keyId:keyDoc.id,
+            deviceId:did,
+            online:true,
+            platform:getPlatform(),
+            ua:navigator.userAgent.substring(0,120),
+            lastSeen:firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt:firebase.firestore.FieldValue.serverTimestamp()
+          },{merge:true});
+        }).then(function(){
+          localStorage.setItem('_mdz_sess',JSON.stringify({
+            key:raw,keyId:keyDoc.id,did:did
+          }));
+          startHB(did);
+          if(typeof SFX!=='undefined')SFX.ok();
+          fb.textContent='ACCESS GRANTED — WELCOME BACK';
+          fb.className='fb ok';
+          if(window.toast)window.toast('ACCESS GRANTED','s',1800);
+          setTimeout(function(){
+            var lg=gi('lg'),mp=gi('mp');
+            lg.classList.add('out');
+            setTimeout(function(){
+              lg.classList.remove('on','out');
+              mp.classList.add('on');
+              if(window.buildFeats)window.buildFeats();
+            },380);
+          },1100);
+        });
       })
-      .then(function(){
-        localStorage.setItem('_mdz_sess',JSON.stringify({key:raw,keyId:keyDoc.id,did:did}));
-        startHeartbeat(did);
-        fb.textContent='ACCESS GRANTED — WELCOME BACK';fb.className='fb ok';
-        if(window.toast)window.toast('ACCESS GRANTED','s',1800);
-        setTimeout(function(){
-          var lg=document.getElementById('lg'),mp=document.getElementById('mp');
-          lg.classList.add('out');
-          setTimeout(function(){lg.classList.remove('on','out');mp.classList.add('on');if(window.buildFeats)window.buildFeats();},380);
-        },1100);
+      .catch(function(err){
+        console.error(err);
+        fb.textContent='CONNECTION ERROR — CHECK INTERNET';
+        fb.className='fb no';
+        if(window.toast)window.toast('CONNECTION ERROR','e');
+        btn.disabled=false;bt.textContent='VERIFY KEY';
       });
-    })
-    .catch(function(err){
-      console.error(err);
-      fb.textContent='CONNECTION ERROR — CHECK INTERNET';fb.className='fb no';
-      if(window.toast)window.toast('CONNECTION ERROR','e');
-      btn.disabled=false;bt.textContent='VERIFY KEY';
-    });
   };
 
-  /* expose helpers needed by other scripts */
-  window._db=db;
 })();
 </script>
 </body>
