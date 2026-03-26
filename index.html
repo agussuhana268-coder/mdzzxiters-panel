@@ -1018,6 +1018,7 @@ function ensureAudio(){
   if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return;}}
   if(AC.state==='suspended'){AC.resume();}
 }
+window.ensureAudio=ensureAudio;
 function tone(f,tp,d,v){
   if(!AC)return;
   try{
@@ -1177,6 +1178,7 @@ function goTo(fromId,toId){
     to.classList.add('on');
   },380);
 }
+window.goTo=goTo;
 
 /* ── Toast ── */
 var TIC={
@@ -1192,6 +1194,7 @@ function toast(msg,type,ms){
   c.appendChild(e);
   setTimeout(function(){e.classList.add('out');setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},280);},ms);
 }
+window.toast=toast;
 
 /* ── Popup icons ── */
 var PIC={
@@ -1308,6 +1311,7 @@ function buildFeats(){
     })(FEATS[i]);
   }
 }
+window.buildFeats=buildFeats;
 
 function toggleFeat(id,forced){
   ensureAudio();
