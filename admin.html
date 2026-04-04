@@ -485,7 +485,7 @@ input,select{-webkit-user-select:text;user-select:text}
       <div class="tb-m">M</div>
       <div>
         <span class="tb-brand">MDZZXITERS</span>
-        <span class="tb-sub">INSANITY MAX · BLAZE · ATOMIC PRO</span>
+        <span class="tb-sub">INSANITY MAX · BLAZE · ATOMIC PRO · APOCALYPSE</span>
       </div>
     </div>
     <div class="tb-right">
@@ -806,7 +806,7 @@ function loadProjects(){
       allProjects.push({id:doc.id, name:doc.data().name});
     });
     /* Ensure default projects exist */
-    var defaultProjects=['INSANITY MAX','BLAZE','ATOMIC PRO'];
+    var defaultProjects=['INSANITY MAX','BLAZE','ATOMIC PRO','APOCALYPSE'];
     var existing=allProjects.map(function(p){return p.name;});
     var missing=defaultProjects.filter(function(n){return existing.indexOf(n)<0;});
     if(missing.length){
