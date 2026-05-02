@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>MDZZXITERS — TEAM DASHBOARD</title>
+<title>MDZZXITERS — ADMIN PANEL</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Black+Ops+One&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -782,7 +782,7 @@ function loadProjects(){
       allProjects.push({id:doc.id, name:doc.data().name});
     });
     /* Ensure default projects exist */
-    var defaultProjects=['INSANITY MAX','CYBER PRO','BLAZE','PRIVATE EXTREME','ATOMIC PRO','APOCALYPSE'];
+    var defaultProjects=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE'];
     var existing=allProjects.map(function(p){return p.name;});
     var missing=defaultProjects.filter(function(n){return existing.indexOf(n)<0;});
     if(missing.length){
