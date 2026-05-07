@@ -11,135 +11,51 @@ html,body{width:100%;min-height:100vh;background:#080810;color:#e8e8f4;font-fami
 input,select{-webkit-user-select:text;user-select:text}
 :root{
   --r:#e01212;--r2:#ff3030;--r3:#ff5050;
-  --g:#22c55e;--y:#f59e0b;--blue:#3b82f6;
+  --g:#22c55e;--y:#f59e0b;--blue:#3b82f6;--cyan:#06b6d4;
   --bg:#080810;--card:rgba(16,16,28,.97);--card2:rgba(22,22,36,.92);
   --brd:rgba(255,255,255,.09);--brd-r:rgba(224,18,18,.22);
   --t1:#f0f0f8;--t2:#9090b0;--t3:#404060;--t4:#c0c0d8;
   --hud:'Orbitron',monospace;--mono:'Share Tech Mono',monospace;--body:'Rajdhani',sans-serif;
 }
-
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(224,18,18,.25);border-radius:4px}
 
 /* ═══ LOGIN ═══ */
-#login-page{
-  position:fixed;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse at 50% 0%,rgba(224,18,18,.06) 0%,#080810 60%);
-  z-index:100;transition:opacity .45s ease;
-}
+#login-page{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(224,18,18,.06) 0%,#080810 60%);z-index:100;transition:opacity .45s ease;}
 #login-page.hide{opacity:0;pointer-events:none}
-.login-bg{
-  position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse at 20% 50%,rgba(224,18,18,.05) 0%,transparent 60%),
-    radial-gradient(ellipse at 80% 20%,rgba(224,18,18,.04) 0%,transparent 50%);
-  pointer-events:none;
-}
-.login-box{
-  width:92%;max-width:380px;
-  background:rgba(14,14,24,.98);
-  border:1px solid var(--brd-r);
-  border-radius:22px;padding:36px 28px 32px;
-  box-shadow:0 32px 100px rgba(0,0,0,.7),0 0 60px rgba(224,18,18,.06);
-  position:relative;z-index:2;
-}
+.login-bg{position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(224,18,18,.05) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(224,18,18,.04) 0%,transparent 50%);pointer-events:none;}
+.login-box{width:92%;max-width:380px;background:rgba(14,14,24,.98);border:1px solid var(--brd-r);border-radius:22px;padding:36px 28px 32px;box-shadow:0 32px 100px rgba(0,0,0,.7),0 0 60px rgba(224,18,18,.06);position:relative;z-index:2;}
 .login-logo{display:flex;align-items:center;gap:16px;margin-bottom:10px}
-
-/* ── LOGO M BARU ── */
-.login-m{
-  width:52px;height:52px;flex-shrink:0;position:relative;
-  display:flex;align-items:center;justify-content:center;
-}
+.login-m{width:52px;height:52px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;}
 .login-m svg.hex-bg{position:absolute;inset:0;width:100%;height:100%;}
-.login-m span{
-  font-family:'Black Ops One',cursive;font-size:22px;
-  color:#ff3030;position:relative;z-index:2;
-  text-shadow:0 0 16px rgba(224,18,18,.9),0 2px 0 rgba(0,0,0,.6);
-  line-height:1;
-}
-
+.login-m span{font-family:'Black Ops One',cursive;font-size:22px;color:#ff3030;position:relative;z-index:2;text-shadow:0 0 16px rgba(224,18,18,.9),0 2px 0 rgba(0,0,0,.6);line-height:1;}
 .login-title{font-family:var(--hud);font-size:15px;font-weight:900;color:var(--r2);letter-spacing:1.5px}
 .login-sub{font-family:var(--mono);font-size:8.5px;color:var(--t2);letter-spacing:2px;margin-top:3px}
 .login-divider{height:1px;margin:20px 0;background:linear-gradient(90deg,transparent,rgba(224,18,18,.2),transparent);}
 .login-label{font-family:var(--hud);font-size:8px;letter-spacing:2.5px;color:var(--t2);display:block;margin-bottom:8px;}
-.login-input{
-  width:100%;background:rgba(255,255,255,.05);
-  border:1px solid rgba(224,18,18,.15);border-radius:13px;
-  padding:14px 16px;color:var(--t1);
-  font-family:var(--mono);font-size:13px;
-  outline:none;letter-spacing:1px;
-  transition:border-color .2s,box-shadow .2s;
-  -webkit-appearance:none;margin-bottom:14px;
-}
+.login-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(224,18,18,.15);border-radius:13px;padding:14px 16px;color:var(--t1);font-family:var(--mono);font-size:13px;outline:none;letter-spacing:1px;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;margin-bottom:14px;}
 .login-input:focus{border-color:var(--r2);box-shadow:0 0 0 3px rgba(224,18,18,.1)}
-.login-btn{
-  width:100%;padding:15px;margin-top:4px;
-  background:linear-gradient(150deg,#7a0000 0%,#cc0000 50%,#ff2020 100%);
-  border:none;border-radius:14px;
-  color:#fff;font-family:var(--hud);font-size:11px;font-weight:700;
-  letter-spacing:3px;cursor:pointer;
-  box-shadow:0 8px 28px rgba(224,18,18,.25);
-  transition:transform .1s,filter .15s;position:relative;overflow:hidden;
-}
+.login-btn{width:100%;padding:15px;margin-top:4px;background:linear-gradient(150deg,#7a0000 0%,#cc0000 50%,#ff2020 100%);border:none;border-radius:14px;color:#fff;font-family:var(--hud);font-size:11px;font-weight:700;letter-spacing:3px;cursor:pointer;box-shadow:0 8px 28px rgba(224,18,18,.25);transition:transform .1s,filter .15s;position:relative;overflow:hidden;}
 .login-btn::after{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.1) 0%,transparent 50%);pointer-events:none;}
 .login-btn:active{transform:scale(.97);filter:brightness(.88)}
-.login-err{
-  margin-top:14px;padding:12px 14px;border-radius:11px;
-  background:rgba(224,18,18,.07);border:1px solid rgba(224,18,18,.2);
-  color:#ff5050;font-family:var(--mono);font-size:11px;text-align:center;
-  display:none;animation:shake .4s ease;
-}
+.login-err{margin-top:14px;padding:12px 14px;border-radius:11px;background:rgba(224,18,18,.07);border:1px solid rgba(224,18,18,.2);color:#ff5050;font-family:var(--mono);font-size:11px;text-align:center;display:none;animation:shake .4s ease;}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .login-footer{margin-top:20px;text-align:center;font-family:var(--mono);font-size:8px;color:var(--t3);letter-spacing:1.5px;}
 
 /* ═══ DASHBOARD ═══ */
 #dashboard{display:none}
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;
-  background:rgba(10,10,20,.97);
-  border-bottom:1px solid rgba(224,18,18,.1);
-  position:sticky;top:0;z-index:10;
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-}
-.topbar::after{
-  content:'';position:absolute;bottom:0;left:8%;right:8%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(224,18,18,.3),transparent);
-}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(10,10,20,.97);border-bottom:1px solid rgba(224,18,18,.1);position:sticky;top:0;z-index:10;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
+.topbar::after{content:'';position:absolute;bottom:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(224,18,18,.3),transparent);}
 .tb-left{display:flex;align-items:center;gap:12px}
-
-/* ── TOPBAR M LOGO ── */
-.tb-m{
-  width:36px;height:36px;flex-shrink:0;position:relative;
-  display:flex;align-items:center;justify-content:center;
-}
+.tb-m{width:36px;height:36px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;}
 .tb-m svg.hex-bg{position:absolute;inset:0;width:100%;height:100%;}
-.tb-m span{
-  font-family:'Black Ops One',cursive;font-size:15px;
-  color:#ff3030;position:relative;z-index:2;
-  text-shadow:0 0 10px rgba(224,18,18,.85),0 1px 0 rgba(0,0,0,.5);
-  line-height:1;
-}
-
+.tb-m span{font-family:'Black Ops One',cursive;font-size:15px;color:#ff3030;position:relative;z-index:2;text-shadow:0 0 10px rgba(224,18,18,.85),0 1px 0 rgba(0,0,0,.5);line-height:1;}
 .tb-brand{font-family:var(--hud);font-size:12px;font-weight:900;color:#ff4040;letter-spacing:1.5px;display:block;line-height:1.3;text-shadow:0 0 20px rgba(224,18,18,.3);}
 .tb-sub{font-family:var(--mono);font-size:7px;color:var(--t2);letter-spacing:2px;display:block;margin-top:1px}
 .tb-right{display:flex;align-items:center;gap:8px}
-.tb-user{
-  display:flex;align-items:center;gap:7px;
-  padding:5px 11px;border-radius:9px;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-}
-.tb-avatar{
-  width:24px;height:24px;border-radius:50%;
-  background:linear-gradient(135deg,#7a0000,#e01212);
-  border:1.5px solid rgba(224,18,18,.4);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Black Ops One',cursive;font-size:10px;color:#fff;font-weight:700;
-  text-shadow:0 1px 3px rgba(0,0,0,.6);
-  box-shadow:0 0 8px rgba(224,18,18,.3);
-}
+.tb-user{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);}
+.tb-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#7a0000,#e01212);border:1.5px solid rgba(224,18,18,.4);display:flex;align-items:center;justify-content:center;font-family:'Black Ops One',cursive;font-size:10px;color:#fff;font-weight:700;box-shadow:0 0 8px rgba(224,18,18,.3);}
 .tb-uname{font-family:var(--mono);font-size:9px;color:var(--t4);letter-spacing:.3px}
 .tb-role{font-family:var(--mono);font-size:7px;padding:2px 6px;border-radius:4px;letter-spacing:.5px;}
 .tb-role.owner{background:rgba(224,18,18,.12);border:1px solid rgba(224,18,18,.2);color:#ff5050;}
@@ -149,131 +65,172 @@ input,select{-webkit-user-select:text;user-select:text}
 .btn-logout:active{background:rgba(255,255,255,.12)}
 
 /* ═══ TABS ═══ */
-.tab-bar{
-  display:flex;gap:0;padding:0 16px;
-  background:rgba(10,10,20,.9);border-bottom:1px solid var(--brd);
-  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
-}
+.tab-bar{display:flex;gap:0;padding:0 16px;background:rgba(10,10,20,.9);border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .tab-bar::-webkit-scrollbar{display:none}
-.tab{
-  padding:12px 14px;font-family:var(--hud);font-size:8.5px;font-weight:700;
-  letter-spacing:1.5px;color:var(--t3);
-  cursor:pointer;border:none;background:none;
-  border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;position:relative;
-}
+.tab{padding:12px 14px;font-family:var(--hud);font-size:8.5px;font-weight:700;letter-spacing:1.5px;color:var(--t3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;position:relative;}
 .tab.active{color:var(--r2);border-bottom-color:var(--r2)}
 .tab:active{opacity:.7}
 .tab-dot{position:absolute;top:9px;right:8px;width:5px;height:5px;border-radius:50%;background:var(--g);animation:pulse-g 2s ease infinite;}
-
 .page{padding:14px 14px 80px}
 .tab-page{display:none}
 .tab-page.active{display:block}
 
 /* ═══ STATS ═══ */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px}
-.stat{
-  background:var(--card);border:1px solid var(--brd);
-  border-radius:13px;padding:12px 10px;
-  display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
-}
+.stat{background:var(--card);border:1px solid var(--brd);border-radius:13px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
 .stat-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .stat-ico.red{background:rgba(224,18,18,.1);border:1px solid rgba(224,18,18,.18)}
 .stat-ico.green{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.18)}
 .stat-ico.blue{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.18)}
 .stat-ico.yellow{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.18)}
 .stat-ico.gray{background:rgba(255,255,255,.05);border:1px solid var(--brd)}
+.stat-ico.cyan{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.18)}
 .stat-ico svg{width:15px;height:15px}
 .stat-val{font-family:var(--hud);font-size:20px;font-weight:900;display:block;line-height:1}
-.stat-val.red{color:#ff4040}.stat-val.green{color:var(--g)}.stat-val.blue{color:#60a0ff}.stat-val.yellow{color:var(--y)}.stat-val.gray{color:var(--t3)}
+.stat-val.red{color:#ff4040}.stat-val.green{color:var(--g)}.stat-val.blue{color:#60a0ff}.stat-val.yellow{color:var(--y)}.stat-val.gray{color:var(--t3)}.stat-val.cyan{color:var(--cyan)}
 .stat-lbl{font-family:var(--mono);font-size:6.5px;color:var(--t2);letter-spacing:1px;display:block}
 
 /* ═══ REALTIME BADGE ═══ */
-.rt-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  font-family:var(--mono);font-size:7.5px;letter-spacing:1px;
-  padding:3px 8px;border-radius:20px;
-  background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.18);color:#22c55e;
-  margin-bottom:12px;
-}
+.rt-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:7.5px;letter-spacing:1px;padding:3px 8px;border-radius:20px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.18);color:#22c55e;margin-bottom:12px;}
 .rt-dot{width:5px;height:5px;border-radius:50%;background:#22c55e;animation:pulse-g 1.5s ease infinite;}
 
 /* ═══ SECTIONS ═══ */
 .section{background:var(--card);border:1px solid var(--brd);border-radius:16px;overflow:hidden;margin-bottom:14px;}
-.sec-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:13px 15px;border-bottom:1px solid var(--brd);
-  background:rgba(255,255,255,.015);
-}
+.sec-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--brd);background:rgba(255,255,255,.015);}
 .sec-title{font-family:var(--hud);font-size:9px;font-weight:700;color:var(--t1);letter-spacing:2px}
 .sec-badge{font-family:var(--mono);font-size:8px;color:var(--t2);background:rgba(255,255,255,.05);padding:3px 8px;border-radius:5px;}
 
-/* ═══ PROJECT FILTER ═══ */
-.filter-bar{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none;}
-.filter-bar::-webkit-scrollbar{display:none}
-.filter-chip{
-  padding:6px 12px;border-radius:20px;font-family:var(--mono);font-size:9px;letter-spacing:.3px;
-  cursor:pointer;border:1px solid var(--brd);background:rgba(255,255,255,.04);color:var(--t2);
-  transition:all .2s;white-space:nowrap;flex-shrink:0;
+/* ═══ SEARCH BAR ═══ */
+.search-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 15px;border-bottom:1px solid var(--brd);
+  background:rgba(0,0,0,.15);
 }
+.search-ico{flex-shrink:0;opacity:.4;}
+.search-ico svg{width:14px;height:14px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;}
+.search-input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--t1);font-family:var(--mono);font-size:11px;
+  letter-spacing:.4px;caret-color:var(--r2);
+}
+.search-input::placeholder{color:var(--t3);font-size:10px;}
+.search-clear{
+  flex-shrink:0;background:rgba(255,255,255,.06);border:none;
+  border-radius:5px;padding:3px 7px;
+  font-family:var(--mono);font-size:8px;color:var(--t2);
+  cursor:pointer;transition:background .15s;display:none;
+}
+.search-clear.vis{display:block;}
+.search-clear:active{background:rgba(255,255,255,.12)}
+.search-count{
+  flex-shrink:0;font-family:var(--mono);font-size:8px;color:var(--t3);
+  white-space:nowrap;
+}
+
+/* ═══ PROJECT FILTER ═══ */
+.filter-bar{display:flex;align-items:center;gap:8px;padding:10px 15px;border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none;}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-chip{padding:5px 11px;border-radius:20px;font-family:var(--mono);font-size:8.5px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--brd);background:rgba(255,255,255,.04);color:var(--t2);transition:all .2s;white-space:nowrap;flex-shrink:0;}
 .filter-chip.active{background:rgba(224,18,18,.1);border-color:rgba(224,18,18,.28);color:var(--r3);}
 .filter-chip:active{transform:scale(.95)}
 
 /* ═══ GEN AREA ═══ */
-.gen-area{padding:12px 15px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--brd);flex-wrap:wrap;}
-.gen-input{flex:1;min-width:50px;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:10px;padding:10px 12px;color:var(--t1);font-family:var(--mono);font-size:12px;letter-spacing:1px;outline:none;}
+.gen-area{padding:12px 15px;display:flex;gap:7px;align-items:flex-start;border-bottom:1px solid var(--brd);flex-wrap:wrap;}
+.gen-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;width:100%;}
+.gen-input{background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:10px;padding:10px 12px;color:var(--t1);font-family:var(--mono);font-size:12px;letter-spacing:1px;outline:none;}
 .gen-input:focus{border-color:rgba(224,18,18,.35)}
 .gen-select{background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:10px;padding:10px 12px;color:var(--t1);font-family:var(--mono);font-size:10px;letter-spacing:.5px;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;}
 .gen-select option{background:#12121e;color:var(--t1)}
 .btn-gen{padding:10px 16px;background:linear-gradient(135deg,#6a0000,#b00000);border:1px solid rgba(224,18,18,.28);border-radius:10px;color:#ff6060;font-family:var(--hud);font-size:8.5px;font-weight:700;letter-spacing:1.5px;cursor:pointer;white-space:nowrap;transition:all .15s;}
 .btn-gen:active{transform:scale(.95)}
 
+/* ── DURATION ROW ── */
+.dur-row{
+  display:flex;gap:7px;align-items:center;flex-wrap:wrap;
+  width:100%;padding-top:9px;border-top:1px solid rgba(255,255,255,.05);
+  margin-top:2px;
+}
+.dur-label{font-family:var(--hud);font-size:7.5px;letter-spacing:2px;color:var(--t2);white-space:nowrap;flex-shrink:0;}
+.dur-toggle{
+  display:flex;border:1px solid var(--brd);border-radius:8px;overflow:hidden;flex-shrink:0;
+}
+.dur-tog-btn{
+  padding:7px 11px;border:none;background:rgba(255,255,255,.04);
+  font-family:var(--mono);font-size:8.5px;color:var(--t2);cursor:pointer;
+  transition:all .18s;white-space:nowrap;
+}
+.dur-tog-btn.active{background:rgba(6,182,212,.15);color:var(--cyan);border-color:rgba(6,182,212,.22);}
+.dur-val-input{
+  width:62px;background:rgba(255,255,255,.05);border:1px solid var(--brd);
+  border-radius:9px;padding:8px 10px;color:var(--t1);
+  font-family:var(--mono);font-size:12px;outline:none;text-align:center;
+}
+.dur-val-input:focus{border-color:rgba(6,182,212,.4);}
+.dur-val-input:disabled{opacity:.28;cursor:not-allowed;}
+.dur-unit-select{
+  background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:9px;
+  padding:8px 10px;color:var(--t1);font-family:var(--mono);font-size:9px;
+  outline:none;-webkit-appearance:none;cursor:pointer;
+}
+.dur-unit-select:focus{border-color:rgba(6,182,212,.4);}
+.dur-unit-select:disabled{opacity:.28;cursor:not-allowed;}
+.dur-unit-select option{background:#12121e;color:var(--t1)}
+.dur-preview{
+  font-family:var(--mono);font-size:8px;color:rgba(6,182,212,.7);
+  padding:4px 9px;border-radius:6px;background:rgba(6,182,212,.07);
+  border:1px solid rgba(6,182,212,.14);white-space:nowrap;display:none;
+}
+.dur-preview.vis{display:inline-block;}
+
 /* ═══ KEY ROWS ═══ */
-.list{max-height:360px;overflow-y:auto;scrollbar-width:none}
+.list{max-height:420px;overflow-y:auto;scrollbar-width:none}
 .list::-webkit-scrollbar{display:none}
 .key-row{display:flex;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
 .key-row:last-child{border-bottom:none}
-.key-val{font-family:var(--mono);font-size:11px;color:var(--t1);letter-spacing:.4px;flex:1;min-width:0;}
-.key-proj{font-family:var(--mono);font-size:7px;color:var(--t2);display:block;margin-top:2px;letter-spacing:.5px;}
-.key-time{font-family:var(--mono);font-size:7.5px;color:var(--t3);display:block;margin-top:1px}
+.key-row:hover{background:rgba(255,255,255,.015)}
+.key-main{flex:1;min-width:0;}
+.key-val{font-family:var(--mono);font-size:11px;color:var(--t1);letter-spacing:.4px;display:block;}
+.key-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px;}
+.key-proj-tag{font-family:var(--mono);font-size:7px;color:var(--t2);letter-spacing:.5px;}
+.key-time{font-family:var(--mono);font-size:7px;color:var(--t3);}
+.key-expiry{
+  font-family:var(--mono);font-size:7px;padding:2px 6px;border-radius:4px;letter-spacing:.5px;
+}
+.key-expiry.active{background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.18);color:var(--cyan);}
+.key-expiry.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);color:var(--y);}
+.key-expiry.expired{background:rgba(224,18,18,.08);border:1px solid rgba(224,18,18,.18);color:var(--r3);}
+.key-expiry.none{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:var(--t3);}
 .key-status{font-family:var(--mono);font-size:7.5px;letter-spacing:.5px;padding:3px 7px;border-radius:5px;flex-shrink:0;}
 .key-status.unused{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#22c55e}
 .key-status.used{background:rgba(224,18,18,.07);border:1px solid rgba(224,18,18,.18);color:#ff5050}
-.key-status.revoked{background:rgba(255,255,255,.03);border:1px solid var(--brd);color:var(--t3)}
-.btn-act{border-radius:7px;padding:5px 9px;font-family:var(--mono);font-size:8px;cursor:pointer;flex-shrink:0;transition:all .15s;border:1px solid;}
-.btn-copy{background:rgba(255,255,255,.05);border-color:var(--brd);color:var(--t2)}
-.btn-copy:active{background:rgba(255,255,255,.12);color:#fff}
-.btn-revoke{background:rgba(224,18,18,.07);border-color:rgba(224,18,18,.15);color:#ff5050}
-.btn-revoke:active{background:rgba(224,18,18,.18)}
+.key-status.revoked{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:var(--t3)}
+.key-status.expired{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);color:var(--y)}
+.btn-act{padding:5px 10px;border-radius:7px;font-family:var(--mono);font-size:8px;letter-spacing:.4px;cursor:pointer;border:1px solid;transition:all .15s;flex-shrink:0;}
+.btn-act:active{transform:scale(.92)}
+.btn-copy{background:rgba(59,130,246,.07);border-color:rgba(59,130,246,.2);color:#60a0ff}
+.btn-revoke{background:rgba(224,18,18,.07);border-color:rgba(224,18,18,.2);color:#ff5050}
 
-/* ═══ SESSION ROWS ═══ */
-.sess-row{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid rgba(255,255,255,.04);}
+/* ═══ SESSIONS ═══ */
+.sess-row{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid rgba(255,255,255,.04);}
 .sess-row:last-child{border-bottom:none}
-.sess-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);font-size:10px;font-weight:700;}
-.sess-av.online{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22);color:#22c55e}
-.sess-av.offline{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:var(--t3)}
-.sess-info{flex:1;min-width:0}
-.sess-key{font-family:var(--mono);font-size:10.5px;color:var(--t1);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sess-meta{font-family:var(--mono);font-size:8px;color:var(--t2);display:block;margin-top:2px}
-.dev-tag{font-family:var(--mono);font-size:7.5px;color:var(--t2);padding:2px 5px;background:rgba(255,255,255,.05);border-radius:3px}
-.sess-badge{font-family:var(--mono);font-size:7.5px;letter-spacing:.5px;padding:3px 7px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;gap:4px;}
+.sess-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Black Ops One',cursive;font-size:14px;flex-shrink:0;}
+.sess-av.online{background:rgba(34,197,94,.12);border:1.5px solid rgba(34,197,94,.28);color:#22c55e;}
+.sess-av.offline{background:rgba(255,255,255,.04);border:1.5px solid var(--brd);color:var(--t3);}
+.sess-info{flex:1;min-width:0;}
+.sess-key{font-family:var(--mono);font-size:10px;color:var(--t4);letter-spacing:.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sess-meta{font-family:var(--mono);font-size:8px;color:var(--t3);display:block;margin-top:2px;}
+.dev-tag{background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:3px;padding:1px 4px;}
+.sess-badge{font-family:var(--mono);font-size:7.5px;padding:4px 8px;border-radius:6px;display:flex;align-items:center;gap:4px;flex-shrink:0;letter-spacing:.5px;}
 .sess-badge.online{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#22c55e}
 .sess-badge.offline{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:var(--t3)}
 .online-dot{width:5px;height:5px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulse-g 2s ease infinite}
-@keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0)}}
 .offline-dot{width:5px;height:5px;border-radius:50%;background:var(--t3);flex-shrink:0}
+@keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0)}}
 
 /* ═══ ADMIN ROWS ═══ */
 .admin-row{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid rgba(255,255,255,.04);}
 .admin-row:last-child{border-bottom:none}
-.admin-av{
-  width:36px;height:36px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Black Ops One',cursive;font-size:14px;
-  background:linear-gradient(135deg,#5a0000,#c01010);
-  border:1.5px solid rgba(224,18,18,.3);color:#fff;flex-shrink:0;
-  text-shadow:0 1px 3px rgba(0,0,0,.5);
-  box-shadow:0 0 10px rgba(224,18,18,.15);
-}
+.admin-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Black Ops One',cursive;font-size:14px;background:linear-gradient(135deg,#5a0000,#c01010);border:1.5px solid rgba(224,18,18,.3);color:#fff;flex-shrink:0;box-shadow:0 0 10px rgba(224,18,18,.15);}
 .admin-info{flex:1;min-width:0}
 .admin-name{font-family:var(--hud);font-size:10px;font-weight:700;color:var(--t1);letter-spacing:.5px;display:block}
 .admin-user{font-family:var(--mono);font-size:9px;color:var(--t2);display:block;margin-top:1px}
@@ -281,7 +238,6 @@ input,select{-webkit-user-select:text;user-select:text}
 .role-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:.5px;padding:3px 7px;border-radius:5px;flex-shrink:0;}
 .role-tag.owner{background:rgba(224,18,18,.1);border:1px solid rgba(224,18,18,.22);color:var(--r3)}
 .role-tag.admin{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);color:#60a0ff}
-.btn-remove{background:rgba(224,18,18,.07);border-color:rgba(224,18,18,.15);color:#ff5050}
 
 /* ═══ ADD ADMIN FORM ═══ */
 .add-form{padding:12px 15px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--brd);flex-wrap:wrap;}
@@ -309,6 +265,7 @@ input,select{-webkit-user-select:text;user-select:text}
 .act-dot.login{background:#60a0ff;box-shadow:0 0 6px rgba(96,160,255,.5);}
 .act-dot.revoke{background:#ff5050;box-shadow:0 0 6px rgba(255,80,80,.5);}
 .act-dot.offline{background:var(--t3);}
+.act-dot.expire{background:var(--y);box-shadow:0 0 6px rgba(245,158,11,.5);}
 .act-text{flex:1;font-family:var(--mono);font-size:9.5px;color:var(--t4);line-height:1.5}
 .act-text b{color:var(--t1);}
 .act-time{font-family:var(--mono);font-size:7.5px;color:var(--t3);flex-shrink:0;margin-top:2px;}
@@ -317,57 +274,43 @@ input,select{-webkit-user-select:text;user-select:text}
 .empty{padding:28px 16px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--t3)}
 
 /* ═══ TOAST ═══ */
-#toast{
-  position:fixed;top:65px;left:50%;transform:translateX(-50%);
-  z-index:200;pointer-events:none;
-  display:flex;flex-direction:column;gap:6px;
-  width:88%;max-width:340px;
-}
-.t-item{
-  padding:11px 14px;border-radius:12px;
-  font-family:var(--mono);font-size:10.5px;
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  animation:tin .28s ease;box-shadow:0 10px 36px rgba(0,0,0,.5);
-}
+#toast{position:fixed;top:65px;left:50%;transform:translateX(-50%);z-index:200;pointer-events:none;display:flex;flex-direction:column;gap:6px;width:88%;max-width:340px;}
+.t-item{padding:11px 14px;border-radius:12px;font-family:var(--mono);font-size:10.5px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);animation:tin .28s ease;box-shadow:0 10px 36px rgba(0,0,0,.5);}
 .t-item.out{animation:tout .24s ease forwards}
 .t-s{background:rgba(6,28,10,.97);border:1px solid rgba(34,197,94,.2);color:#22c55e}
 .t-e{background:rgba(28,4,4,.97);border:1px solid rgba(224,18,18,.2);color:#ff5050}
 .t-i{background:rgba(6,6,18,.97);border:1px solid rgba(255,255,255,.08);color:#8888a0}
+.t-w{background:rgba(24,16,4,.97);border:1px solid rgba(245,158,11,.2);color:var(--y)}
 @keyframes tin{from{opacity:0;transform:translateY(-12px) scale(.9)}to{opacity:1;transform:none}}
 @keyframes tout{to{opacity:0;transform:translateY(-8px)}}
 
 /* ═══ CONFIRM MODAL ═══ */
-.modal-ov{
-  position:fixed;inset:0;background:rgba(0,0,0,.75);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  z-index:300;display:flex;align-items:center;justify-content:center;
-  padding:20px;animation:tin .2s ease;
-}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;animation:tin .2s ease;}
 .modal-ov.hidden{display:none}
-.modal-box{
-  width:100%;max-width:300px;
-  background:rgba(12,12,22,.99);border:1px solid rgba(255,255,255,.06);
-  border-radius:18px;overflow:hidden;
-  box-shadow:0 40px 100px rgba(0,0,0,.8);
-  animation:popin .3s cubic-bezier(.34,1.4,.64,1);
-}
+.modal-box{width:100%;max-width:300px;background:rgba(12,12,22,.99);border:1px solid rgba(255,255,255,.06);border-radius:18px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.8);animation:popin .3s cubic-bezier(.34,1.4,.64,1);}
 @keyframes popin{from{transform:scale(.85) translateY(8px);opacity:0}to{transform:none;opacity:1}}
 .modal-body{padding:24px 20px;text-align:center}
 .modal-title{font-family:var(--hud);font-size:12px;font-weight:700;color:var(--t1);letter-spacing:.5px;margin-bottom:8px}
 .modal-msg{font-family:var(--body);font-size:13px;color:var(--t2);line-height:1.5}
 .modal-acts{display:flex;border-top:1px solid rgba(255,255,255,.05)}
-.modal-btn{
-  flex:1;padding:15px;background:none;border:none;
-  font-family:var(--body);font-size:14px;font-weight:600;
-  color:#606070;cursor:pointer;transition:background .12s;
-}
+.modal-btn{flex:1;padding:15px;background:none;border:none;font-family:var(--body);font-size:14px;font-weight:600;color:#606070;cursor:pointer;transition:background .12s;}
 .modal-btn:active{background:rgba(255,255,255,.05)}
 .modal-btn.danger{color:#ff3030;border-left:1px solid rgba(255,255,255,.05);font-weight:700}
+
+/* expired auto-check banner */
+.expire-banner{
+  display:none;align-items:center;gap:8px;
+  margin-bottom:10px;padding:9px 13px;border-radius:10px;
+  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);
+  font-family:var(--mono);font-size:9px;color:var(--y);
+}
+.expire-banner.vis{display:flex;}
+.eb-dot{width:6px;height:6px;border-radius:50%;background:var(--y);flex-shrink:0;animation:pulse-g 2s ease infinite;}
 </style>
 </head>
 <body>
 
-<!-- ═══ LOGIN ═══ -->
+<!-- LOGIN -->
 <div id="login-page">
   <div class="login-bg"></div>
   <div class="login-box">
@@ -376,12 +319,7 @@ input,select{-webkit-user-select:text;user-select:text}
         <svg class="hex-bg" viewBox="0 0 52 52" fill="none">
           <polygon points="26,2 49,14 49,38 26,50 3,38 3,14" fill="url(#lgrd)" stroke="rgba(224,18,18,.5)" stroke-width="1.5"/>
           <polygon points="26,6 45,16.5 45,35.5 26,46 7,35.5 7,16.5" fill="none" stroke="rgba(224,18,18,.15)" stroke-width=".8"/>
-          <defs>
-            <radialGradient id="lgrd" cx="40%" cy="30%" r="75%" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#3a0000"/>
-              <stop offset="100%" stop-color="#0e0006"/>
-            </radialGradient>
-          </defs>
+          <defs><radialGradient id="lgrd" cx="40%" cy="30%" r="75%" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#3a0000"/><stop offset="100%" stop-color="#0e0006"/></radialGradient></defs>
         </svg>
         <span>M</span>
       </div>
@@ -392,21 +330,17 @@ input,select{-webkit-user-select:text;user-select:text}
     </div>
     <div class="login-divider"></div>
     <label class="login-label">USERNAME</label>
-    <input type="text" id="adm-user" class="login-input"
-      placeholder="admin username" autocomplete="off" autocorrect="off" autocapitalize="none"/>
+    <input type="text" id="adm-user" class="login-input" placeholder="admin username" autocomplete="off" autocorrect="off" autocapitalize="none"/>
     <label class="login-label">PASSWORD</label>
-    <input type="password" id="adm-pass" class="login-input"
-      placeholder="••••••••" autocomplete="off"/>
+    <input type="password" id="adm-pass" class="login-input" placeholder="••••••••" autocomplete="off"/>
     <button class="login-btn" onclick="adminLogin()">SIGN IN</button>
     <div class="login-err" id="adm-err">Invalid credentials. Access denied.</div>
     <div class="login-footer">MDZZXITERS TEAM · SECURE ACCESS</div>
   </div>
 </div>
 
-<!-- ═══ TOAST ═══ -->
 <div id="toast"></div>
 
-<!-- ═══ CONFIRM MODAL ═══ -->
 <div id="modal" class="modal-ov hidden">
   <div class="modal-box">
     <div class="modal-body">
@@ -417,19 +351,14 @@ input,select{-webkit-user-select:text;user-select:text}
   </div>
 </div>
 
-<!-- ═══ DASHBOARD ═══ -->
+<!-- DASHBOARD -->
 <div id="dashboard">
   <div class="topbar">
     <div class="tb-left">
       <div class="tb-m">
         <svg class="hex-bg" viewBox="0 0 36 36" fill="none">
           <polygon points="18,1.5 33,9.5 33,26.5 18,34.5 3,26.5 3,9.5" fill="url(#tbrd)" stroke="rgba(224,18,18,.45)" stroke-width="1.2"/>
-          <defs>
-            <radialGradient id="tbrd" cx="40%" cy="30%" r="75%" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#300000"/>
-              <stop offset="100%" stop-color="#0a0004"/>
-            </radialGradient>
-          </defs>
+          <defs><radialGradient id="tbrd" cx="40%" cy="30%" r="75%" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#300000"/><stop offset="100%" stop-color="#0a0004"/></radialGradient></defs>
         </svg>
         <span>M</span>
       </div>
@@ -450,59 +379,94 @@ input,select{-webkit-user-select:text;user-select:text}
     </div>
   </div>
 
-  <!-- TABS -->
   <div class="tab-bar">
-    <button class="tab active" data-tab="keys" onclick="switchTab('keys')">KEYS<span class="tab-dot" id="tab-dot-keys" style="display:none"></span></button>
-    <button class="tab" data-tab="users" onclick="switchTab('users')">USERS<span class="tab-dot" id="tab-dot-users" style="display:none"></span></button>
-    <button class="tab" data-tab="team" onclick="switchTab('team')">TEAM<span class="tab-dot" id="tab-dot-team" style="display:none"></span></button>
-    <button class="tab" data-tab="activity" onclick="switchTab('activity')">ACTIVITY</button>
-    <button class="tab" data-tab="projects" onclick="switchTab('projects')">PROJECTS</button>
+    <button class="tab active" data-tab="keys"     onclick="switchTab('keys')">KEYS<span class="tab-dot" id="tab-dot-keys"  style="display:none"></span></button>
+    <button class="tab"        data-tab="users"    onclick="switchTab('users')">USERS<span class="tab-dot" id="tab-dot-users" style="display:none"></span></button>
+    <button class="tab"        data-tab="team"     onclick="switchTab('team')">TEAM<span class="tab-dot" id="tab-dot-team"  style="display:none"></span></button>
+    <button class="tab"        data-tab="activity" onclick="switchTab('activity')">ACTIVITY</button>
+    <button class="tab"        data-tab="projects" onclick="switchTab('projects')">PROJECTS</button>
   </div>
 
   <div class="page">
-    <!-- STATS 4 col -->
+    <!-- STATS -->
     <div class="stats-row">
       <div class="stat">
         <div class="stat-ico red"><svg viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="3" stroke="#ff4040" stroke-width="1.5"/><line x1="7" y1="10" x2="13" y2="10" stroke="#ff4040" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="7" x2="10" y2="13" stroke="#ff4040" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-        <span class="stat-val red" id="s-total">—</span>
-        <span class="stat-lbl">TOTAL KEYS</span>
+        <span class="stat-val red"  id="s-total">—</span><span class="stat-lbl">TOTAL KEYS</span>
       </div>
       <div class="stat">
         <div class="stat-ico green"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#22c55e" stroke-width="1.5"/><circle cx="10" cy="10" r="3" fill="#22c55e"/></svg></div>
-        <span class="stat-val green" id="s-online">—</span>
-        <span class="stat-lbl">ONLINE</span>
+        <span class="stat-val green" id="s-online">—</span><span class="stat-lbl">ONLINE</span>
       </div>
       <div class="stat">
-        <div class="stat-ico gray"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#606080" stroke-width="1.5"/><line x1="7" y1="10" x2="13" y2="10" stroke="#606080" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-        <span class="stat-val gray" id="s-offline">—</span>
-        <span class="stat-lbl">OFFLINE</span>
+        <div class="stat-ico cyan"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#06b6d4" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <span class="stat-val cyan" id="s-expiring">—</span><span class="stat-lbl">AKAN EXPIRED</span>
       </div>
       <div class="stat">
         <div class="stat-ico blue"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="#60a0ff" stroke-width="1.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="#60a0ff" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-        <span class="stat-val blue" id="s-admins">—</span>
-        <span class="stat-lbl">ADMINS</span>
+        <span class="stat-val blue" id="s-admins">—</span><span class="stat-lbl">ADMINS</span>
       </div>
     </div>
 
-    <!-- ═══ TAB: KEYS ═══ -->
+    <!-- TAB: KEYS -->
     <div class="tab-page active" id="page-keys">
       <div class="rt-badge"><span class="rt-dot"></span>REALTIME SYNC</div>
+
+      <div class="expire-banner" id="expire-banner">
+        <div class="eb-dot"></div>
+        <span id="expire-banner-txt">Beberapa key akan expired segera.</span>
+      </div>
+
       <div class="section">
         <div class="sec-head">
           <span class="sec-title">KEY MANAGEMENT</span>
           <span class="sec-badge" id="key-count">0 keys</span>
         </div>
-        <div class="filter-bar" id="key-filters"></div>
-        <div class="gen-area">
-          <input type="number" id="gen-qty" class="gen-input" placeholder="Qty" min="1" max="50" value="1" style="max-width:65px"/>
-          <select id="gen-project" class="gen-select"></select>
-          <button class="btn-gen" onclick="generateKeys()">+ GENERATE</button>
+
+        <!-- SEARCH -->
+        <div class="search-bar">
+          <div class="search-ico">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <input type="text" id="key-search" class="search-input"
+            placeholder="Cari key, project, device ID..."
+            oninput="onSearchInput(this.value)" autocomplete="off" autocorrect="off"/>
+          <button class="search-clear" id="search-clear-btn" onclick="clearSearch()">CLEAR</button>
+          <span class="search-count" id="search-count"></span>
         </div>
+
+        <div class="filter-bar" id="key-filters"></div>
+
+        <!-- GENERATE -->
+        <div class="gen-area">
+          <div class="gen-row">
+            <input type="number" id="gen-qty" class="gen-input" placeholder="Qty" min="1" max="50" value="1" style="width:62px"/>
+            <select id="gen-project" class="gen-select"></select>
+            <button class="btn-gen" onclick="generateKeys()">+ GENERATE</button>
+          </div>
+          <!-- DURATION ROW -->
+          <div class="dur-row">
+            <span class="dur-label">DURASI KEY</span>
+            <div class="dur-toggle">
+              <button class="dur-tog-btn active" id="durOff" onclick="setDurMode('off')">TANPA BATAS</button>
+              <button class="dur-tog-btn"        id="durOn"  onclick="setDurMode('on')">AUTO EXPIRED</button>
+            </div>
+            <input  type="number" id="dur-val"  class="dur-val-input"  min="1" max="9999" value="30" placeholder="30" disabled oninput="updateDurPreview()"/>
+            <select id="dur-unit" class="dur-unit-select" disabled onchange="updateDurPreview()">
+              <option value="hours">Jam</option>
+              <option value="days"  selected>Hari</option>
+              <option value="months">Bulan</option>
+              <option value="years">Tahun</option>
+            </select>
+            <span class="dur-preview" id="dur-preview"></span>
+          </div>
+        </div>
+
         <div class="list" id="keys-list"><div class="empty">Loading keys...</div></div>
       </div>
     </div>
 
-    <!-- ═══ TAB: USERS ═══ -->
+    <!-- TAB: USERS -->
     <div class="tab-page" id="page-users">
       <div class="rt-badge"><span class="rt-dot"></span>REALTIME SYNC</div>
       <div class="section">
@@ -515,7 +479,7 @@ input,select{-webkit-user-select:text;user-select:text}
       </div>
     </div>
 
-    <!-- ═══ TAB: TEAM ═══ -->
+    <!-- TAB: TEAM -->
     <div class="tab-page" id="page-team">
       <div class="rt-badge"><span class="rt-dot"></span>REALTIME SYNC</div>
       <div class="section">
@@ -524,16 +488,16 @@ input,select{-webkit-user-select:text;user-select:text}
           <span class="sec-badge" id="admin-count">0 admins</span>
         </div>
         <div class="add-form" id="add-admin-form">
-          <input type="text" id="new-name" class="add-input" placeholder="Full Name" style="max-width:90px"/>
-          <input type="text" id="new-user" class="add-input" placeholder="Username" style="max-width:90px"/>
-          <input type="password" id="new-pass" class="add-input" placeholder="Password" style="max-width:90px"/>
+          <input type="text"     id="new-name" class="add-input" placeholder="Full Name"  style="max-width:90px"/>
+          <input type="text"     id="new-user" class="add-input" placeholder="Username"   style="max-width:90px"/>
+          <input type="password" id="new-pass" class="add-input" placeholder="Password"   style="max-width:90px"/>
           <button class="btn-add" onclick="addAdmin()">+ ADD</button>
         </div>
         <div class="list" id="admin-list"><div class="empty">Loading team...</div></div>
       </div>
     </div>
 
-    <!-- ═══ TAB: ACTIVITY ═══ -->
+    <!-- TAB: ACTIVITY -->
     <div class="tab-page" id="page-activity">
       <div class="rt-badge"><span class="rt-dot"></span>REALTIME SYNC</div>
       <div class="section">
@@ -545,7 +509,7 @@ input,select{-webkit-user-select:text;user-select:text}
       </div>
     </div>
 
-    <!-- ═══ TAB: PROJECTS ═══ -->
+    <!-- TAB: PROJECTS -->
     <div class="tab-page" id="page-projects">
       <div class="section">
         <div class="sec-head">
@@ -562,15 +526,15 @@ input,select{-webkit-user-select:text;user-select:text}
   </div>
 </div>
 
-<!-- ═══ FIREBASE ═══ -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 
 <script>
 /* ═══════════════════════════════════════════
-   MDZZXITERS TEAM DASHBOARD
-   Multi-admin · Multi-project · Firebase
+   MDZZXITERS — ADMIN PANEL
+   Key Search · Duration Expiry · Multi-project
 ═══════════════════════════════════════════ */
 
 firebase.initializeApp({
@@ -581,40 +545,121 @@ firebase.initializeApp({
   messagingSenderId:"515480722704",
   appId:"1:515480722704:web:225d9105e3fea021125995"
 });
-var db = firebase.firestore();
+var db=firebase.firestore();
 firebase.auth().signInAnonymously().catch(function(){});
 
 /* ── State ── */
-var currentAdmin = null;   // {id, username, name, role}
-var allKeys = [];
-var allSessions = [];
-var allProjects = [];
-var keyFilter = 'ALL';
-var sessFilter = 'ALL';
+var currentAdmin=null;
+var allKeys=[];
+var allSessions=[];
+var allProjects=[];
+var keyFilter='ALL';
+var sessFilter='ALL';
+var keySearch='';
+var durMode='off'; // 'off' | 'on'
 
 /* ── Helpers ── */
-function gi(id){ return document.getElementById(id); }
-function toast(msg, type, ms){
-  type=type||'i'; ms=ms||2400;
-  var c=gi('toast'), el=document.createElement('div');
-  el.className='t-item t-'+type;
-  el.textContent=msg;
-  c.appendChild(el);
+function gi(id){return document.getElementById(id);}
+function toast(msg,type,ms){
+  type=type||'i';ms=ms||2400;
+  var c=gi('toast'),el=document.createElement('div');
+  el.className='t-item t-'+type;el.textContent=msg;c.appendChild(el);
   setTimeout(function(){el.classList.add('out');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},260);},ms);
 }
 function fmtTime(ts){
-  if(!ts) return '—';
+  if(!ts)return '—';
   var d=ts.toDate?ts.toDate():new Date(ts);
   return d.toLocaleString('id-ID',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
 function timeAgo(ts){
-  if(!ts) return 'Never';
+  if(!ts)return 'Never';
   var d=ts.toDate?ts.toDate():new Date(ts);
   var diff=Math.floor((Date.now()-d.getTime())/1000);
-  if(diff<60) return diff+'s ago';
-  if(diff<3600) return Math.floor(diff/60)+'m ago';
-  if(diff<86400) return Math.floor(diff/3600)+'h ago';
+  if(diff<60)return diff+'s ago';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
   return Math.floor(diff/86400)+'d ago';
+}
+
+/* ── Duration helpers ── */
+function calcExpiresAt(val, unit){
+  var now=Date.now();
+  val=parseInt(val)||1;
+  if(unit==='hours')  return new Date(now + val*3600*1000);
+  if(unit==='days')   return new Date(now + val*86400*1000);
+  if(unit==='months'){var d=new Date();d.setMonth(d.getMonth()+val);return d;}
+  if(unit==='years')  {var d=new Date();d.setFullYear(d.getFullYear()+val);return d;}
+  return null;
+}
+function fmtExpiry(ts){
+  if(!ts)return null;
+  var d=ts.toDate?ts.toDate():(ts instanceof Date?ts:new Date(ts.seconds?ts.seconds*1000:ts));
+  var now=Date.now();
+  var diff=d.getTime()-now;
+  if(diff<=0)return {label:'EXPIRED',cls:'expired'};
+  var h=Math.floor(diff/3600000);
+  var days=Math.floor(diff/86400000);
+  if(h<24)return {label:'~'+h+'j lagi',cls:'warn'};
+  if(days<7)return {label:days+'hr lagi',cls:'warn'};
+  return {label:d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'2-digit'}),cls:'active'};
+}
+function isExpired(k){
+  if(!k.expiresAt||!k.active)return false;
+  var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
+  return d.getTime()<Date.now();
+}
+
+/* ── Duration UI ── */
+function setDurMode(mode){
+  durMode=mode;
+  gi('durOff').className='dur-tog-btn'+(mode==='off'?' active':'');
+  gi('durOn').className='dur-tog-btn'+(mode==='on'?' active':'');
+  gi('dur-val').disabled=mode==='off';
+  gi('dur-unit').disabled=mode==='off';
+  if(mode==='off'){gi('dur-preview').className='dur-preview';gi('dur-preview').textContent='';}
+  else updateDurPreview();
+}
+function updateDurPreview(){
+  if(durMode==='off'){gi('dur-preview').className='dur-preview';return;}
+  var v=parseInt(gi('dur-val').value)||1;
+  var u=gi('dur-unit').value;
+  var labels={hours:'jam',days:'hari',months:'bulan',years:'tahun'};
+  var exp=calcExpiresAt(v,u);
+  var dstr=exp.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  gi('dur-preview').textContent='Expired: '+dstr;
+  gi('dur-preview').className='dur-preview vis';
+}
+window.setDurMode=setDurMode;
+window.updateDurPreview=updateDurPreview;
+
+/* ── Search ── */
+function onSearchInput(v){
+  keySearch=v.trim().toLowerCase();
+  gi('search-clear-btn').className='search-clear'+(keySearch?' vis':'');
+  renderKeys();
+}
+function clearSearch(){
+  gi('key-search').value='';
+  onSearchInput('');
+}
+window.onSearchInput=onSearchInput;
+window.clearSearch=clearSearch;
+
+function applySearchFilter(keys){
+  if(!keySearch)return keys;
+  return keys.filter(function(k){
+    var q=keySearch;
+    return (k.key&&k.key.toLowerCase().indexOf(q)>=0) ||
+           (k.project&&k.project.toLowerCase().indexOf(q)>=0) ||
+           (k.deviceId&&k.deviceId.toLowerCase().indexOf(q)>=0) ||
+           (k.generatedBy&&k.generatedBy.toLowerCase().indexOf(q)>=0);
+  });
+}
+
+function simpleHash(str){
+  var hash=0;
+  for(var i=0;i<str.length;i++){var ch=str.charCodeAt(i);hash=((hash<<5)-hash)+ch;hash|=0;}
+  return 'h_'+Math.abs(hash).toString(36);
 }
 function genKey(){
   var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -626,35 +671,20 @@ function copyToClipboard(text){
   else{fallbackCopy(text);}
 }
 function fallbackCopy(text){
-  var ta=document.createElement('textarea');
-  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
   document.body.appendChild(ta);ta.focus();ta.select();
   try{document.execCommand('copy');}catch(e){}
   document.body.removeChild(ta);
 }
 
-/* Simple hash for password (not crypto-grade but enough for admin panel) */
-function simpleHash(str){
-  var hash=0;
-  for(var i=0;i<str.length;i++){
-    var ch=str.charCodeAt(i);
-    hash=((hash<<5)-hash)+ch;
-    hash|=0;
-  }
-  return 'h_'+Math.abs(hash).toString(36);
-}
-
 /* ═══ CONFIRM MODAL ═══ */
-function showModal(title, msg, onConfirm){
+function showModal(title,msg,onConfirm){
   gi('modal-title').textContent=title;
   gi('modal-msg').textContent=msg;
-  var acts=gi('modal-acts');
-  acts.innerHTML='';
-  var btnC=document.createElement('button');
-  btnC.className='modal-btn';btnC.textContent='Cancel';
+  var acts=gi('modal-acts');acts.innerHTML='';
+  var btnC=document.createElement('button');btnC.className='modal-btn';btnC.textContent='Cancel';
   btnC.onclick=function(){gi('modal').classList.add('hidden');};
-  var btnD=document.createElement('button');
-  btnD.className='modal-btn danger';btnD.textContent='Confirm';
+  var btnD=document.createElement('button');btnD.className='modal-btn danger';btnD.textContent='Confirm';
   btnD.onclick=function(){gi('modal').classList.add('hidden');onConfirm();};
   acts.appendChild(btnC);acts.appendChild(btnD);
   gi('modal').classList.remove('hidden');
@@ -662,24 +692,18 @@ function showModal(title, msg, onConfirm){
 
 /* ═══ TABS ═══ */
 function switchTab(tab){
-  var tabs=document.querySelectorAll('.tab');
-  var pages=document.querySelectorAll('.tab-page');
-  tabs.forEach(function(t){t.classList.toggle('active',t.getAttribute('data-tab')===tab);});
-  pages.forEach(function(p){p.classList.toggle('active',p.id==='page-'+tab);});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',t.getAttribute('data-tab')===tab);});
+  document.querySelectorAll('.tab-page').forEach(function(p){p.classList.toggle('active',p.id==='page-'+tab);});
 }
 
-/* ═══ AUTO-SETUP: Create default owner if no admins exist ═══ */
+/* ═══ AUTO-SETUP ═══ */
 function autoSetup(){
   return db.collection('admins').get().then(function(snap){
     if(snap.empty){
       return db.collection('admins').add({
-        username:'owner',
-        password:simpleHash('MDZZX@2024'),
-        name:'Owner',
-        role:'owner',
+        username:'owner',password:simpleHash('MDZZX@2024'),
+        name:'Owner',role:'owner',
         createdAt:firebase.firestore.FieldValue.serverTimestamp()
-      }).then(function(){
-        console.log('Default owner created: owner / MDZZX@2024');
       });
     }
   });
@@ -689,47 +713,22 @@ function autoSetup(){
 function adminLogin(){
   var username=gi('adm-user').value.trim().toLowerCase();
   var password=gi('adm-pass').value;
-  if(!username||!password){
-    gi('adm-err').textContent='Please fill all fields.';
-    gi('adm-err').style.display='block';
-    return;
-  }
+  if(!username||!password){gi('adm-err').textContent='Please fill all fields.';gi('adm-err').style.display='block';return;}
   var hashed=simpleHash(password);
-
-  db.collection('admins')
-    .where('username','==',username)
-    .get()
+  db.collection('admins').where('username','==',username).get()
     .then(function(snap){
-      if(snap.empty){
-        gi('adm-err').textContent='Invalid credentials. Access denied.';
-        gi('adm-err').style.display='block';
-        return;
-      }
-      var doc=snap.docs[0];
-      var data=doc.data();
-      if(data.password!==hashed){
-        gi('adm-err').textContent='Wrong password. Access denied.';
-        gi('adm-err').style.display='block';
-        return;
-      }
-      /* Success */
-      currentAdmin={id:doc.id, username:data.username, name:data.name, role:data.role};
-      localStorage.setItem('_mdz_adm', JSON.stringify(currentAdmin));
+      if(snap.empty){gi('adm-err').textContent='Invalid credentials.';gi('adm-err').style.display='block';return;}
+      var doc=snap.docs[0],data=doc.data();
+      if(data.password!==hashed){gi('adm-err').textContent='Wrong password.';gi('adm-err').style.display='block';return;}
+      currentAdmin={id:doc.id,username:data.username,name:data.name,role:data.role};
+      localStorage.setItem('_mdz_adm',JSON.stringify(currentAdmin));
       enterDashboard();
-    })
-    .catch(function(e){
-      gi('adm-err').textContent='Connection error: '+e.message;
-      gi('adm-err').style.display='block';
-    });
+    }).catch(function(e){gi('adm-err').textContent='Connection error: '+e.message;gi('adm-err').style.display='block';});
 }
 gi('adm-pass').addEventListener('keydown',function(e){if(e.key==='Enter')adminLogin();});
 gi('adm-user').addEventListener('keydown',function(e){if(e.key==='Enter')gi('adm-pass').focus();});
 
-function adminLogout(){
-  currentAdmin=null;
-  localStorage.removeItem('_mdz_adm');
-  location.reload();
-}
+function adminLogout(){currentAdmin=null;localStorage.removeItem('_mdz_adm');location.reload();}
 
 function enterDashboard(){
   gi('login-page').classList.add('hide');
@@ -741,142 +740,151 @@ function enterDashboard(){
     gi('tb-uname').textContent=name;
     var roleEl=gi('tb-role');
     if(roleEl){roleEl.textContent=currentAdmin.role==='owner'?'OWNER':'ADMIN';roleEl.className='tb-role '+(currentAdmin.role||'admin');}
-    if(currentAdmin.role!=='owner'){
-      var f=gi('add-admin-form');if(f)f.style.display='none';
-    }
+    if(currentAdmin.role!=='owner'){var f=gi('add-admin-form');if(f)f.style.display='none';}
     loadAll();
     startRealtimeListeners();
+    /* run expiry check after data loads */
+    setTimeout(checkExpiredKeys,3500);
+    /* periodic check every 5 minutes */
+    setInterval(checkExpiredKeys,300000);
   },400);
 }
 
-/* ═══ CHECK SAVED SESSION ═══ */
 function checkSaved(){
   var saved=JSON.parse(localStorage.getItem('_mdz_adm')||'null');
-  if(!saved||!saved.id) return;
-  /* Validate admin still exists in Firestore */
+  if(!saved||!saved.id)return;
   db.collection('admins').doc(saved.id).get().then(function(snap){
     if(snap.exists){
       var data=snap.data();
-      currentAdmin={id:snap.id, username:data.username, name:data.name, role:data.role};
-      localStorage.setItem('_mdz_adm', JSON.stringify(currentAdmin));
+      currentAdmin={id:snap.id,username:data.username,name:data.name,role:data.role};
+      localStorage.setItem('_mdz_adm',JSON.stringify(currentAdmin));
       enterDashboard();
-    } else {
-      localStorage.removeItem('_mdz_adm');
-    }
+    } else {localStorage.removeItem('_mdz_adm');}
   }).catch(function(){});
 }
 
-/* ═══ LOAD ALL ═══ */
-function loadAll(){
-  loadProjects();
-  loadKeys();
-  loadSessions();
-  /* admins loaded via realtime listener */
+/* ═══ AUTO EXPIRED KEY CHECKER ═══ */
+function checkExpiredKeys(){
+  var now=Date.now();
+  var toRevoke=allKeys.filter(function(k){
+    if(!k.active||!k.expiresAt)return false;
+    var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
+    return d.getTime()<now;
+  });
+  /* revoke all expired */
+  if(toRevoke.length){
+    var promises=toRevoke.map(function(k){
+      return db.collection('keys').doc(k._id).update({active:false}).then(function(){
+        pushActivity('expire','Key <b>'+k.key+'</b> auto-expired dan di-revoke');
+        toast('Key expired: '+k.key,'w',3000);
+      });
+    });
+    Promise.all(promises).catch(function(){});
+  }
+  /* warn about keys expiring in next 24h */
+  var expiring24h=allKeys.filter(function(k){
+    if(!k.active||!k.expiresAt)return false;
+    var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
+    var diff=d.getTime()-now;
+    return diff>0&&diff<86400000;
+  });
+  var banner=gi('expire-banner'),bannerTxt=gi('expire-banner-txt');
+  var expStat=gi('s-expiring');
+  if(expStat)expStat.textContent=expiring24h.length||0;
+  if(expiring24h.length&&banner){
+    bannerTxt.textContent=expiring24h.length+' key akan expired dalam 24 jam ke depan.';
+    banner.className='expire-banner vis';
+  } else if(banner){
+    banner.className='expire-banner';
+  }
 }
 
-/* ═══ PROJECTS ═══ */
+/* ═══ LOAD ALL ═══ */
+function loadAll(){loadProjects();loadKeys();loadSessions();}
+
+/* ═══ PROJECTS — PRIVATE EXTREME REMOVED ═══ */
 function loadProjects(){
   db.collection('projects').orderBy('name').get().then(function(snap){
     allProjects=[];
-    snap.forEach(function(doc){
-      allProjects.push({id:doc.id, name:doc.data().name});
-    });
-    /* Ensure default projects exist */
+    snap.forEach(function(doc){allProjects.push({id:doc.id,name:doc.data().name});});
+
+    /* Hapus PRIVATE EXTREME jika masih ada di Firestore */
+    allProjects.filter(function(p){return p.name==='PRIVATE EXTREME';})
+      .forEach(function(p){
+        db.collection('projects').doc(p.id).delete().catch(function(){});
+      });
+    allProjects=allProjects.filter(function(p){return p.name!=='PRIVATE EXTREME';});
+
     var defaultProjects=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE'];
     var existing=allProjects.map(function(p){return p.name;});
     var missing=defaultProjects.filter(function(n){return existing.indexOf(n)<0;});
     if(missing.length){
-      var adds=missing.map(function(n){
-        return db.collection('projects').add({name:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-      });
+      var adds=missing.map(function(n){return db.collection('projects').add({name:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});});
       Promise.all(adds).then(function(){loadProjects();});
       if(!allProjects.length)return;
     }
-    renderProjects();
-    renderProjectSelect();
-    renderKeyFilters();
-    renderSessFilters();
+    renderProjects();renderProjectSelect();renderKeyFilters();renderSessFilters();
   }).catch(function(e){toast('Error loading projects: '+e.message,'e');});
 }
 
 function renderProjects(){
-  var html='';
   gi('proj-count').textContent=allProjects.length+' projects';
-  if(!allProjects.length){html='<div class="empty">No projects yet.</div>';}
-  else {
-    allProjects.forEach(function(p){
-      var all=allKeys.filter(function(k){return k.project===p.name;});
-      var act=all.filter(function(k){return k.active;}).length;
-      var used=all.filter(function(k){return k.used&&k.active;}).length;
-      var letter=p.name.charAt(0);
-      html+='<div class="proj-row">';
-      html+='<div class="proj-ico">'+letter+'</div>';
-      html+='<span class="proj-name">'+p.name+'</span>';
-      html+='<div class="proj-stats">';
-      html+='<span class="proj-stat total">'+all.length+' keys</span>';
-      html+='<span class="proj-stat active">'+act+' active</span>';
-      html+='<span class="proj-stat used">'+used+' used</span>';
-      html+='</div>';
-      if(currentAdmin.role==='owner'){
-        html+='<button class="btn-act btn-revoke" onclick="deleteProject(\''+p.id+'\',\''+p.name+'\')">DEL</button>';
-      }
-      html+='</div>';
-    });
-  }
+  if(!allProjects.length){gi('proj-list').innerHTML='<div class="empty">No projects yet.</div>';return;}
+  var html='';
+  allProjects.forEach(function(p){
+    var all=allKeys.filter(function(k){return k.project===p.name;});
+    var act=all.filter(function(k){return k.active;}).length;
+    var used=all.filter(function(k){return k.used&&k.active;}).length;
+    html+='<div class="proj-row">';
+    html+='<div class="proj-ico">'+p.name.charAt(0)+'</div>';
+    html+='<span class="proj-name">'+p.name+'</span>';
+    html+='<div class="proj-stats">';
+    html+='<span class="proj-stat total">'+all.length+' keys</span>';
+    html+='<span class="proj-stat active">'+act+' active</span>';
+    html+='<span class="proj-stat used">'+used+' used</span>';
+    html+='</div>';
+    if(currentAdmin.role==='owner'){
+      html+='<button class="btn-act btn-revoke" onclick="deleteProject(\''+p.id+'\',\''+p.name+'\')">DEL</button>';
+    }
+    html+='</div>';
+  });
   gi('proj-list').innerHTML=html;
 }
 
 function renderProjectSelect(){
-  var sel=gi('gen-project');
-  sel.innerHTML='';
-  allProjects.forEach(function(p){
-    var opt=document.createElement('option');
-    opt.value=p.name;opt.textContent=p.name;
-    sel.appendChild(opt);
-  });
+  var sel=gi('gen-project');sel.innerHTML='';
+  allProjects.forEach(function(p){var opt=document.createElement('option');opt.value=p.name;opt.textContent=p.name;sel.appendChild(opt);});
 }
 
 function addProject(){
   var name=gi('new-proj').value.trim().toUpperCase();
   if(!name){toast('Enter project name','e');return;}
-  /* Check duplicate */
-  var exists=allProjects.some(function(p){return p.name===name;});
-  if(exists){toast('Project already exists','e');return;}
-  db.collection('projects').add({
-    name:name,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function(){
-    gi('new-proj').value='';
-    toast('Project "'+name+'" created!','s');
-    loadProjects();
-  }).catch(function(e){toast('Error: '+e.message,'e');});
+  if(name==='PRIVATE EXTREME'){toast('Nama project tidak diizinkan','e');return;}
+  if(allProjects.some(function(p){return p.name===name;})){toast('Project already exists','e');return;}
+  db.collection('projects').add({name:name,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){gi('new-proj').value='';toast('Project "'+name+'" created!','s');loadProjects();})
+    .catch(function(e){toast('Error: '+e.message,'e');});
 }
 
-function deleteProject(id, name){
+function deleteProject(id,name){
   if(currentAdmin.role!=='owner'){toast('Only owner can delete projects','e');return;}
-  showModal('DELETE PROJECT','Delete "'+name+'"? Keys under this project will remain but become unlinked.',function(){
-    db.collection('projects').doc(id).delete().then(function(){
-      toast('Project deleted','s');
-      loadProjects();
-    }).catch(function(e){toast('Error: '+e.message,'e');});
+  showModal('DELETE PROJECT','Delete "'+name+'"? Keys tetap ada tapi tidak terhubung ke project.',function(){
+    db.collection('projects').doc(id).delete().then(function(){toast('Project deleted','s');loadProjects();})
+      .catch(function(e){toast('Error: '+e.message,'e');});
   });
 }
 
 /* ═══ KEY FILTERS ═══ */
 function renderKeyFilters(){
   var html='<button class="filter-chip'+(keyFilter==='ALL'?' active':'')+'" onclick="setKeyFilter(\'ALL\')">ALL</button>';
-  allProjects.forEach(function(p){
-    html+='<button class="filter-chip'+(keyFilter===p.name?' active':'')+'" onclick="setKeyFilter(\''+p.name+'\')">'+p.name+'</button>';
-  });
+  allProjects.forEach(function(p){html+='<button class="filter-chip'+(keyFilter===p.name?' active':'')+'" onclick="setKeyFilter(\''+p.name+'\')">'+p.name+'</button>';});
   gi('key-filters').innerHTML=html;
 }
 function setKeyFilter(f){keyFilter=f;renderKeyFilters();renderKeys();}
 
 function renderSessFilters(){
   var html='<button class="filter-chip'+(sessFilter==='ALL'?' active':'')+'" onclick="setSessFilter(\'ALL\')">ALL</button>';
-  allProjects.forEach(function(p){
-    html+='<button class="filter-chip'+(sessFilter===p.name?' active':'')+'" onclick="setSessFilter(\''+p.name+'\')">'+p.name+'</button>';
-  });
+  allProjects.forEach(function(p){html+='<button class="filter-chip'+(sessFilter===p.name?' active':'')+'" onclick="setSessFilter(\''+p.name+'\')">'+p.name+'</button>';});
   gi('sess-filters').innerHTML=html;
 }
 function setSessFilter(f){sessFilter=f;renderSessFilters();renderSessions();}
@@ -885,33 +893,58 @@ function setSessFilter(f){sessFilter=f;renderSessFilters();renderSessions();}
 function loadKeys(){
   db.collection('keys').orderBy('createdAt','desc').get().then(function(snap){
     allKeys=[];
-    snap.forEach(function(doc){
-      var d=doc.data();d._id=doc.id;
-      allKeys.push(d);
-    });
-    renderKeys();
-    renderProjects(); // update project key counts
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
+    renderKeys();renderProjects();checkExpiredKeys();
   }).catch(function(e){toast('Error loading keys: '+e.message,'e');});
 }
 
 function renderKeys(){
   var filtered=keyFilter==='ALL'?allKeys:allKeys.filter(function(k){return k.project===keyFilter;});
-  gi('key-count').textContent=filtered.length+' keys';
+  filtered=applySearchFilter(filtered);
+
+  gi('key-count').textContent=allKeys.length+' keys';
   gi('s-total').textContent=allKeys.length;
 
+  /* search count hint */
+  var sc=gi('search-count');
+  if(keySearch&&sc)sc.textContent=filtered.length+' hasil';
+  else if(sc)sc.textContent='';
+
   if(!filtered.length){
-    gi('keys-list').innerHTML='<div class="empty">No keys found.</div>';
+    gi('keys-list').innerHTML='<div class="empty">'+(keySearch?'Tidak ada key yang cocok.':'No keys found.')+'</div>';
     return;
   }
   var html='';
   filtered.forEach(function(d){
-    var statusClass=!d.active?'revoked':(d.used?'used':'unused');
-    var statusLabel=!d.active?'REVOKED':(d.used?'IN USE':'AVAILABLE');
+    var expired=isExpired(d);
+    var statusClass=!d.active?(expired?'expired':'revoked'):(d.used?'used':'unused');
+    var statusLabel=!d.active?(expired?'EXPIRED':'REVOKED'):(d.used?'IN USE':'AVAILABLE');
+    var expInfo=d.expiresAt?fmtExpiry(d.expiresAt):null;
+
+    /* highlight search match */
+    var keyDisplay=d.key||'—';
+    if(keySearch&&keyDisplay.toLowerCase().indexOf(keySearch)>=0){
+      var re=new RegExp('('+keySearch.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+      keyDisplay=keyDisplay.replace(re,'<span style="background:rgba(224,18,18,.25);border-radius:2px;padding:0 1px;">$1</span>');
+    }
+
     html+='<div class="key-row">';
-    html+='<div class="key-val">'+(d.key||'—')+'<span class="key-proj">'+(d.project||'—')+'</span><span class="key-time">'+fmtTime(d.createdAt)+'</span></div>';
+    html+='<div class="key-main">';
+    html+='<span class="key-val">'+keyDisplay+'</span>';
+    html+='<div class="key-meta">';
+    html+='<span class="key-proj-tag">'+(d.project||'—')+'</span>';
+    html+='<span class="key-time">'+fmtTime(d.createdAt)+'</span>';
+    if(expInfo){
+      html+='<span class="key-expiry '+expInfo.cls+'">'+expInfo.label+'</span>';
+    } else if(d.expiresAt===undefined||d.expiresAt===null) {
+      html+='<span class="key-expiry none">TANPA BATAS</span>';
+    }
+    if(d.deviceId){html+='<span class="key-time" style="color:rgba(255,255,255,.2);font-size:6.5px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="'+d.deviceId+'">DEV:'+d.deviceId.substr(-8)+'</span>';}
+    html+='</div>';
+    html+='</div>';
     html+='<span class="key-status '+statusClass+'">'+statusLabel+'</span>';
     html+='<button class="btn-act btn-copy" onclick="copyKey(\''+d.key+'\')">COPY</button>';
-    if(d.active){
+    if(d.active&&!expired){
       html+='<button class="btn-act btn-revoke" onclick="revokeKey(\''+d._id+'\')">REVOKE</button>';
     }
     html+='</div>';
@@ -924,31 +957,40 @@ function generateKeys(){
   if(qty<1)qty=1;if(qty>50)qty=50;
   var project=gi('gen-project').value;
   if(!project){toast('Select a project first','e');return;}
-  var generated=[];
-  var promises=[];
+
+  /* build expiry */
+  var expiresAt=null;
+  if(durMode==='on'){
+    var v=parseInt(gi('dur-val').value)||1;
+    var u=gi('dur-unit').value;
+    expiresAt=calcExpiresAt(v,u);
+    if(!expiresAt){toast('Durasi tidak valid','e');return;}
+  }
+
+  var generated=[],promises=[];
   for(var i=0;i<qty;i++){
     var key=genKey();
     generated.push(key);
-    promises.push(db.collection('keys').add({
-      key:key,
-      project:project,
-      active:true,
-      used:false,
+    var doc={
+      key:key,project:project,active:true,used:false,
       deviceId:null,
       createdAt:firebase.firestore.FieldValue.serverTimestamp(),
       usedAt:null,
-      generatedBy:currentAdmin.username
-    }));
+      generatedBy:currentAdmin.username,
+      expiresAt:expiresAt?firebase.firestore.Timestamp.fromDate(expiresAt):null
+    };
+    promises.push(db.collection('keys').add(doc));
   }
   Promise.all(promises).then(function(){
-    toast(qty+' key'+(qty>1?'s':'')+' generated for '+project+'!','s');
+    var expInfo=expiresAt?(' | Expired: '+expiresAt.toLocaleDateString('id-ID')):'';
+    toast(qty+' key dibuat untuk '+project+expInfo,'s',3000);
     if(qty===1){copyToClipboard(generated[0]);toast('Key copied!','i',1400);}
-    pushActivity('key',qty+' key baru dibuat untuk <b>'+project+'</b> oleh <b>'+currentAdmin.name+'</b>');
+    pushActivity('key',qty+' key baru untuk <b>'+project+'</b>'+(expiresAt?' (exp '+expiresAt.toLocaleDateString('id-ID')+')':' (tanpa batas)')+ ' oleh <b>'+currentAdmin.name+'</b>');
   }).catch(function(e){toast('Error: '+e.message,'e');});
 }
 
 function revokeKey(keyId){
-  showModal('REVOKE KEY','Revoke this key? The user will lose access immediately.',function(){
+  showModal('REVOKE KEY','Revoke key ini? User akan kehilangan akses segera.',function(){
     var k=allKeys.find(function(x){return x._id===keyId;});
     db.collection('keys').doc(keyId).update({active:false}).then(function(){
       toast('Key revoked.','s');
@@ -963,34 +1005,24 @@ function copyKey(key){copyToClipboard(key);toast('Copied: '+key,'s',1800);}
 function loadSessions(){
   db.collection('sessions').orderBy('lastSeen','desc').get().then(function(snap){
     allSessions=[];
-    snap.forEach(function(doc){
-      var d=doc.data();d._id=doc.id;
-      allSessions.push(d);
-    });
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allSessions.push(d);});
     renderSessions();
   }).catch(function(e){toast('Error loading sessions: '+e.message,'e');});
 }
 
 function renderSessions(){
-  /* Find project for each session by matching key */
   var filtered=allSessions;
   if(sessFilter!=='ALL'){
     filtered=allSessions.filter(function(s){
       var k=allKeys.find(function(k){return k.key===s.key;});
-      return k && k.project===sessFilter;
+      return k&&k.project===sessFilter;
     });
   }
-
-  var online=0, offline=0;
+  var online=0,offline=0;
   allSessions.forEach(function(s){if(s.online)online++;else offline++;});
   gi('s-online').textContent=online;
-  gi('s-offline').textContent=offline;
   gi('sess-count').textContent=filtered.length+' users';
-
-  if(!filtered.length){
-    gi('sess-list').innerHTML='<div class="empty">No users found.</div>';
-    return;
-  }
+  if(!filtered.length){gi('sess-list').innerHTML='<div class="empty">No users found.</div>';return;}
   var html='';
   filtered.forEach(function(d){
     var isOnline=d.online===true;
@@ -1015,7 +1047,6 @@ var allAdmins=[];
 function renderAdmins(){
   gi('admin-count').textContent=allAdmins.length+' admins';
   gi('s-admins').textContent=allAdmins.length;
-  /* tab dot if >1 admin */
   var dot=gi('tab-dot-team');if(dot)dot.style.display=allAdmins.length>1?'block':'none';
   if(!allAdmins.length){gi('admin-list').innerHTML='<div class="empty">No admins.</div>';return;}
   var html='';
@@ -1029,7 +1060,7 @@ function renderAdmins(){
     html+='<span class="admin-joined">Joined: '+fmtTime(d.createdAt)+'</span>';
     html+='</div>';
     html+='<span class="role-tag '+(d.role||'admin')+'">'+(d.role||'ADMIN').toUpperCase()+'</span>';
-    if(currentAdmin.role==='owner' && d._id!==currentAdmin.id){
+    if(currentAdmin.role==='owner'&&d._id!==currentAdmin.id){
       html+='<button class="btn-act btn-revoke" onclick="removeAdmin(\''+d._id+'\',\''+d.username+'\')">REMOVE</button>';
     }
     html+='</div>';
@@ -1039,9 +1070,7 @@ function renderAdmins(){
 
 function addAdmin(){
   if(currentAdmin.role!=='owner'){toast('Only owner can add admins','e');return;}
-  var name=gi('new-name').value.trim();
-  var username=gi('new-user').value.trim().toLowerCase();
-  var password=gi('new-pass').value;
+  var name=gi('new-name').value.trim(),username=gi('new-user').value.trim().toLowerCase(),password=gi('new-pass').value;
   if(!name||!username||!password){toast('Fill all fields','e');return;}
   if(password.length<6){toast('Password min 6 chars','e');return;}
   db.collection('admins').where('username','==',username).get().then(function(snap){
@@ -1059,7 +1088,7 @@ function addAdmin(){
 
 function removeAdmin(id,username){
   if(currentAdmin.role!=='owner'){toast('Only owner can remove admins','e');return;}
-  showModal('REMOVE ADMIN','Remove @'+username+' from the team?',function(){
+  showModal('REMOVE ADMIN','Remove @'+username+' dari team?',function(){
     db.collection('admins').doc(id).delete().then(function(){
       toast('Admin removed','s');
       pushActivity('revoke','Admin @'+username+' dihapus dari team');
@@ -1071,7 +1100,7 @@ function removeAdmin(id,username){
 var activityLog=[];
 function pushActivity(type,text){
   activityLog.unshift({type:type,text:text,time:Date.now()});
-  if(activityLog.length>50)activityLog.pop();
+  if(activityLog.length>60)activityLog.pop();
   renderActivity();
 }
 function renderActivity(){
@@ -1091,8 +1120,6 @@ function renderActivity(){
 
 /* ═══ REALTIME LISTENERS ═══ */
 function startRealtimeListeners(){
-
-  /* ── SESSIONS realtime ── */
   db.collection('sessions').onSnapshot(function(snap){
     allSessions=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allSessions.push(d);});
@@ -1101,7 +1128,6 @@ function startRealtimeListeners(){
     gi('tab-dot-users').style.display=online>0?'block':'none';
   },function(){});
 
-  /* ── KEYS realtime ── */
   db.collection('keys').onSnapshot(function(snap,change){
     allKeys=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
@@ -1110,9 +1136,7 @@ function startRealtimeListeners(){
       var tb=b.createdAt?b.createdAt.toMillis?b.createdAt.toMillis():0:0;
       return tb-ta;
     });
-    renderKeys();
-    renderProjects();
-    /* log changes */
+    renderKeys();renderProjects();checkExpiredKeys();
     if(change){
       change.docChanges().forEach(function(ch){
         var d=ch.doc.data();
@@ -1123,7 +1147,6 @@ function startRealtimeListeners(){
     }
   },function(){});
 
-  /* ── ADMINS realtime ── */
   db.collection('admins').orderBy('createdAt').onSnapshot(function(snap,change){
     allAdmins=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdmins.push(d);});
@@ -1131,12 +1154,11 @@ function startRealtimeListeners(){
     if(change){
       change.docChanges().forEach(function(ch){
         var d=ch.doc.data();
-        if(ch.type==='added'&&d.username)pushActivity('login','Admin <b>'+(d.name||d.username)+'</b> bergabung ke team');
+        if(ch.type==='added'&&d.username)pushActivity('login','Admin <b>'+(d.name||d.username)+'</b> bergabung');
         if(ch.type==='removed')pushActivity('revoke','Satu admin dihapus dari team');
       });
     }
   },function(){
-    /* fallback if orderBy fails */
     db.collection('admins').onSnapshot(function(snap){
       allAdmins=[];
       snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdmins.push(d);});
@@ -1144,7 +1166,6 @@ function startRealtimeListeners(){
     },function(){});
   });
 
-  /* ── SESSIONS for activity ── */
   db.collection('sessions').onSnapshot(function(snap,change){
     if(change){
       change.docChanges().forEach(function(ch){
@@ -1157,11 +1178,7 @@ function startRealtimeListeners(){
 }
 
 /* ═══ INIT ═══ */
-autoSetup().then(function(){
-  checkSaved();
-}).catch(function(){
-  checkSaved();
-});
+autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
 </script>
 </body>
 </html>
