@@ -235,6 +235,127 @@ body.mobile-mode .nav-drawer{display:block;}
   margin-top:28px;font-family:var(--mono);font-size:8px;
   color:var(--t3);text-align:center;line-height:1.6;
 }
+
+/* ══ PRODUCT DELIVERY PAGES ══ */
+.api-cfg{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;margin-bottom:16px;
+  background:rgba(56,189,248,.04);border:1px solid var(--bdr);
+  border-radius:12px;flex-wrap:wrap;
+}
+.api-cfg label{font-family:var(--hud);font-size:7.5px;letter-spacing:2px;color:var(--t2);white-space:nowrap;}
+.api-cfg input{
+  flex:1;min-width:160px;background:rgba(56,189,248,.05);
+  border:1px solid var(--bdr);border-radius:8px;
+  padding:7px 12px;color:var(--t1);font-family:var(--mono);font-size:11px;
+  outline:none;letter-spacing:.4px;
+}
+.api-cfg input:focus{border-color:var(--sky2);}
+
+.upload-zone{
+  border:2px dashed rgba(56,189,248,.2);border-radius:16px;
+  padding:40px 20px;text-align:center;cursor:pointer;
+  transition:all .2s;background:rgba(56,189,248,.025);
+  position:relative;overflow:hidden;
+}
+.upload-zone:hover,.upload-zone.dragover{
+  border-color:rgba(56,189,248,.5);
+  background:rgba(56,189,248,.07);
+}
+.upload-zone input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.upload-ico{
+  width:56px;height:56px;border-radius:16px;
+  background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 14px;
+}
+.upload-ico svg{width:26px;height:26px;stroke:var(--sky2);fill:none;stroke-width:1.5;stroke-linecap:round;}
+.upload-title{font-family:var(--hud);font-size:11px;color:var(--t1);letter-spacing:1px;margin-bottom:6px;}
+.upload-sub{font-family:var(--mono);font-size:9px;color:var(--t2);}
+.upload-selected{
+  margin-top:14px;padding:10px 14px;border-radius:10px;
+  background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);
+  font-family:var(--mono);font-size:10px;color:#34d399;display:none;
+}
+.upload-selected.vis{display:block;}
+
+.prod-file-row{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;border-bottom:1px solid var(--bdr3);
+}
+.prod-file-row:last-child{border-bottom:none;}
+.pf-ico{
+  width:38px;height:38px;flex-shrink:0;border-radius:10px;
+  background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.12);
+  display:flex;align-items:center;justify-content:center;
+}
+.pf-ico svg{width:18px;height:18px;stroke:var(--sky2);fill:none;stroke-width:1.5;stroke-linecap:round;}
+.pf-info{flex:1;min-width:0;}
+.pf-name{font-family:var(--mono);font-size:11px;color:var(--t1);display:block;}
+.pf-size{font-family:var(--mono);font-size:8px;color:var(--t2);display:block;margin-top:2px;}
+
+.send-form{display:flex;flex-direction:column;gap:14px;}
+.sf-field{display:flex;flex-direction:column;gap:6px;}
+.sf-label{font-family:var(--hud);font-size:7.5px;letter-spacing:2px;color:var(--t2);}
+.sf-input{
+  background:rgba(56,189,248,.04);border:1px solid var(--bdr);
+  border-radius:12px;padding:13px 16px;color:var(--t1);
+  font-family:var(--mono);font-size:13px;letter-spacing:.4px;
+  outline:none;transition:border-color .18s;
+}
+.sf-input:focus{border-color:var(--sky2);}
+.sf-select{
+  background:rgba(56,189,248,.04);border:1px solid var(--bdr);
+  border-radius:12px;padding:13px 16px;color:var(--t1);
+  font-family:var(--mono);font-size:12px;
+  outline:none;-webkit-appearance:none;cursor:pointer;
+}
+.sf-select:focus{border-color:var(--sky2);}
+.sf-select option{background:#0d1e38;color:var(--t1);}
+
+.send-result{
+  padding:16px;border-radius:14px;display:none;animation:fbin .22s ease;
+}
+.send-result.ok{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.22);}
+.send-result.err{background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.22);}
+.send-result.vis{display:block;}
+.sr-title{font-family:var(--hud);font-size:9px;font-weight:700;letter-spacing:1.5px;margin-bottom:8px;}
+.ok .sr-title{color:#34d399;}.err .sr-title{color:#fb7185;}
+.sr-body{font-family:var(--mono);font-size:10px;color:var(--t4);line-height:1.7;}
+.sr-key{
+  margin-top:10px;padding:10px 12px;border-radius:9px;
+  background:rgba(0,0,0,.25);font-family:var(--mono);font-size:9.5px;
+  color:var(--sky2);word-break:break-all;letter-spacing:.5px;
+}
+
+.send-history{max-height:320px;overflow-y:auto;scrollbar-width:none;}
+.send-history::-webkit-scrollbar{display:none;}
+.sh-row{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:11px 16px;border-bottom:1px solid var(--bdr3);
+}
+.sh-row:last-child{border-bottom:none;}
+.sh-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.sh-dot.ok{background:#34d399;box-shadow:0 0 6px rgba(52,211,153,.5);}
+.sh-dot.err{background:#fb7185;box-shadow:0 0 6px rgba(251,113,133,.5);}
+.sh-info{flex:1;min-width:0;}
+.sh-email{font-family:var(--mono);font-size:10px;color:var(--t1);display:block;}
+.sh-meta{font-family:var(--mono);font-size:8px;color:var(--t2);margin-top:2px;}
+.sh-time{font-family:var(--mono);font-size:7.5px;color:var(--t3);flex-shrink:0;}
+
+.progress-bar-wrap{
+  width:100%;height:4px;background:rgba(255,255,255,.05);
+  border-radius:2px;overflow:hidden;margin-top:10px;display:none;
+}
+.progress-bar-wrap.vis{display:block;}
+.progress-bar-fill{
+  height:100%;width:0%;border-radius:2px;
+  background:linear-gradient(90deg,#1d4ed8,var(--sky),var(--sky2));
+  transition:width .3s ease;
+}
+
+@keyframes fbin{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:none;}}
 </style>
 <head>
 <meta charset="UTF-8"/>
@@ -1187,6 +1308,16 @@ body.sb-open{overflow:hidden;}
       </div>
 
       <div class="sb-section-label">SYSTEM</div>
+      <div class="nav-item" onclick="navTo('products')" id="nav-products">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+        <span class="nav-item-label">Products</span>
+        <span class="nav-badge" id="nb-products-upload">Files</span>
+      </div>
+      <div class="nav-item" onclick="navTo('send')" id="nav-send">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+        <span class="nav-item-label">Kirim Produk</span>
+        <span class="nav-badge" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.22);color:#34d399;" id="nb-send-count">0</span>
+      </div>
       <div class="nav-item" onclick="navTo('team')" id="nav-team">
         <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
         <span class="nav-item-label">Team</span>
@@ -1570,6 +1701,193 @@ body.sb-open{overflow:hidden;}
         </div>
       </div>
 
+
+      <!-- ══ PAGE: PRODUCTS (OWNER ONLY) ══ -->
+      <div class="page" id="page-products">
+        <div class="page-header">
+          <div>
+            <span class="page-title">Products — File Manager</span>
+            <span class="page-sub">SUPABASE STORAGE · BUCKET: products · OWNER ONLY</span>
+          </div>
+          <div class="page-actions">
+            <div class="rt-badge" id="storage-status">
+              <span class="odot g" style="width:5px;height:5px;display:inline-block;border-radius:50%;margin-right:3px;"></span>
+              SUPABASE STORAGE
+            </div>
+          </div>
+        </div>
+
+        <!-- Owner only notice -->
+        <div id="products-owner-gate" style="display:none;">
+          <div style="padding:28px;text-align:center;background:var(--card);border:1px solid rgba(244,63,94,.18);border-radius:16px;margin-bottom:16px;">
+            <div style="font-family:var(--hud);font-size:11px;color:#fb7185;letter-spacing:1px;margin-bottom:8px;">AKSES TERBATAS</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--t2);">Halaman Products hanya dapat diakses oleh Owner.</div>
+          </div>
+        </div>
+
+        <div id="products-owner-content">
+          <!-- API Config -->
+          <div class="api-cfg">
+            <label>BACKEND URL</label>
+            <input type="text" id="api-url" value="http://localhost:3000" placeholder="https://yourserver.com"/>
+            <label>ADMIN KEY</label>
+            <input type="password" id="api-key" value="mdzz_admin_2024" placeholder="admin secret key"/>
+            <button class="btn btn-secondary btn-sm" onclick="testBackend()">
+              <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              TEST
+            </button>
+          </div>
+          <div id="backend-status" style="display:none;margin-bottom:12px;padding:9px 14px;border-radius:10px;font-family:var(--mono);font-size:9px;"></div>
+
+          <!-- Upload Zone -->
+          <div class="section" style="margin-bottom:14px;">
+            <div class="section-head">
+              <span class="section-title">UPLOAD FILE .ZIP</span>
+              <span class="section-badge">max 200MB</span>
+            </div>
+            <div style="padding:16px;">
+              <div class="upload-zone" id="upload-zone">
+                <input type="file" id="upload-file" accept=".zip" onchange="onFileSelect(this)"/>
+                <div class="upload-ico">
+                  <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <div class="upload-title">DROP .ZIP DISINI</div>
+                <div class="upload-sub">atau klik untuk pilih file</div>
+              </div>
+              <div class="upload-selected" id="upload-selected"></div>
+
+              <div style="display:flex;gap:10px;align-items:flex-end;margin-top:14px;flex-wrap:wrap;">
+                <div class="sf-field" style="flex:1;min-width:160px;">
+                  <label class="sf-label">NAMA FILE DI STORAGE (tanpa .zip)</label>
+                  <input type="text" id="upload-filename" class="sf-input" placeholder="zx-private" autocomplete="off"/>
+                </div>
+                <button class="btn btn-primary" onclick="doUpload()" id="btn-upload" style="align-self:flex-end;">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  UPLOAD
+                </button>
+              </div>
+              <div class="progress-bar-wrap" id="upload-progress">
+                <div class="progress-bar-fill" id="upload-progress-fill"></div>
+              </div>
+              <div id="upload-result" class="send-result" style="margin-top:12px;"></div>
+            </div>
+          </div>
+
+          <!-- File List -->
+          <div class="section">
+            <div class="section-head">
+              <span class="section-title">FILE DI BUCKET</span>
+              <div class="section-actions">
+                <span class="section-badge" id="file-count-badge">0 files</span>
+                <button class="btn btn-secondary btn-sm" onclick="loadProductFiles()">
+                  <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  REFRESH
+                </button>
+              </div>
+            </div>
+            <div id="product-files-list"><div class="empty">Klik REFRESH untuk memuat daftar file.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: KIRIM PRODUK (ALL ROLES) ══ -->
+      <div class="page" id="page-send">
+        <div class="page-header">
+          <div>
+            <span class="page-title">Kirim Produk</span>
+            <span class="page-sub">SUPABASE SIGNED URL · RESEND EMAIL · AUTO DELIVERY</span>
+          </div>
+          <div class="page-actions">
+            <div class="rt-badge">
+              <svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:#34d399;fill:none;stroke-width:2;stroke-linecap:round;margin-right:3px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              AUTO DELIVERY
+            </div>
+          </div>
+        </div>
+
+        <!-- API Config (shared with products page) -->
+        <div class="api-cfg">
+          <label>BACKEND URL</label>
+          <input type="text" id="api-url-send" value="http://localhost:3000" placeholder="https://yourserver.com"/>
+          <label>ADMIN KEY</label>
+          <input type="password" id="api-key-send" value="mdzz_admin_2024" placeholder="admin secret"/>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="chart-grid-2">
+          <!-- Send Form -->
+          <div class="section">
+            <div class="section-head">
+              <span class="section-title">KIRIM KE PEMBELI</span>
+              <span class="section-badge">Signed URL 15 menit</span>
+            </div>
+            <div style="padding:18px;">
+              <div class="send-form">
+                <div class="sf-field">
+                  <label class="sf-label">EMAIL PEMBELI</label>
+                  <input type="email" id="sf-email" class="sf-input" placeholder="buyer@email.com" autocomplete="off"/>
+                </div>
+                <div class="sf-field">
+                  <label class="sf-label">PILIH PRODUK</label>
+                  <select id="sf-product" class="sf-select" onchange="onProductSelect()">
+                    <option value="">— Pilih produk —</option>
+                  </select>
+                </div>
+                <div class="sf-field">
+                  <label class="sf-label">FILE .ZIP DI STORAGE</label>
+                  <input type="text" id="sf-filename" class="sf-input" placeholder="zx-private.zip" autocomplete="off"/>
+                </div>
+                <div class="sf-field">
+                  <label class="sf-label">LICENSE KEY</label>
+                  <div style="display:flex;gap:8px;">
+                    <input type="text" id="sf-key" class="sf-input" style="flex:1;" placeholder="MDZZ-XXXX-XXXX-XXXX" autocomplete="off"/>
+                    <button class="btn btn-secondary btn-sm" onclick="autoFillKey()" style="align-self:stretch;" title="Auto-fill dari key yang tersedia">
+                      <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <button class="btn btn-primary" onclick="sendProduct()" id="btn-send" style="padding:16px;">
+                  <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  KIRIM EMAIL SEKARANG
+                </button>
+              </div>
+              <div id="send-result" class="send-result" style="margin-top:14px;"></div>
+            </div>
+          </div>
+
+          <!-- Send History -->
+          <div>
+            <div class="section" style="margin-bottom:14px;">
+              <div class="section-head">
+                <span class="section-title">RIWAYAT PENGIRIMAN</span>
+                <span class="section-badge" id="send-hist-count">0 terkirim</span>
+              </div>
+              <div class="send-history" id="send-history-list">
+                <div class="empty">Belum ada pengiriman.</div>
+              </div>
+            </div>
+
+            <!-- Info card -->
+            <div class="chart-card" style="padding:16px;">
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="font-family:var(--hud);font-size:8px;letter-spacing:2px;color:var(--t2);margin-bottom:4px;">CARA KERJA</div>
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                  <div style="width:22px;height:22px;border-radius:50%;background:rgba(37,99,235,.2);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:8px;color:var(--sky2);flex-shrink:0;">1</div>
+                  <div style="font-family:var(--mono);font-size:9px;color:var(--t2);line-height:1.5;">Backend buat <b style="color:var(--t4);">Signed URL</b> dari Supabase Storage (private bucket)</div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                  <div style="width:22px;height:22px;border-radius:50%;background:rgba(37,99,235,.2);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:8px;color:var(--sky2);flex-shrink:0;">2</div>
+                  <div style="font-family:var(--mono);font-size:9px;color:var(--t2);line-height:1.5;">Resend kirim email HTML profesional ke pembeli berisi License Key + link unduhan</div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                  <div style="width:22px;height:22px;border-radius:50%;background:rgba(37,99,235,.2);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:8px;color:var(--sky2);flex-shrink:0;">3</div>
+                  <div style="font-family:var(--mono);font-size:9px;color:var(--t2);line-height:1.5;">Link otomatis kedaluwarsa dalam <b style="color:var(--gold);">15 menit</b> — aman dari unduhan ilegal</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 
@@ -1640,6 +1958,16 @@ body.sb-open{overflow:hidden;}
         <span class="drawer-badge" id="di-badge-projects">0</span>
       </div>
       <div class="drawer-section">SYSTEM</div>
+      <div class="drawer-item" id="di-products" onclick="drawerNav('products')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Products</span><span class="drawer-item-sub">Kelola file .zip produk</span></div>
+        <span class="drawer-badge" id="di-badge-files">—</span>
+      </div>
+      <div class="drawer-item" id="di-send" onclick="drawerNav('send')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Kirim Produk</span><span class="drawer-item-sub">Email + download link</span></div>
+        <span class="drawer-badge live">EMAIL</span>
+      </div>
       <div class="drawer-item" id="di-team" onclick="drawerNav('team')">
         <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
         <div class="drawer-item-text"><span class="drawer-item-name">Team</span><span class="drawer-item-sub">Admin management</span></div>
@@ -1796,7 +2124,8 @@ function closeMobileSidebar(){
 /* ══ NAVIGATION ══ */
 var pageTitles={
   overview:'Overview',analytics:'Analytics',keys:'Key Management',
-  users:'User Sessions',projects:'Projects',team:'Admin Team',activity:'Activity Log'
+  users:'User Sessions',projects:'Projects',team:'Admin Team',activity:'Activity Log',
+  products:'Products — File Manager',send:'Kirim Produk'
 };
 
 var mobileNavPages=['overview','analytics','keys','users'];
@@ -2768,6 +3097,382 @@ enterApp = function(){
   var screen = gi('mode-select-screen');
   if(saved && screen){ screen.style.display = 'none'; }
 })();
+
+
+/* ══════════════════════════════════════════════
+   PRODUCT DELIVERY — Supabase Storage + Resend
+══════════════════════════════════════════════ */
+
+var productSendHistory = JSON.parse(localStorage.getItem('zx_send_hist') || '[]');
+var productFiles       = [];
+var selectedFile       = null;
+var sendCount          = 0;
+
+/* ── helpers ── */
+function getApiUrl()  { return (gi('api-url')  || gi('api-url-send') ).value.replace(/\/$/,''); }
+function getApiKey()  { return (gi('api-key')  || gi('api-key-send') ).value; }
+function fmtBytes(b)  { if(!b)return '—'; if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(1)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
+
+/* ── API call helper ── */
+async function apiCall(method, endpoint, body, isFormData) {
+  var url  = getApiUrl() + endpoint;
+  var key  = getApiKey();
+  var opts = {
+    method: method,
+    headers: { 'X-Admin-Key': key }
+  };
+  if (body && !isFormData) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  } else if (body && isFormData) {
+    opts.body = body; // FormData — no Content-Type, browser sets it
+  }
+  var resp = await fetch(url, opts);
+  return resp.json();
+}
+
+/* ── Test backend connection ── */
+async function testBackend() {
+  var el = gi('backend-status');
+  el.style.display = 'block';
+  el.textContent = 'Connecting...';
+  el.style.background = 'rgba(56,189,248,.07)';
+  el.style.border = '1px solid var(--bdr)';
+  el.style.color = 'var(--t2)';
+  try {
+    var data = await apiCall('GET', '/api/health');
+    if(data.success){
+      el.textContent = '✓ Backend online — Supabase: ' + (data.supabase ? 'connected' : 'missing') + ' · Resend: ' + (data.resend ? 'configured' : 'missing');
+      el.style.background = 'rgba(16,185,129,.07)';
+      el.style.border = '1px solid rgba(16,185,129,.2)';
+      el.style.color = '#34d399';
+      loadProductFiles();
+    } else throw new Error(data.message);
+  } catch(e) {
+    el.textContent = '✗ Cannot connect: ' + e.message + ' — Pastikan server.js sudah berjalan';
+    el.style.background = 'rgba(244,63,94,.07)';
+    el.style.border = '1px solid rgba(244,63,94,.2)';
+    el.style.color = '#fb7185';
+  }
+}
+window.testBackend = testBackend;
+
+/* ── Load product files from bucket ── */
+async function loadProductFiles() {
+  gi('product-files-list').innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    var data = await apiCall('GET', '/api/products');
+    if (!data.success) throw new Error(data.message);
+    productFiles = data.files || [];
+
+    var badge = gi('file-count-badge');
+    if(badge) badge.textContent = productFiles.length + ' files';
+    var dib = gi('di-badge-files');
+    if(dib) dib.textContent = productFiles.length;
+    var nbu = gi('nb-products-upload');
+    if(nbu) nbu.textContent = productFiles.length + ' files';
+
+    /* Populate send-page product select */
+    populateProductSelect();
+
+    if (!productFiles.length) {
+      gi('product-files-list').innerHTML = '<div class="empty">Bucket kosong. Upload file .zip pertama Anda.</div>';
+      return;
+    }
+    var html = '';
+    productFiles.forEach(function(f) {
+      html += '<div class="prod-file-row">';
+      html += '<div class="pf-ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--sky2)" stroke-width="1.5" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>';
+      html += '<div class="pf-info">';
+      html += '<span class="pf-name">' + f.name + '</span>';
+      html += '<span class="pf-size">' + fmtBytes(f.size) + (f.updatedAt ? ' · ' + new Date(f.updatedAt).toLocaleString('id-ID') : '') + '</span>';
+      html += '</div>';
+      html += '<button class="btn btn-secondary btn-sm" onclick="prefillSend(\''+f.name+'\')">KIRIM</button>';
+      if(currentAdmin && currentAdmin.role === 'owner'){
+        html += '<button class="btn btn-danger btn-sm" onclick="deleteFile(\''+f.name+'\')">DEL</button>';
+      }
+      html += '</div>';
+    });
+    gi('product-files-list').innerHTML = html;
+  } catch(e) {
+    gi('product-files-list').innerHTML = '<div class="empty" style="color:#fb7185;">Error: ' + e.message + '</div>';
+  }
+}
+window.loadProductFiles = loadProductFiles;
+
+/* ── Populate product dropdown ── */
+function populateProductSelect() {
+  var sel = gi('sf-product');
+  if(!sel) return;
+  var prev = sel.value;
+  sel.innerHTML = '<option value="">— Pilih produk —</option>';
+  /* From allProjects */
+  allProjects.forEach(function(p) {
+    var opt = document.createElement('option');
+    opt.value = p.name;
+    opt.textContent = p.name;
+    sel.appendChild(opt);
+  });
+  if(prev) sel.value = prev;
+}
+
+function onProductSelect() {
+  var sel = gi('sf-product');
+  var fn  = gi('sf-filename');
+  if(!sel || !fn) return;
+  if(sel.value) {
+    var slug = sel.value.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    /* Try to match a file in bucket */
+    var match = productFiles.find(function(f){ return f.name.includes(slug); });
+    fn.value = match ? match.name : slug + '.zip';
+  }
+}
+window.onProductSelect = onProductSelect;
+
+/* ── Prefill send form from product page ── */
+function prefillSend(fileName) {
+  navTo('send');
+  setTimeout(function(){
+    var fn = gi('sf-filename');
+    if(fn) fn.value = fileName;
+  }, 120);
+}
+window.prefillSend = prefillSend;
+
+/* ── Auto-fill key from unused keys ── */
+function autoFillKey() {
+  var proj = gi('sf-product');
+  var keyEl = gi('sf-key');
+  if(!proj || !keyEl) return;
+  var projName = proj.value;
+  var unused = allKeys.filter(function(k){
+    return k.active && !k.used && (!projName || k.project === projName);
+  });
+  if(!unused.length){ toast('Tidak ada key tersedia untuk produk ini','w'); return; }
+  keyEl.value = unused[0].key;
+  toast('Key auto-filled: ' + unused[0].key,'s',2000);
+}
+window.autoFillKey = autoFillKey;
+
+/* ── File select ── */
+function onFileSelect(input) {
+  var f = input.files[0];
+  if(!f) return;
+  selectedFile = f;
+  var el = gi('upload-selected');
+  el.textContent = '✓ ' + f.name + ' (' + fmtBytes(f.size) + ')';
+  el.classList.add('vis');
+  /* Suggest filename */
+  var fn = gi('upload-filename');
+  if(fn && !fn.value) {
+    fn.value = f.name.replace(/\.zip$/i,'').toLowerCase().replace(/\s+/g,'-');
+  }
+}
+window.onFileSelect = onFileSelect;
+
+/* ── Drag & drop ── */
+var zone = null;
+document.addEventListener('DOMContentLoaded', function(){
+  zone = gi('upload-zone');
+  if(!zone) return;
+  zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('dragover');});
+  zone.addEventListener('dragleave',function(){zone.classList.remove('dragover');});
+  zone.addEventListener('drop',function(e){
+    e.preventDefault();zone.classList.remove('dragover');
+    var f = e.dataTransfer.files[0];
+    if(f && f.name.endsWith('.zip')){
+      selectedFile = f;
+      var el = gi('upload-selected');
+      el.textContent = '✓ ' + f.name + ' (' + fmtBytes(f.size) + ')';
+      el.classList.add('vis');
+      var fn = gi('upload-filename');
+      if(fn && !fn.value) fn.value = f.name.replace(/\.zip$/i,'').toLowerCase().replace(/\s+/g,'-');
+    } else { toast('Hanya file .zip yang diterima','e'); }
+  });
+});
+
+/* ── Upload ── */
+async function doUpload() {
+  if(!selectedFile){ toast('Pilih file .zip terlebih dahulu','e'); return; }
+  var fileName = (gi('upload-filename').value || '').trim();
+  if(!fileName){ toast('Masukkan nama file','e'); return; }
+
+  var btn = gi('btn-upload');
+  btn.disabled = true; btn.textContent = 'UPLOADING...';
+
+  var prog = gi('upload-progress');
+  var fill = gi('upload-progress-fill');
+  var res  = gi('upload-result');
+  prog.classList.add('vis'); fill.style.width = '0%';
+  res.className = 'send-result';
+
+  /* Animate progress bar (fake — fetch doesn't expose upload progress easily) */
+  var pct = 0;
+  var piv = setInterval(function(){ pct = Math.min(pct + Math.random()*8, 88); fill.style.width = pct + '%'; }, 180);
+
+  try {
+    var fd = new FormData();
+    fd.append('file', selectedFile, selectedFile.name);
+    fd.append('fileName', fileName);
+    var data = await apiCall('POST', '/api/upload-product', fd, true);
+    clearInterval(piv); fill.style.width = '100%';
+    if(!data.success) throw new Error(data.message);
+    res.innerHTML = '<div class="sr-title">UPLOAD BERHASIL</div><div class="sr-body">' + data.message + '<br/>Ukuran: ' + fmtBytes(data.size) + '</div>';
+    res.className = 'send-result ok vis';
+    toast('File berhasil diunggah!','s',2500);
+    pushActivityFS('key', 'File <b>' + data.path + '</b> diunggah ke Supabase Storage oleh <b>' + (currentAdmin ? currentAdmin.name : 'admin') + '</b>', currentAdmin ? currentAdmin.name : 'admin');
+    setTimeout(loadProductFiles, 800);
+    selectedFile = null;
+    gi('upload-selected').classList.remove('vis');
+    gi('upload-filename').value = '';
+    if(gi('upload-file')) gi('upload-file').value = '';
+  } catch(e) {
+    clearInterval(piv); fill.style.width = '0%';
+    res.innerHTML = '<div class="sr-title">UPLOAD GAGAL</div><div class="sr-body">' + e.message + '</div>';
+    res.className = 'send-result err vis';
+    toast('Upload gagal: ' + e.message,'e',3500);
+  }
+  prog.classList.remove('vis');
+  btn.disabled = false; btn.textContent = 'UPLOAD';
+}
+window.doUpload = doUpload;
+
+/* ── Delete file ── */
+async function deleteFile(fileName) {
+  if(!confirm('Hapus "' + fileName + '" dari bucket?')) return;
+  try {
+    var data = await apiCall('DELETE', '/api/products/' + encodeURIComponent(fileName));
+    if(!data.success) throw new Error(data.message);
+    toast(data.message,'s');
+    loadProductFiles();
+    pushActivityFS('revoke', 'File <b>' + fileName + '</b> dihapus dari bucket oleh <b>' + (currentAdmin ? currentAdmin.name : 'admin') + '</b>', currentAdmin ? currentAdmin.name : 'admin');
+  } catch(e) { toast('Hapus gagal: ' + e.message,'e',3000); }
+}
+window.deleteFile = deleteFile;
+
+/* ── SEND PRODUCT ── */
+async function sendProduct() {
+  var email    = (gi('sf-email')   .value || '').trim();
+  var product  = (gi('sf-product') .value || '').trim();
+  var fileName = (gi('sf-filename').value || '').trim();
+  var licKey   = (gi('sf-key')     .value || '').trim().toUpperCase();
+
+  if(!email || !product || !fileName || !licKey){
+    toast('Lengkapi semua kolom sebelum kirim','e'); return;
+  }
+  if(!/^[^@]+@[^@]+\.[^@]+$/.test(email)){
+    toast('Format email tidak valid','e'); return;
+  }
+
+  var btn = gi('btn-send');
+  btn.disabled = true; btn.innerHTML = '<span style="font-family:var(--hud);font-size:10px;letter-spacing:3px;">MENGIRIM...</span>';
+  var res = gi('send-result');
+  res.className = 'send-result';
+
+  try {
+    var apiUrlEl = gi('api-url-send') || gi('api-url');
+    var apiKeyEl = gi('api-key-send') || gi('api-key');
+
+    var resp = await fetch((apiUrlEl.value || 'http://localhost:3000').replace(/\/$/,'') + '/api/send-product', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': apiKeyEl.value },
+      body: JSON.stringify({
+        buyerEmail:  email,
+        productName: product,
+        licenseKey:  licKey,
+        fileName:    fileName,
+        senderName:  currentAdmin ? currentAdmin.name : 'Admin'
+      })
+    });
+    var data = await resp.json();
+    if(!data.success) throw new Error(data.message);
+
+    res.innerHTML = '<div class="sr-title">EMAIL TERKIRIM</div><div class="sr-body">Email dikirim ke <b style=\'color:var(--t1);\'>' + email + '</b><br/>Produk: <b style=\'color:var(--t1);\'>' + product + '</b><br/>Email ID: ' + (data.emailId || '—') + '</div>' +
+      '<div class="sr-key">Expired: ' + (data.expiresAt || '15 menit') + '</div>';
+    res.className = 'send-result ok vis';
+
+    toast('Email berhasil dikirim ke ' + email,'s',3000);
+
+    /* Save to local history */
+    var entry = { email:email, product:product, key:licKey, time:Date.now(), ok:true };
+    productSendHistory.unshift(entry);
+    if(productSendHistory.length > 50) productSendHistory.pop();
+    localStorage.setItem('zx_send_hist', JSON.stringify(productSendHistory));
+    sendCount++;
+    var nbc = gi('nb-send-count'); if(nbc) nbc.textContent = sendCount;
+    renderSendHistory();
+
+    /* Mark key as used in firebase (best effort) */
+    var matchKey = allKeys.find(function(k){ return k.key === licKey; });
+    if(matchKey && matchKey._id){
+      db.collection('keys').doc(matchKey._id).update({ used:true, usedAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
+    }
+
+    /* Activity log */
+    pushActivityFS('login', 'Produk <b>' + product + '</b> dikirim ke <b>' + email + '</b> oleh <b>' + (currentAdmin ? currentAdmin.name : 'admin') + '</b>', currentAdmin ? currentAdmin.name : 'admin');
+
+    /* Clear form */
+    gi('sf-email').value = ''; gi('sf-key').value = '';
+
+  } catch(e) {
+    res.innerHTML = '<div class="sr-title">GAGAL TERKIRIM</div><div class="sr-body">' + e.message + '</div>';
+    res.className = 'send-result err vis';
+    toast('Gagal: ' + e.message,'e',4000);
+    var entry = { email:email, product:product, key:licKey, time:Date.now(), ok:false, err:e.message };
+    productSendHistory.unshift(entry);
+    localStorage.setItem('zx_send_hist', JSON.stringify(productSendHistory));
+    renderSendHistory();
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg viewBox=\"0 0 24 24\" style=\"width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;\"><line x1=\"22\" y1=\"2\" x2=\"11\" y2=\"13\"/><polygon points=\"22 2 15 22 11 13 2 9 22 2\"/></svg> KIRIM EMAIL SEKARANG';
+}
+window.sendProduct = sendProduct;
+
+/* ── Render send history ── */
+function renderSendHistory() {
+  var el = gi('send-history-list');
+  if(!el) return;
+  var hb = gi('send-hist-count');
+  if(hb) hb.textContent = productSendHistory.length + ' terkirim';
+  sendCount = productSendHistory.filter(function(x){return x.ok;}).length;
+  var nbc = gi('nb-send-count'); if(nbc) nbc.textContent = sendCount;
+  if(!productSendHistory.length){ el.innerHTML='<div class=\"empty\">Belum ada pengiriman.</div>'; return; }
+  var h = '';
+  productSendHistory.slice(0,30).forEach(function(x){
+    var ago = timeAgo({toDate:function(){return new Date(x.time);}});
+    h += '<div class=\"sh-row\">';
+    h += '<div class=\"sh-dot '+(x.ok?'ok':'err')+'\"></div>';
+    h += '<div class=\"sh-info\">';
+    h += '<span class=\"sh-email\">'+(x.ok?'':'✗ ')+x.email+'</span>';
+    h += '<span class=\"sh-meta\">'+(x.product||'—')+' · '+(x.key?x.key.substr(0,12)+'...':'—')+'</span>';
+    h += '</div>';
+    h += '<span class=\"sh-time\">'+ago+'</span>';
+    h += '</div>';
+  });
+  el.innerHTML = h;
+}
+
+/* ── Products page: owner gate ── */
+var _origNavTo = navTo;
+/* Patch navTo to handle products gate */
+var _origNavToFn = window.navTo;
+var navToPatched = function(page) {
+  _origNavToFn(page);
+  if(page === 'products'){
+    var gate    = gi('products-owner-gate');
+    var content = gi('products-owner-content');
+    var isOwner = currentAdmin && currentAdmin.role === 'owner';
+    if(gate)    gate.style.display    = isOwner ? 'none' : 'block';
+    if(content) content.style.display = isOwner ? 'block' : 'none';
+    if(isOwner) populateProductSelect();
+  }
+  if(page === 'send'){ populateProductSelect(); renderSendHistory(); }
+};
+window.navTo = navToPatched;
+window.drawerNav = function(page){ navToPatched(page); closeDrawer(); document.querySelectorAll('.drawer-item').forEach(function(el){el.className=el.className.replace(' active','');}); var di=gi('di-'+page); if(di)di.classList.add('active'); };
+
+/* ── On first load render history ── */
+(function(){ renderSendHistory(); })();
 
 </script>
 </body>
