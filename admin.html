@@ -149,16 +149,16 @@ body::before{
 /* ── SIDEBAR ── */
 .sidebar{
   position:fixed;left:0;top:0;bottom:0;
-  width:var(--sb);z-index:50;
+  width:var(--sb);z-index:200;
   background:rgba(7,14,28,.98);
   border-right:1px solid var(--bdr);
   display:flex;flex-direction:column;
-  transition:transform .32s cubic-bezier(.4,0,.2,1),width .28s ease;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),width .28s ease;
   backdrop-filter:blur(40px);
   will-change:transform;
 }
 .sidebar.collapsed{width:var(--sb-c);}
-.sidebar.mobile-hidden{transform:translateX(-100%);}
+
 
 .sb-header{
   padding:18px 16px 14px;
@@ -275,6 +275,9 @@ body::before{
 }
 .sidebar.collapsed~.main,.main.expanded{left:var(--sb-c);}
 .main.full-width{left:0;}
+
+/* Prevent body scroll/interaction when sidebar is open on mobile */
+body.sb-open{overflow:hidden;}
 
 /* ── TOPBAR ── */
 .topbar{
@@ -682,28 +685,79 @@ body::before{
 
 /* ══ RESPONSIVE ══ */
 @media(max-width:768px){
-  .sidebar{transform:translateX(-100%);}
-  .sidebar.mobile-open{transform:translateX(0);}
+  /* Sidebar: hidden by default on mobile, slides in when .open */
+  .sidebar{
+    transform:translateX(-100%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+    z-index:200;
+    width:var(--sb)!important; /* always full width when open */
+  }
+  .sidebar.open{transform:translateX(0)!important;}
+  /* Main always full width on mobile */
   .main{left:0!important;}
-  .content{padding:16px 14px 100px;}
+  /* Content padding - extra bottom for comfort */
+  .content{padding:14px 12px 90px;}
+  /* Topbar adjustments */
+  .topbar{padding:0 12px;}
+  .topbar-title{font-size:11px;}
+  .tb-chip.time{display:none;}
+  /* Stat grids */
   .stat-grid{grid-template-columns:1fr 1fr;}
+  /* Charts */
   .chart-grid{grid-template-columns:1fr;}
   .chart-grid-3{grid-template-columns:1fr;}
+  .chart-grid-2{grid-template-columns:1fr;}
+  /* Analytics */
   .analytics-grid{grid-template-columns:1fr 1fr;}
-  .grad-card{min-height:100px;}
-  .gc-num{font-size:28px;}
-  .topbar{padding:0 14px;}
-  .topbar-title{font-size:11px;}
+  /* Grad cards */
+  .grad-card{min-height:90px;}
+  .gc-num{font-size:26px;}
+  /* Page headers */
+  .page-header{flex-direction:column;gap:10px;margin-bottom:16px;}
+  .page-title{font-size:15px;}
+  .page-actions{flex-wrap:wrap;}
+  /* Period tabs */
+  .period-tabs{width:100%;}
+  /* Section actions */
+  .section-actions{flex-wrap:wrap;}
+  /* Gen area */
+  .gen-row{flex-wrap:wrap;}
+  .dur-toggle-wrap{flex-wrap:wrap;}
+  /* Add form */
+  .add-form{flex-wrap:wrap;}
+  .add-form .f-input{min-width:100px;}
+  /* Key rows on mobile */
+  .key-row{flex-wrap:wrap;gap:7px;}
+  /* Toast position */
+  #toast-wrap{right:10px;left:10px;max-width:none;align-items:flex-end;}
+  /* Hamburger always visible on mobile */
   .hamburger{display:flex!important;}
+  /* Hide desktop-only logout button in topbar on very small screens */
+  .topbar .btn.btn-secondary{display:none;}
+  /* Inline override grids */
+  [id="overview-grad-grid"]{grid-template-columns:1fr 1fr!important;}
+  /* Stat rows with inline styles */
+  .stat-inline-4{grid-template-columns:1fr 1fr!important;}
+}
+@media(max-width:400px){
+  .analytics-grid{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  [id="overview-grad-grid"]{grid-template-columns:1fr 1fr!important;}
+  .stat-inline-4{grid-template-columns:1fr 1fr!important;}
 }
 @media(min-width:769px){
+  /* Desktop: sidebar always visible, hamburger only for collapse */
+  .sidebar{transform:none!important;}
   .hamburger.mobile-only{display:none!important;}
 }
 .overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
-  z-index:49;backdrop-filter:blur(4px);
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.58);
+  z-index:150;
+  /* NO backdrop-filter — it causes the blur/freeze bug on mobile */
 }
-.overlay.vis{display:block;}
+.overlay.vis{display:block;animation:ovin .22s ease;}
+@keyframes ovin{from{opacity:0}to{opacity:1}}
 
 /* RT indicator */
 .rt-badge{
@@ -712,6 +766,13 @@ body::before{
   padding:3px 9px;border-radius:20px;
   background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.18);color:#34d399;
 }
+
+/* Responsive 4-col grids (replaces inline styles) */
+.rg4{display:grid;grid-template-columns:repeat(4,1fr);}
+.rg4-14{gap:14px;margin-bottom:20px;}
+.rg4-12{gap:12px;margin-bottom:18px;}
+@media(max-width:768px){.rg4{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}}
+@media(max-width:400px){.rg4{grid-template-columns:1fr 1fr;}}
 
 /* Online count strip */
 .online-strip{
@@ -730,6 +791,38 @@ body::before{
 .period-tabs{display:flex;background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:10px;padding:3px;gap:2px;}
 .period-tab{flex:1;padding:7px 12px;border:none;background:none;border-radius:7px;font-family:var(--mono);font-size:9px;color:var(--t2);cursor:pointer;transition:all .18s;text-align:center;}
 .period-tab.active{background:rgba(37,99,235,.18);color:var(--sky2);border:1px solid rgba(56,189,248,.18);}
+/* ══ MOBILE BOTTOM NAV ══ */
+.mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(6,13,26,.98);
+  border-top:1px solid var(--bdr);
+  padding:0 4px env(safe-area-inset-bottom,8px);
+  backdrop-filter:blur(30px);
+}
+.mobile-nav-inner{display:flex;align-items:stretch;}
+.mn-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:8px 2px;
+  background:none;border:none;cursor:pointer;
+  color:var(--t2);transition:color .18s;
+  position:relative;min-height:52px;
+  -webkit-tap-highlight-color:transparent;
+}
+.mn-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.mn-btn span{font-family:var(--hud);font-size:6px;letter-spacing:1px;white-space:nowrap;}
+.mn-btn.active{color:var(--sky2);}
+.mn-btn.active::before{
+  content:'';position:absolute;top:0;left:15%;right:15%;height:2px;border-radius:0 0 3px 3px;
+  background:linear-gradient(90deg,var(--sky),var(--cyan));
+  box-shadow:0 0 8px rgba(56,189,248,.6);
+}
+.mn-live{position:absolute;top:5px;right:calc(50% - 16px);width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 5px rgba(52,211,153,.6);animation:gdot 2s ease infinite;display:none;}
+.mn-live.vis{display:block;}
+@media(max-width:768px){
+  .mobile-nav{display:block;}
+  .content{padding-bottom:78px!important;}
+}
 </style>
 </head>
 <body>
@@ -859,16 +952,19 @@ body::before{
     <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-left">
-        <button class="hamburger" onclick="toggleMobileSidebar()" id="hamburger">
+        <button class="hamburger" onclick="toggleMobileSidebar()" id="hamburger" aria-label="Menu" type="button">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <!-- Desktop collapse toggle -->
+        <button class="hamburger" onclick="toggleSidebar()" id="sb-collapse-btn" style="display:none;" aria-label="Collapse sidebar" type="button">
           <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
         <div class="topbar-title" id="topbar-title"><span>Overview</span></div>
       </div>
       <div class="topbar-right">
-        <div class="tb-chip time" id="tb-clock">--:--</div>
-        <div class="tb-chip online"><span class="chip-dot"></span><span id="tb-online-count">0 Online</span></div>
+        <div class="tb-chip time" id="tb-clock" style="font-size:10px;">--:--</div>
+        <div class="tb-chip online"><span class="chip-dot"></span><span id="tb-online-count">0</span></div>
         <div class="tb-avatar-sm" id="tb-avatar" onclick="navTo('team')">M</div>
-        <button class="btn btn-secondary btn-sm" onclick="adminLogout()">Logout</button>
       </div>
     </div>
 
@@ -888,7 +984,7 @@ body::before{
         </div>
 
         <!-- Gradient metric cards -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:20px;" id="overview-grad-grid">
+        <div class="rg4" id="overview-grad-grid">
           <div class="grad-card gc-blue">
             <div class="gc-label">TOTAL KEYS</div>
             <div class="gc-val"><span class="gc-num" id="ov-total">0</span></div>
@@ -917,7 +1013,7 @@ body::before{
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+        <div class="rg4 rg4-14">
           <div class="stat-card c-blue">
             <div class="stat-top"><span class="stat-label">ACTIVE KEYS</span><div class="stat-ico blue"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/></svg></div></div>
             <span class="stat-val" id="ov-active">0</span>
@@ -1141,7 +1237,7 @@ body::before{
           <div><span class="page-title">Projects</span><span class="page-sub">PRODUCT MANAGEMENT · KEY DISTRIBUTION</span></div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="rg4 rg4-12">
           <div class="stat-card c-blue"><div class="stat-top"><span class="stat-label">TOTAL PROJECTS</span><div class="stat-ico blue"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div></div><span class="stat-val" id="proj-total">0</span><span class="stat-sub">Active products</span></div>
           <div class="stat-card c-grn"><div class="stat-top"><span class="stat-label">TOTAL KEYS ALL PROJ</span><div class="stat-ico grn"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/></svg></div></div><span class="stat-val" id="proj-all-keys">0</span><span class="stat-sub">All projects</span></div>
           <div class="stat-card c-cyan"><div class="stat-top"><span class="stat-label">AVAILABLE</span><div class="stat-ico cyan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg></div></div><span class="stat-val" id="proj-avail">0</span><span class="stat-sub">Unused keys</span></div>
@@ -1185,7 +1281,7 @@ body::before{
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+        <div class="rg4 rg4-12">
           <div class="stat-card c-blue"><div class="stat-top"><span class="stat-label">TOTAL EVENTS</span><div class="stat-ico blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div></div><span class="stat-val" id="act-total">0</span><span class="stat-sub">All recorded</span></div>
           <div class="stat-card c-grn"><div class="stat-top"><span class="stat-label">KEY EVENTS</span><div class="stat-ico grn"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/></svg></div></div><span class="stat-val" id="act-key-count">0</span><span class="stat-sub">Generated/activated</span></div>
           <div class="stat-card c-cyan"><div class="stat-top"><span class="stat-label">LOGIN EVENTS</span><div class="stat-ico cyan"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></div></div><span class="stat-val" id="act-login-count">0</span><span class="stat-sub">Login sessions</span></div>
@@ -1210,6 +1306,33 @@ body::before{
 
     </div><!-- /content -->
   </div><!-- /main -->
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <div class="mobile-nav-inner">
+      <button class="mn-btn active" id="mn-overview" type="button" onclick="navMobile('overview')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>HOME</span>
+      </button>
+      <button class="mn-btn" id="mn-analytics" type="button" onclick="navMobile('analytics')">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>ANALYTICS</span>
+      </button>
+      <button class="mn-btn" id="mn-keys" type="button" onclick="navMobile('keys')">
+        <svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/><line x1="21" y1="4" x2="21" y2="9"/><line x1="21" y1="4" x2="16" y2="4"/></svg>
+        <span>KEYS</span>
+      </button>
+      <button class="mn-btn" id="mn-users" type="button" onclick="navMobile('users')">
+        <span class="mn-live" id="mn-live"></span>
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>USERS</span>
+      </button>
+      <button class="mn-btn" id="mn-more" type="button" onclick="toggleMobileSidebar()">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>
+        <span>MORE</span>
+      </button>
+    </div>
+  </nav>
 </div><!-- /app -->
 
 <!-- ══════════════════════════════════════════════════════
@@ -1313,19 +1436,38 @@ function updateClock(){
 
 /* ══ SIDEBAR ══ */
 var sbCollapsed=false;
+var isMobile=function(){return window.innerWidth<=768;};
+
 function toggleSidebar(){
+  /* Desktop: collapse to icon-only */
+  if(isMobile()){toggleMobileSidebar();return;}
   sbCollapsed=!sbCollapsed;
-  var sb=gi('sidebar');var main=gi('main');
+  var sb=gi('sidebar'),main=gi('main');
   if(sbCollapsed){sb.classList.add('collapsed');main.style.left='var(--sb-c)';}
   else{sb.classList.remove('collapsed');main.style.left='var(--sb)';}
 }
+
 function toggleMobileSidebar(){
   var sb=gi('sidebar'),ov=gi('overlay');
-  if(sb.classList.contains('mobile-open')){sb.classList.remove('mobile-open');ov.classList.remove('vis');}
-  else{sb.classList.add('mobile-open');ov.classList.add('vis');}
+  var isOpen=sb.classList.contains('open');
+  if(isOpen){
+    /* Close */
+    sb.classList.remove('open');
+    ov.classList.remove('vis');
+    document.body.classList.remove('sb-open');
+  } else {
+    /* Open */
+    sb.classList.add('open');
+    ov.classList.add('vis');
+    document.body.classList.add('sb-open');
+  }
 }
+
 function closeMobileSidebar(){
-  gi('sidebar').classList.remove('mobile-open');gi('overlay').classList.remove('vis');
+  var sb=gi('sidebar'),ov=gi('overlay');
+  sb.classList.remove('open');
+  ov.classList.remove('vis');
+  document.body.classList.remove('sb-open');
 }
 
 /* ══ NAVIGATION ══ */
@@ -1333,13 +1475,30 @@ var pageTitles={
   overview:'Overview',analytics:'Analytics',keys:'Key Management',
   users:'User Sessions',projects:'Projects',team:'Admin Team',activity:'Activity Log'
 };
+
+var mobileNavPages=['overview','analytics','keys','users'];
+
+function updateMobileNav(page){
+  mobileNavPages.forEach(function(p){
+    var btn=gi('mn-'+p);
+    if(btn)btn.className='mn-btn'+(p===page?' active':'');
+  });
+  /* 'more' button has no active state */
+  var more=gi('mn-more');if(more)more.className='mn-btn';
+}
+
+function navMobile(page){navTo(page);}
+window.navMobile=navMobile;
+
 function navTo(page){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var pg=gi('page-'+page);if(pg)pg.classList.add('active');
   var nav=gi('nav-'+page);if(nav)nav.classList.add('active');
-  var title=gi('topbar-title');if(title)title.innerHTML='<span>'+pageTitles[page]+'</span>';
-  if(window.innerWidth<=768)closeMobileSidebar();
+  var title=gi('topbar-title');if(title)title.innerHTML='<span>'+(pageTitles[page]||page)+'</span>';
+  updateMobileNav(page);
+  /* Auto-close sidebar on mobile after navigation */
+  if(isMobile())closeMobileSidebar();
   if(page==='analytics'){renderAnalytics();renderAnalyticsCharts();}
   if(page==='activity'){renderActivity();}
   if(page==='overview'){renderOverviewCharts();}
@@ -1461,7 +1620,16 @@ function enterApp(){
     gi('sb-avatar').textContent=ini;gi('tb-avatar').textContent=ini;
     gi('sb-uname').textContent=name;
     gi('sb-role').textContent=currentAdmin.role==='owner'?'OWNER':'ADMIN';
-    var roleEl=gi('tb-avatar');if(roleEl)roleEl.title=name+' ('+currentAdmin.role+')';
+    /* Show correct button in topbar */
+    if(!isMobile()){
+      gi('hamburger').style.display='none';
+      gi('sb-collapse-btn').style.display='flex';
+      gi('main').style.left='var(--sb)';
+    } else {
+      gi('hamburger').style.display='flex';
+      gi('sb-collapse-btn').style.display='none';
+      gi('main').style.left='0';
+    }
     if(currentAdmin.role!=='owner'){var f=gi('add-admin-form');if(f)f.style.display='none';}
     gi('nb-activity').style.display='inline-flex';
     updateClock();
@@ -1787,7 +1955,8 @@ function loadSessions(){
 }
 function renderSessions(){
   var online=allSessions.filter(function(s){return s.online;}).length;
-  var ob=gi('tb-online-count');if(ob)ob.textContent=online+' Online';
+  var ob=gi('tb-online-count');if(ob)ob.textContent=online;
+  var mnlive=gi('mn-live');if(mnlive)mnlive.className='mn-live'+(online>0?' vis':'');
   var nbu=gi('nb-users');if(nbu)nbu.textContent=online+' Online';
   var uc=gi('users-online-count');if(uc)uc.textContent=online+' users online';
   var ut=gi('users-total-count');if(ut)ut.textContent=allSessions.length+' total sessions';
@@ -2132,18 +2301,46 @@ function startListeners(){
 /* ══ INIT ══ */
 autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
 
-/* ══ RESPONSIVE: auto-collapse sidebar on small screens ══ */
+/* ══ RESPONSIVE INIT — no class conflicts, CSS handles everything ══ */
 (function(){
-  if(window.innerWidth<=768){
-    gi('sidebar').classList.add('mobile-hidden');
-  }
+  /* On desktop: sidebar visible by default (CSS handles it via @media)  */
+  /* On mobile: sidebar hidden by default via CSS transform, no JS class needed */
   window.addEventListener('resize',function(){
-    var sb=gi('sidebar');
-    if(window.innerWidth>768){
-      sb.classList.remove('mobile-hidden','mobile-open');
-      gi('overlay').classList.remove('vis');
+    var sb=gi('sidebar'),ov=gi('overlay');
+    if(!isMobile()){
+      /* Switching to desktop: clean up mobile state */
+      sb.classList.remove('open');
+      ov.classList.remove('vis');
+      document.body.classList.remove('sb-open');
+      /* Restore desktop left margin */
+      if(!sbCollapsed){gi('main').style.left='var(--sb)';}
+      else{gi('main').style.left='var(--sb-c)';}
+      /* Show/hide correct buttons */
+      if(gi('hamburger'))gi('hamburger').style.display='none';
+      if(gi('sb-collapse-btn'))gi('sb-collapse-btn').style.display='flex';
+    } else {
+      /* Mobile: restore mobile state */
+      if(!sbCollapsed)gi('main').style.left='0';
+      if(gi('hamburger'))gi('hamburger').style.display='flex';
+      if(gi('sb-collapse-btn'))gi('sb-collapse-btn').style.display='none';
     }
   });
+  /* Keyboard: Escape closes mobile sidebar */
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&isMobile())closeMobileSidebar();
+  });
+  /* Swipe right to open sidebar on mobile */
+  var touchStartX=0,touchStartY=0;
+  document.addEventListener('touchstart',function(e){
+    touchStartX=e.touches[0].clientX;
+    touchStartY=e.touches[0].clientY;
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-touchStartX;
+    var dy=Math.abs(e.changedTouches[0].clientY-touchStartY);
+    if(isMobile()&&dx>60&&dy<50&&touchStartX<30){toggleMobileSidebar();}
+    else if(isMobile()&&dx<-60&&dy<50&&gi('sidebar').classList.contains('open')){closeMobileSidebar();}
+  },{passive:true});
 })();
 </script>
 </body>
