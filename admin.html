@@ -1,5 +1,241 @@
 <!DOCTYPE html>
-<html lang="id"><!-- FIXED v3.1 --><style>.fix-tag{display:none;}</style>
+<html lang="id"><!-- FIXED v3.1 --><style>.fix-tag{display:none;}
+/* ══════════════════════════════════════════════════════
+   MODE SYSTEM: desktop-mode vs mobile-mode
+══════════════════════════════════════════════════════ */
+
+/* ── MODE SWITCHER BUTTON (topbar) ── */
+.mode-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:20px;
+  background:rgba(56,189,248,.07);
+  border:1px solid rgba(56,189,248,.18);
+  font-family:var(--mono);font-size:8.5px;
+  color:var(--sky2);cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+}
+.mode-btn:hover{background:rgba(56,189,248,.14);}
+.mode-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;}
+
+/* ── DESKTOP MODE ── */
+body.desktop-mode .sidebar{
+  transform:none!important;
+  display:flex!important;
+}
+body.desktop-mode .main{left:var(--sb);}
+body.desktop-mode .sidebar.collapsed~.main{left:var(--sb-c);}
+body.desktop-mode .mobile-nav{display:none!important;}
+body.desktop-mode .overlay{display:none!important;}
+body.desktop-mode .nav-drawer{display:none!important;}
+body.desktop-mode .hamburger{display:flex;}
+
+/* ── MOBILE MODE ── */
+body.mobile-mode .sidebar{display:none!important;}
+body.mobile-mode .overlay{display:none!important;}
+body.mobile-mode .main{left:0!important;}
+body.mobile-mode .mobile-nav{display:block!important;}
+body.mobile-mode .hamburger{display:none!important;}
+body.mobile-mode .sb-brand-wrap{display:none;}
+
+/* ── NAV DRAWER (mobile mode fullscreen sheet from bottom) ── */
+.nav-drawer{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:rgba(7,16,34,.99);
+  border-radius:22px 22px 0 0;
+  border-top:1px solid var(--bdr2);
+  z-index:9999;
+  transform:translateY(100%);
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+  max-height:88vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:none;
+  display:none;
+}
+.nav-drawer::-webkit-scrollbar{display:none;}
+body.mobile-mode .nav-drawer{display:block;}
+.nav-drawer.open{transform:translateY(0)!important;}
+
+.drawer-handle{
+  display:flex;flex-direction:column;align-items:center;
+  padding:12px 0 4px;
+}
+.drawer-pill{
+  width:44px;height:4px;border-radius:4px;
+  background:rgba(56,189,248,.25);
+}
+.drawer-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 20px 14px;
+  border-bottom:1px solid var(--bdr3);
+}
+.drawer-title{
+  font-family:var(--hud);font-size:11px;font-weight:700;
+  color:var(--sky2);letter-spacing:2px;
+}
+.drawer-close{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(56,189,248,.08);border:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--t2);
+  -webkit-tap-highlight-color:transparent;
+}
+.drawer-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+.drawer-close:active{background:rgba(56,189,248,.18);}
+
+.drawer-scrim{
+  position:fixed;inset:0;z-index:9998;
+  background:rgba(0,0,0,.65);
+  display:none;
+}
+.drawer-scrim.vis{display:block;}
+
+.drawer-nav{padding:10px 14px 16px;}
+.drawer-section{
+  font-family:var(--hud);font-size:6.5px;letter-spacing:3px;
+  color:var(--t3);padding:14px 8px 6px;
+}
+.drawer-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 12px;border-radius:14px;
+  cursor:pointer;margin-bottom:3px;
+  -webkit-tap-highlight-color:transparent;
+  transition:background .15s;
+}
+.drawer-item:active{background:rgba(56,189,248,.12);}
+.drawer-item.active{
+  background:rgba(37,99,235,.15);
+  border:1px solid rgba(56,189,248,.18);
+}
+.drawer-item-ico{
+  width:42px;height:42px;border-radius:13px;
+  background:rgba(56,189,248,.06);
+  border:1px solid rgba(56,189,248,.1);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .15s;
+}
+.drawer-item.active .drawer-item-ico{
+  background:rgba(37,99,235,.18);
+  border-color:rgba(56,189,248,.28);
+}
+.drawer-item-ico svg{width:20px;height:20px;stroke:var(--t2);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.drawer-item.active .drawer-item-ico svg{stroke:var(--sky2);}
+.drawer-item-text{flex:1;}
+.drawer-item-name{
+  font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;
+  color:var(--t2);display:block;
+  transition:color .15s;
+}
+.drawer-item.active .drawer-item-name{color:var(--t1);}
+.drawer-item-sub{
+  font-family:var(--mono);font-size:9px;color:var(--t3);
+  display:block;margin-top:2px;
+}
+.drawer-badge{
+  font-family:var(--mono);font-size:8px;
+  padding:3px 9px;border-radius:20px;
+  background:rgba(37,99,235,.18);border:1px solid rgba(56,189,248,.22);
+  color:var(--sky2);flex-shrink:0;
+}
+.drawer-badge.live{
+  background:rgba(16,185,129,.1);
+  border-color:rgba(16,185,129,.25);color:#34d399;
+}
+
+.drawer-footer{
+  margin:8px 14px 16px;padding:14px 16px;
+  border-radius:16px;
+  background:rgba(56,189,248,.04);
+  border:1px solid var(--bdr3);
+  display:flex;align-items:center;gap:12px;
+}
+.drawer-avatar{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#1e3a8a,#2563eb);
+  border:1.5px solid rgba(56,189,248,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--hud);font-size:15px;color:#fff;
+  box-shadow:0 0 10px rgba(37,99,235,.3);
+}
+.drawer-user-info{flex:1;min-width:0;}
+.drawer-user-name{font-size:14px;font-weight:600;color:var(--t1);display:block;}
+.drawer-user-role{font-family:var(--mono);font-size:8px;color:var(--t2);letter-spacing:1px;}
+.drawer-logout{
+  padding:8px 14px;border-radius:10px;
+  background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.18);
+  font-family:var(--mono);font-size:8.5px;color:#fb7185;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  white-space:nowrap;
+}
+.drawer-logout:active{background:rgba(244,63,94,.18);}
+
+/* ── MODE SELECT SCREEN (shown on first visit) ── */
+#mode-select-screen{
+  position:fixed;inset:0;z-index:10000;
+  background:#060d1a;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;
+  transition:opacity .4s ease;
+}
+#mode-select-screen.hidden{opacity:0;pointer-events:none;}
+.mss-title{
+  font-family:var(--hud);font-size:14px;font-weight:900;
+  color:var(--t1);letter-spacing:2px;margin-bottom:6px;text-align:center;
+}
+.mss-sub{
+  font-family:var(--mono);font-size:9px;color:var(--t2);
+  letter-spacing:1.5px;margin-bottom:36px;text-align:center;
+}
+.mss-logo{
+  width:64px;height:64px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:28px;
+}
+.mss-logo svg{position:absolute;inset:0;width:100%;height:100%;}
+.mss-logo-M{
+  font-family:var(--hud);font-size:26px;color:var(--sky2);
+  position:relative;z-index:2;
+  text-shadow:0 0 20px rgba(56,189,248,.9);
+}
+.mss-cards{display:flex;gap:14px;width:100%;max-width:360px;flex-wrap:wrap;justify-content:center;}
+.mss-card{
+  flex:1;min-width:140px;max-width:160px;
+  background:var(--card);
+  border:1px solid var(--bdr);border-radius:22px;
+  padding:24px 16px 20px;
+  text-align:center;cursor:pointer;
+  transition:border-color .2s,transform .15s,box-shadow .2s;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;overflow:hidden;
+}
+.mss-card::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent);}
+.mss-card:active{transform:scale(.96);}
+.mss-card:hover,.mss-card:focus{
+  border-color:rgba(56,189,248,.4);
+  box-shadow:0 0 0 1px rgba(56,189,248,.1) inset,0 12px 40px rgba(37,99,235,.2);
+}
+.mss-ico{
+  width:56px;height:56px;border-radius:16px;
+  background:rgba(37,99,235,.12);border:1px solid rgba(56,189,248,.2);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;
+}
+.mss-ico svg{width:28px;height:28px;stroke:var(--sky2);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.mss-card-title{
+  font-family:var(--hud);font-size:11px;font-weight:700;
+  color:var(--t1);letter-spacing:1.5px;margin-bottom:6px;
+}
+.mss-card-sub{
+  font-family:var(--mono);font-size:8px;color:var(--t2);
+  line-height:1.55;
+}
+.mss-note{
+  margin-top:28px;font-family:var(--mono);font-size:8px;
+  color:var(--t3);text-align:center;line-height:1.6;
+}
+</style>
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -828,6 +1064,36 @@ body.sb-open{overflow:hidden;}
 </head>
 <body>
 <!-- SIDEBAR OVERLAY: positioned below topbar so topbar stays clickable -->
+<!-- MODE SELECT SCREEN -->
+<div id="mode-select-screen">
+  <div class="mss-logo">
+    <svg viewBox="0 0 64 64" fill="none">
+      <polygon points="32,2 60,17 60,47 32,62 4,47 4,17" fill="url(#mslg)" stroke="rgba(56,189,248,.4)" stroke-width="1.5"/>
+      <defs><radialGradient id="mslg" cx="40%" cy="28%" r="72%"><stop offset="0%" stop-color="#0f2040"/><stop offset="100%" stop-color="#060d1a"/></radialGradient></defs>
+    </svg>
+    <span class="mss-logo-M">M</span>
+  </div>
+  <div class="mss-title">PILIH MODE TAMPILAN</div>
+  <div class="mss-sub">MDZZXITERS CONTROL CENTER</div>
+  <div class="mss-cards">
+    <div class="mss-card" onclick="selectMode('mobile')" tabindex="0">
+      <div class="mss-ico">
+        <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/></svg>
+      </div>
+      <div class="mss-card-title">MOBILE</div>
+      <div class="mss-card-sub">Untuk HP / Tablet<br/>Potret · Optimized touch</div>
+    </div>
+    <div class="mss-card" onclick="selectMode('desktop')" tabindex="0">
+      <div class="mss-ico">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <div class="mss-card-title">DESKTOP</div>
+      <div class="mss-card-sub">Untuk PC / Laptop<br/>Sidebar · Landscape</div>
+    </div>
+  </div>
+  <div class="mss-note">Pilihan tersimpan otomatis<br/>Bisa diubah kapan saja lewat tombol di topbar</div>
+</div>
+
 <div class="overlay" id="overlay" onclick="closeMobileSidebar()" role="presentation"></div>
 
 <!-- ══════ LOGIN ══════ -->
@@ -960,6 +1226,10 @@ body.sb-open{overflow:hidden;}
       <div class="topbar-right">
         <div class="tb-chip time" id="tb-clock" style="font-size:10px;">--:--</div>
         <div class="tb-chip online"><span class="chip-dot"></span><span id="tb-online-count">0</span></div>
+        <button class="mode-btn" id="mode-btn" onclick="showModeSelect()" type="button" title="Ganti Mode Tampilan">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/></svg>
+          <span id="mode-btn-label">MOBILE</span>
+        </button>
         <div class="tb-avatar-sm" id="tb-avatar" onclick="navTo('team')">M</div>
       </div>
     </div>
@@ -1323,12 +1593,73 @@ body.sb-open{overflow:hidden;}
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         <span>USERS</span>
       </button>
-      <button class="mn-btn" id="mn-more" type="button" onclick="toggleMobileSidebar()">
+      <button class="mn-btn" id="mn-more" type="button" onclick="mobileMore()">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>
         <span>MORE</span>
       </button>
     </div>
   </nav>
+
+  <!-- DRAWER SCRIM -->
+  <div class="drawer-scrim" id="drawer-scrim" onclick="closeDrawer()"></div>
+
+  <!-- NAV DRAWER (mobile mode) -->
+  <div class="nav-drawer" id="nav-drawer">
+    <div class="drawer-handle"><div class="drawer-pill"></div></div>
+    <div class="drawer-header">
+      <span class="drawer-title">NAVIGATION</span>
+      <div class="drawer-close" onclick="closeDrawer()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="drawer-nav">
+      <div class="drawer-section">MAIN</div>
+      <div class="drawer-item active" id="di-overview" onclick="drawerNav('overview')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Overview</span><span class="drawer-item-sub">Dashboard utama</span></div>
+      </div>
+      <div class="drawer-item" id="di-analytics" onclick="drawerNav('analytics')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Analytics</span><span class="drawer-item-sub">Statistik & charts</span></div>
+        <span class="drawer-badge">Charts</span>
+      </div>
+      <div class="drawer-section">MANAGEMENT</div>
+      <div class="drawer-item" id="di-keys" onclick="drawerNav('keys')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/><line x1="21" y1="4" x2="21" y2="9"/><line x1="21" y1="4" x2="16" y2="4"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Keys</span><span class="drawer-item-sub">Generate & manage</span></div>
+        <span class="drawer-badge" id="di-badge-keys">0</span>
+      </div>
+      <div class="drawer-item" id="di-users" onclick="drawerNav('users')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Users</span><span class="drawer-item-sub">Session monitor</span></div>
+        <span class="drawer-badge live" id="di-badge-users">0 Online</span>
+      </div>
+      <div class="drawer-item" id="di-projects" onclick="drawerNav('projects')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Projects</span><span class="drawer-item-sub">Daftar produk</span></div>
+        <span class="drawer-badge" id="di-badge-projects">0</span>
+      </div>
+      <div class="drawer-section">SYSTEM</div>
+      <div class="drawer-item" id="di-team" onclick="drawerNav('team')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Team</span><span class="drawer-item-sub">Admin management</span></div>
+      </div>
+      <div class="drawer-item" id="di-activity" onclick="drawerNav('activity')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Activity Log</span><span class="drawer-item-sub">Realtime events</span></div>
+        <span class="drawer-badge live">LIVE</span>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <div class="drawer-avatar" id="drawer-avatar">M</div>
+      <div class="drawer-user-info">
+        <span class="drawer-user-name" id="drawer-uname">Admin</span>
+        <span class="drawer-user-role" id="drawer-role">ADMIN</span>
+      </div>
+      <button class="drawer-logout" onclick="adminLogout()" type="button">LOGOUT</button>
+    </div>
+  </div>
+
 </div><!-- /app -->
 
 <!-- ══════════════════════════════════════════════════════
@@ -2035,6 +2366,7 @@ function updateOverviewStats(){
   var ovu=gi('ov-used');if(ovu)ovu.textContent=used;
   var ovp=gi('ov-projects');if(ovp)ovp.textContent=allProjects.length;
   var nb=gi('nb-keys');if(nb)nb.textContent=total;
+  if(typeof updateDrawerBadges==='function')updateDrawerBadges();
   var pct=total>0?Math.round(active/total*100)+'%':'—';
   var ap=gi('ov-active-pct');if(ap){ap.textContent=pct+' active';ap.className='stat-delta neutral';}
   var upct=total>0?Math.round(used/total*100)+'%':'—';
@@ -2315,6 +2647,128 @@ autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
     else if(isMobile()&&dx<-60&&dy<50&&gi('sidebar').classList.contains('open')){closeMobileSidebar();}
   },{passive:true});
 })();
+
+/* ══════════════════════════════════════
+   MODE SYSTEM
+══════════════════════════════════════ */
+var currentMode = localStorage.getItem('zx_mode') || '';
+
+function applyMode(mode, skipSave){
+  currentMode = mode;
+  if(!skipSave) localStorage.setItem('zx_mode', mode);
+  document.body.classList.remove('desktop-mode','mobile-mode');
+  document.body.classList.add(mode+'-mode');
+
+  /* Update mode button label */
+  var lbl = gi('mode-btn-label');
+  if(lbl) lbl.textContent = mode === 'desktop' ? 'DESKTOP' : 'MOBILE';
+  var btn = gi('mode-btn');
+  if(btn){
+    var ico = mode === 'desktop'
+      ? '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'
+      : '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/></svg>';
+    btn.innerHTML = ico + '<span id="mode-btn-label">' + (mode==='desktop'?'DESKTOP':'MOBILE') + '</span>';
+  }
+
+  if(mode === 'desktop'){
+    /* Desktop: show sidebar */
+    var main = gi('main');
+    if(main) main.style.left = sbCollapsed ? 'var(--sb-c)' : 'var(--sb)';
+    closeDrawer();
+  } else {
+    /* Mobile: sidebar hidden, use drawer */
+    var main = gi('main');
+    if(main) main.style.left = '0';
+    closeMobileSidebar();
+  }
+}
+
+function selectMode(mode){
+  /* Hide mode select screen */
+  var screen = gi('mode-select-screen');
+  if(screen){ screen.classList.add('hidden'); setTimeout(function(){screen.style.display='none';},400); }
+  applyMode(mode);
+}
+window.selectMode = selectMode;
+
+function showModeSelect(){
+  var screen = gi('mode-select-screen');
+  if(screen){ screen.style.display='flex'; setTimeout(function(){screen.classList.remove('hidden');},10); }
+}
+window.showModeSelect = showModeSelect;
+
+/* ── DRAWER (mobile mode nav) ── */
+var drawerPage = 'overview';
+function openDrawer(){
+  gi('nav-drawer').classList.add('open');
+  gi('drawer-scrim').classList.add('vis');
+}
+function closeDrawer(){
+  gi('nav-drawer').classList.remove('open');
+  gi('drawer-scrim').classList.remove('vis');
+}
+function drawerNav(page){
+  closeDrawer();
+  navTo(page);
+  /* Update drawer active state */
+  document.querySelectorAll('.drawer-item').forEach(function(el){
+    el.className = el.className.replace(' active','');
+  });
+  var di = gi('di-'+page);
+  if(di) di.classList.add('active');
+  drawerPage = page;
+}
+window.openDrawer = openDrawer;
+window.closeDrawer = closeDrawer;
+window.drawerNav = drawerNav;
+
+/* ── Mobile bottom nav "MORE" opens drawer ── */
+/* Override the mn-more button behavior */
+function mobileMore(){ openDrawer(); }
+window.mobileMore = mobileMore;
+
+/* ── Update drawer badges when data changes ── */
+function updateDrawerBadges(){
+  var dk = gi('di-badge-keys');
+  if(dk) dk.textContent = allKeys.length;
+  var dp = gi('di-badge-projects');
+  if(dp) dp.textContent = allProjects.length;
+  var online = allSessions.filter(function(s){return s.online;}).length;
+  var du = gi('di-badge-users');
+  if(du) du.textContent = online + ' Online';
+}
+
+/* ── Patch enterApp to handle mode ── */
+var _origEnterApp = enterApp;
+enterApp = function(){
+  _origEnterApp.apply(this, arguments);
+  /* Set drawer user info */
+  setTimeout(function(){
+    var name = currentAdmin ? (currentAdmin.name || currentAdmin.username || '?') : '?';
+    var ini = name.charAt(0).toUpperCase();
+    var da = gi('drawer-avatar'); if(da) da.textContent = ini;
+    var du = gi('drawer-uname'); if(du) du.textContent = name;
+    var dr = gi('drawer-role'); if(dr) dr.textContent = currentAdmin && currentAdmin.role==='owner' ? 'OWNER' : 'ADMIN';
+
+    /* Apply saved mode or show selector */
+    var saved = localStorage.getItem('zx_mode');
+    if(saved){
+      applyMode(saved, true);
+    } else {
+      /* Show mode selection screen */
+      var screen = gi('mode-select-screen');
+      if(screen){ screen.style.display = 'flex'; }
+    }
+  }, 500);
+};
+
+/* ── Init: hide mode screen until needed ── */
+(function(){
+  var saved = localStorage.getItem('zx_mode');
+  var screen = gi('mode-select-screen');
+  if(saved && screen){ screen.style.display = 'none'; }
+})();
+
 </script>
 </body>
 </html>
