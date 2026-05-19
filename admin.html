@@ -149,12 +149,12 @@ body::before{
 /* ── SIDEBAR ── */
 .sidebar{
   position:fixed;left:0;top:0;bottom:0;
-  width:var(--sb);z-index:200;
+  width:var(--sb);z-index:220;
   background:rgba(7,14,28,.98);
   border-right:1px solid var(--bdr);
   display:flex;flex-direction:column;
   transition:transform .3s cubic-bezier(.4,0,.2,1),width .28s ease;
-  backdrop-filter:blur(40px);
+  /* backdrop-filter removed — causes stacking context on iOS */
   will-change:transform;
 }
 .sidebar.collapsed{width:var(--sb-c);}
@@ -287,7 +287,7 @@ body.sb-open{overflow:hidden;}
   background:rgba(6,13,26,.97);
   border-bottom:1px solid var(--bdr);
   backdrop-filter:blur(40px);
-  position:relative;z-index:170;
+  position:relative;z-index:10;
 }
 .topbar::after{
   content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
@@ -689,8 +689,8 @@ body.sb-open{overflow:hidden;}
   .sidebar{
     transform:translateX(-100%);
     transition:transform .3s cubic-bezier(.4,0,.2,1);
-    z-index:200;
-    width:var(--sb)!important; /* always full width when open */
+    z-index:220!important;
+    width:280px!important;
   }
   .sidebar.open{transform:translateX(0)!important;}
   /* Main always full width on mobile */
@@ -730,8 +730,8 @@ body.sb-open{overflow:hidden;}
   .key-row{flex-wrap:wrap;gap:7px;}
   /* Toast position */
   #toast-wrap{right:10px;left:10px;max-width:none;align-items:flex-end;}
-  /* Hamburger visible on mobile */
-  .hamburger{display:flex;}
+  /* Hamburger always touchable on mobile */
+  .hamburger{display:flex;position:relative;z-index:10;}
   /* Hide desktop-only logout button in topbar on very small screens */
   .topbar .btn.btn-secondary{display:none;}
   /* Inline override grids */
@@ -751,13 +751,14 @@ body.sb-open{overflow:hidden;}
   .hamburger.mobile-only{display:none!important;}
 }
 .overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.58);
-  z-index:150;
-  /* NO backdrop-filter — it causes the blur/freeze bug on mobile */
+  /* Starts BELOW the topbar (top:58px) so topbar is always clickable */
+  display:none;position:fixed;
+  top:58px;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.6);
+  z-index:180;
+  /* NO backdrop-filter — causes freeze bug on mobile */
 }
-.overlay.vis{display:block;animation:ovin .22s ease;}
-@keyframes ovin{from{opacity:0}to{opacity:1}}
+.overlay.vis{display:block;}
 
 /* RT indicator */
 .rt-badge{
@@ -794,11 +795,11 @@ body.sb-open{overflow:hidden;}
 /* ══ MOBILE BOTTOM NAV ══ */
 .mobile-nav{
   display:none;
-  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  position:fixed;bottom:0;left:0;right:0;z-index:190;
   background:rgba(6,13,26,.98);
   border-top:1px solid var(--bdr);
   padding:0 4px env(safe-area-inset-bottom,8px);
-  backdrop-filter:blur(30px);
+  /* no backdrop-filter on mobile */
 }
 .mobile-nav-inner{display:flex;align-items:stretch;}
 .mn-btn{
@@ -826,8 +827,8 @@ body.sb-open{overflow:hidden;}
 </style>
 </head>
 <body>
-<!-- SIDEBAR OVERLAY -->
-<div class="overlay" id="overlay" onclick="closeMobileSidebar()"></div>
+<!-- SIDEBAR OVERLAY: positioned below topbar so topbar stays clickable -->
+<div class="overlay" id="overlay" onclick="closeMobileSidebar()" role="presentation"></div>
 
 <!-- ══════ LOGIN ══════ -->
 <div id="login-page">
@@ -1433,39 +1434,32 @@ function updateClock(){
 var sbCollapsed=false;
 var isMobile=function(){return window.innerWidth<=768;};
 
-/* Unified toggle — works for both mobile and desktop */
 function toggleSidebar(){
-  var sb=gi('sidebar'),ov=gi('overlay');
   if(isMobile()){
-    /* Mobile: slide in/out */
-    var isOpen=sb.classList.contains('open');
-    if(isOpen){
-      sb.classList.remove('open');
-      ov.classList.remove('vis');
-    } else {
-      sb.classList.add('open');
-      ov.classList.add('vis');
-    }
+    var isOpen=gi('sidebar').classList.contains('open');
+    if(isOpen){closeMobileSidebar();}else{openMobileSidebar();}
   } else {
-    /* Desktop: collapse to icons */
     sbCollapsed=!sbCollapsed;
-    var main=gi('main');
     if(sbCollapsed){
-      sb.classList.add('collapsed');
-      main.style.left='var(--sb-c)';
+      gi('sidebar').classList.add('collapsed');
+      gi('main').style.left='var(--sb-c)';
     } else {
-      sb.classList.remove('collapsed');
-      main.style.left='var(--sb)';
+      gi('sidebar').classList.remove('collapsed');
+      gi('main').style.left='var(--sb)';
     }
   }
+}
+
+function openMobileSidebar(){
+  gi('sidebar').classList.add('open');
+  gi('overlay').classList.add('vis');
 }
 
 function toggleMobileSidebar(){toggleSidebar();}
 
 function closeMobileSidebar(){
-  var sb=gi('sidebar'),ov=gi('overlay');
-  sb.classList.remove('open');
-  ov.classList.remove('vis');
+  gi('sidebar').classList.remove('open');
+  gi('overlay').classList.remove('vis');
 }
 
 /* ══ NAVIGATION ══ */
@@ -1495,8 +1489,8 @@ function navTo(page){
   var nav=gi('nav-'+page);if(nav)nav.classList.add('active');
   var title=gi('topbar-title');if(title)title.innerHTML='<span>'+(pageTitles[page]||page)+'</span>';
   updateMobileNav(page);
-  /* Auto-close sidebar on mobile after navigation */
-  if(isMobile())closeMobileSidebar();
+  /* Auto-close sidebar on mobile after nav */
+  if(isMobile()){closeMobileSidebar();}
   if(page==='analytics'){renderAnalytics();renderAnalyticsCharts();}
   if(page==='activity'){renderActivity();}
   if(page==='overview'){renderOverviewCharts();}
@@ -1619,12 +1613,8 @@ function enterApp(){
     gi('sb-uname').textContent=name;
     gi('sb-role').textContent=currentAdmin.role==='owner'?'OWNER':'ADMIN';
     /* Show correct button in topbar */
-    /* Desktop: main content offset by sidebar width */
-    if(!isMobile()){
-      gi('main').style.left='var(--sb)';
-    } else {
-      gi('main').style.left='0';
-    }
+    /* Set main offset based on viewport */
+    gi('main').style.left = isMobile() ? '0' : 'var(--sb)';
     if(currentAdmin.role!=='owner'){var f=gi('add-admin-form');if(f)f.style.display='none';}
     gi('nb-activity').style.display='inline-flex';
     updateClock();
@@ -2301,17 +2291,10 @@ autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
   /* On desktop: sidebar visible by default (CSS handles it via @media)  */
   /* On mobile: sidebar hidden by default via CSS transform, no JS class needed */
   window.addEventListener('resize',function(){
-    var sb=gi('sidebar'),ov=gi('overlay');
     if(!isMobile()){
-      /* Switching to desktop: clean up mobile state */
-      sb.classList.remove('open');
-      ov.classList.remove('vis');
-      document.body.classList.remove('sb-open');
-      /* Restore desktop left margin */
-      if(!sbCollapsed){gi('main').style.left='var(--sb)';}
-      else{gi('main').style.left='var(--sb-c)';}
+      closeMobileSidebar();
+      gi('main').style.left = sbCollapsed ? 'var(--sb-c)' : 'var(--sb)';
     } else {
-      /* Mobile: reset left */
       gi('main').style.left='0';
     }
   });
