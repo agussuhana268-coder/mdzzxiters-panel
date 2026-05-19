@@ -3109,8 +3109,22 @@ var selectedFile       = null;
 var sendCount          = 0;
 
 /* ── helpers ── */
-function getApiUrl()  { return (gi('api-url')  || gi('api-url-send') ).value.replace(/\/$/,''); }
-function getApiKey()  { return (gi('api-key')  || gi('api-key-send') ).value; }
+function getApiUrl(){
+  var el = gi('api-url') || gi('api-url-send');
+  var val = el ? el.value.trim() : '';
+  /* also check the other one */
+  if(!val){ var el2=gi('api-url-send')||gi('api-url'); if(el2) val=el2.value.trim(); }
+  /* fallback saved */
+  if(!val) val = localStorage.getItem('zx_api_url') || 'http://localhost:3000';
+  return val.replace(/\/$/,'');
+}
+function getApiKey(){
+  var el = gi('api-key') || gi('api-key-send');
+  var val = el ? el.value.trim() : '';
+  if(!val){ var el2=gi('api-key-send')||gi('api-key'); if(el2) val=el2.value.trim(); }
+  if(!val) val = localStorage.getItem('zx_api_key') || 'mdzz_admin_2024';
+  return val;
+}
 function fmtBytes(b)  { if(!b)return '—'; if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(1)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
 
 /* ── API call helper ── */
@@ -3464,15 +3478,66 @@ var navToPatched = function(page) {
     var isOwner = currentAdmin && currentAdmin.role === 'owner';
     if(gate)    gate.style.display    = isOwner ? 'none' : 'block';
     if(content) content.style.display = isOwner ? 'block' : 'none';
-    if(isOwner) populateProductSelect();
+    if(isOwner){
+      populateProductSelect();
+      /* Auto-load files from bucket every time Products page is opened */
+      setTimeout(function(){
+        var statusEl = gi('backend-status');
+        /* Sync api-url-send → api-url if not set */
+        var u2=gi('api-url-send'); var u1=gi('api-url');
+        if(u2&&u1&&!u1.value) u1.value=u2.value;
+        var k2=gi('api-key-send'); var k1=gi('api-key');
+        if(k2&&k1&&!k1.value) k1.value=k2.value;
+        loadProductFiles();
+      }, 200);
+    }
   }
-  if(page === 'send'){ populateProductSelect(); renderSendHistory(); }
+  if(page === 'send'){
+    /* Sync api-url from products page if available */
+    var u1=gi('api-url'); var u2=gi('api-url-send');
+    var k1=gi('api-key'); var k2=gi('api-key-send');
+    if(u1&&u2&&u1.value&&!u2.value) u2.value=u1.value;
+    if(k1&&k2&&k1.value&&!k2.value) k2.value=k1.value;
+    populateProductSelect();
+    renderSendHistory();
+    /* Auto-load files for dropdown */
+    if(productFiles.length===0) setTimeout(loadProductFiles,300);
+  }
 };
 window.navTo = navToPatched;
 window.drawerNav = function(page){ navToPatched(page); closeDrawer(); document.querySelectorAll('.drawer-item').forEach(function(el){el.className=el.className.replace(' active','');}); var di=gi('di-'+page); if(di)di.classList.add('active'); };
 
-/* ── On first load render history ── */
-(function(){ renderSendHistory(); })();
+/* ── Persist API config in localStorage ── */
+(function(){
+  /* Restore saved config */
+  var savedUrl = localStorage.getItem('zx_api_url');
+  var savedKey = localStorage.getItem('zx_api_key');
+  if(savedUrl){
+    var els = ['api-url','api-url-send'];
+    els.forEach(function(id){ var el=gi(id); if(el) el.value=savedUrl; });
+  }
+  if(savedKey){
+    var els2 = ['api-key','api-key-send'];
+    els2.forEach(function(id){ var el=gi(id); if(el) el.value=savedKey; });
+  }
+  /* Save on change */
+  function saveConfig(){
+    var u=gi('api-url')||gi('api-url-send');
+    var k=gi('api-key')||gi('api-key-send');
+    if(u) localStorage.setItem('zx_api_url',u.value);
+    if(k) localStorage.setItem('zx_api_key',k.value);
+  }
+  ['api-url','api-url-send','api-key','api-key-send'].forEach(function(id){
+    var el=gi(id); if(el) el.addEventListener('change',saveConfig);
+  });
+  /* Render history */
+  renderSendHistory();
+})();
+
+/* ── Auto-load product files & populate selects when data ready ── */
+function onDataReady(){
+  populateProductSelect();
+}
 
 </script>
 </body>
