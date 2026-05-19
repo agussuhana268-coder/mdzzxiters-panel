@@ -237,6 +237,17 @@ body.mobile-mode .nav-drawer{display:block;}
 }
 
 /* ══ PRODUCT DELIVERY PAGES ══ */
+.send-page-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+@media(max-width:768px){
+  .send-page-grid{
+    grid-template-columns:1fr;
+  }
+}
+
 .api-cfg{
   display:flex;align-items:center;gap:8px;
   padding:10px 14px;margin-bottom:16px;
@@ -300,16 +311,24 @@ body.mobile-mode .nav-drawer{display:block;}
 .sf-label{font-family:var(--hud);font-size:7.5px;letter-spacing:2px;color:var(--t2);}
 .sf-input{
   background:rgba(56,189,248,.04);border:1px solid var(--bdr);
-  border-radius:12px;padding:13px 16px;color:var(--t1);
-  font-family:var(--mono);font-size:13px;letter-spacing:.4px;
+  border-radius:12px;padding:14px 16px;color:var(--t1);
+  font-family:var(--mono);font-size:14px;letter-spacing:.4px;
   outline:none;transition:border-color .18s;
+  width:100%;
+}
+@media(max-width:768px){
+  .sf-input{font-size:15px;padding:15px 16px;}
 }
 .sf-input:focus{border-color:var(--sky2);}
 .sf-select{
   background:rgba(56,189,248,.04);border:1px solid var(--bdr);
-  border-radius:12px;padding:13px 16px;color:var(--t1);
-  font-family:var(--mono);font-size:12px;
+  border-radius:12px;padding:14px 16px;color:var(--t1);
+  font-family:var(--mono);font-size:13px;
   outline:none;-webkit-appearance:none;cursor:pointer;
+  width:100%;
+}
+@media(max-width:768px){
+  .sf-select{font-size:14px;padding:15px 16px;}
 }
 .sf-select:focus{border-color:var(--sky2);}
 .sf-select option{background:#0d1e38;color:var(--t1);}
@@ -356,6 +375,14 @@ body.mobile-mode .nav-drawer{display:block;}
 }
 
 @keyframes fbin{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:none;}}
+@media(max-width:768px){
+  .send-page-grid > div:nth-child(2) .cara-kerja-card{display:none;}
+  .cara-kerja-mobile{display:block!important;}
+  .send-result{margin-top:10px;font-size:11px;}
+  .send-history{max-height:220px;}
+  .sh-row{padding:10px 14px;}
+  .sf-label{font-size:8.5px;}
+}
 </style>
 <head>
 <meta charset="UTF-8"/>
@@ -1806,22 +1833,22 @@ body.sb-open{overflow:hidden;}
         </div>
 
         <!-- API Config (shared with products page) -->
-        <div class="api-cfg">
-          <label>BACKEND URL</label>
-          <input type="text" id="api-url-send" value="http://localhost:3000" placeholder="https://yourserver.com"/>
-          <label>ADMIN KEY</label>
-          <input type="password" id="api-key-send" value="mdzz_admin_2024" placeholder="admin secret"/>
+        <div class="api-cfg" style="flex-wrap:wrap;gap:8px;">
+          <label style="width:auto;">BACKEND URL</label>
+          <input type="text" id="api-url-send" value="http://localhost:3000" placeholder="https://yourserver.com" style="min-width:180px;flex:1;"/>
+          <label style="width:auto;">ADMIN KEY</label>
+          <input type="password" id="api-key-send" value="mdzz_admin_2024" placeholder="admin secret" style="min-width:140px;flex:1;"/>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="chart-grid-2">
+        <div class="send-page-grid">
           <!-- Send Form -->
           <div class="section">
             <div class="section-head">
               <span class="section-title">KIRIM KE PEMBELI</span>
               <span class="section-badge">Signed URL 15 menit</span>
             </div>
-            <div style="padding:18px;">
-              <div class="send-form">
+            <div style="padding:16px;">
+              <div class="send-form" style="gap:12px;">
                 <div class="sf-field">
                   <label class="sf-label">EMAIL PEMBELI</label>
                   <input type="email" id="sf-email" class="sf-input" placeholder="buyer@email.com" autocomplete="off"/>
@@ -1838,14 +1865,14 @@ body.sb-open{overflow:hidden;}
                 </div>
                 <div class="sf-field">
                   <label class="sf-label">LICENSE KEY</label>
-                  <div style="display:flex;gap:8px;">
-                    <input type="text" id="sf-key" class="sf-input" style="flex:1;" placeholder="MDZZ-XXXX-XXXX-XXXX" autocomplete="off"/>
-                    <button class="btn btn-secondary btn-sm" onclick="autoFillKey()" style="align-self:stretch;" title="Auto-fill dari key yang tersedia">
-                      <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" id="sf-key" class="sf-input" style="flex:1;min-width:0;" placeholder="MDZZ-XXXX-XXXX-XXXX" autocomplete="off"/>
+                    <button class="btn btn-secondary" onclick="autoFillKey()" style="flex-shrink:0;padding:14px 14px;border-radius:12px;" title="Auto-fill key tersedia">
+                      <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;display:block;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                     </button>
                   </div>
                 </div>
-                <button class="btn btn-primary" onclick="sendProduct()" id="btn-send" style="padding:16px;">
+                <button class="btn btn-primary" onclick="sendProduct()" id="btn-send" style="padding:17px;font-size:11px;letter-spacing:3px;justify-content:center;">
                   <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                   KIRIM EMAIL SEKARANG
                 </button>
@@ -1865,9 +1892,18 @@ body.sb-open{overflow:hidden;}
                 <div class="empty">Belum ada pengiriman.</div>
               </div>
             </div>
+            <!-- Mobile: cara kerja shown here instead -->
+            <div class="chart-card cara-kerja-mobile" style="padding:16px;display:none;">
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="font-family:var(--hud);font-size:8px;letter-spacing:2px;color:var(--t2);margin-bottom:4px;">CARA KERJA</div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.2);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:8px;color:var(--sky2);flex-shrink:0;">1</div><div style="font-family:var(--mono);font-size:9px;color:var(--t2);line-height:1.5;">Backend buat <b style="color:var(--t4);">Signed URL</b> dari Supabase Storage (private bucket)</div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.2);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:8px;color:var(--sky2);flex-shrink:0;">2</div><div style="font-family:var(--mono);font-size:9px;color:var(--t2);line-height:1.5;">Email HTML ke pembeli berisi License Key + link unduhan</div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.2);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:8px;color:var(--sky2);flex-shrink:0;">3</div><div style="font-family:var(--mono);font-size:9px;color:var(--t2);line-height:1.5;">Link kedaluwarsa <b style="color:var(--gold);">15 menit</b> — aman dari unduhan ilegal</div></div>
+              </div>
+            </div>
 
             <!-- Info card -->
-            <div class="chart-card" style="padding:16px;">
+            <div class="chart-card cara-kerja-card" style="padding:16px;">
               <div style="display:flex;flex-direction:column;gap:10px;">
                 <div style="font-family:var(--hud);font-size:8px;letter-spacing:2px;color:var(--t2);margin-bottom:4px;">CARA KERJA</div>
                 <div style="display:flex;align-items:flex-start;gap:10px;">
