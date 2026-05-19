@@ -3109,64 +3109,99 @@ var selectedFile       = null;
 var sendCount          = 0;
 
 /* ── helpers ── */
+/* ══ API CONFIG — single source of truth ══ */
+var _apiUrl = localStorage.getItem('zx_api_url') || '';
+var _apiKey = localStorage.getItem('zx_api_key') || 'mdzz_admin_2024';
+
 function getApiUrl(){
-  var el = gi('api-url') || gi('api-url-send');
-  var val = el ? el.value.trim() : '';
-  /* also check the other one */
-  if(!val){ var el2=gi('api-url-send')||gi('api-url'); if(el2) val=el2.value.trim(); }
-  /* fallback saved */
-  if(!val) val = localStorage.getItem('zx_api_url') || 'http://localhost:3000';
-  return val.replace(/\/$/,'');
+  /* Read from any visible input, or cached value */
+  var ids = ['api-url','api-url-send'];
+  for(var i=0;i<ids.length;i++){
+    var el=gi(ids[i]);
+    if(el&&el.value.trim()){_apiUrl=el.value.trim();break;}
+  }
+  return (_apiUrl||'http://localhost:3000').replace(/\/$/,'');
 }
 function getApiKey(){
-  var el = gi('api-key') || gi('api-key-send');
-  var val = el ? el.value.trim() : '';
-  if(!val){ var el2=gi('api-key-send')||gi('api-key'); if(el2) val=el2.value.trim(); }
-  if(!val) val = localStorage.getItem('zx_api_key') || 'mdzz_admin_2024';
-  return val;
+  var ids = ['api-key','api-key-send'];
+  for(var i=0;i<ids.length;i++){
+    var el=gi(ids[i]);
+    if(el&&el.value.trim()){_apiKey=el.value.trim();break;}
+  }
+  return _apiKey||'mdzz_admin_2024';
+}
+function syncApiInputs(){
+  var url=getApiUrl(), key=getApiKey();
+  ['api-url','api-url-send'].forEach(function(id){var el=gi(id);if(el&&!el.value)el.value=url;});
+  ['api-key','api-key-send'].forEach(function(id){var el=gi(id);if(el&&!el.value)el.value=key;});
+  localStorage.setItem('zx_api_url',url);
+  localStorage.setItem('zx_api_key',key);
 }
 function fmtBytes(b)  { if(!b)return '—'; if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(1)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
 
 /* ── API call helper ── */
 async function apiCall(method, endpoint, body, isFormData) {
+  syncApiInputs();
   var url  = getApiUrl() + endpoint;
   var key  = getApiKey();
   var opts = {
     method: method,
-    headers: { 'X-Admin-Key': key }
+    headers: { 'X-Admin-Key': key },
+    mode: 'cors'
   };
   if (body && !isFormData) {
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
   } else if (body && isFormData) {
-    opts.body = body; // FormData — no Content-Type, browser sets it
+    opts.body = body;
   }
-  var resp = await fetch(url, opts);
-  return resp.json();
+  /* 30 second timeout */
+  var controller = new AbortController();
+  var tid = setTimeout(function(){ controller.abort(); }, 30000);
+  opts.signal = controller.signal;
+  try {
+    var resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if(!resp.ok && resp.status !== 200){
+      var errTxt = await resp.text();
+      throw new Error('HTTP '+resp.status+': '+errTxt.substring(0,120));
+    }
+    return resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if(e.name === 'AbortError') throw new Error('Timeout — server tidak merespons dalam 30 detik');
+    if(e.message.includes('Failed to fetch') || e.message.includes('NetworkError')){
+      throw new Error('Tidak bisa terhubung ke server. Pastikan BACKEND URL sudah benar dan server sedang berjalan.');
+    }
+    throw e;
+  }
 }
 
 /* ── Test backend connection ── */
 async function testBackend() {
+  syncApiInputs();
   var el = gi('backend-status');
+  if(!el) return;
   el.style.display = 'block';
-  el.textContent = 'Connecting...';
-  el.style.background = 'rgba(56,189,248,.07)';
-  el.style.border = '1px solid var(--bdr)';
-  el.style.color = 'var(--t2)';
+  el.textContent = 'Menghubungkan ke ' + getApiUrl() + ' ...';
+  el.style.cssText = 'display:block;padding:9px 14px;border-radius:10px;font-family:var(--mono);font-size:9px;background:rgba(56,189,248,.05);border:1px solid var(--bdr);color:var(--t2);margin-bottom:12px;';
   try {
     var data = await apiCall('GET', '/api/health');
     if(data.success){
-      el.textContent = '✓ Backend online — Supabase: ' + (data.supabase ? 'connected' : 'missing') + ' · Resend: ' + (data.resend ? 'configured' : 'missing');
+      var bucketStatus = data.bucket || 'unknown';
+      el.textContent = '✓ Backend online · Supabase: ' + (data.supabase?'OK':'missing') + ' · Bucket: ' + bucketStatus + ' · Email: ' + (data.brevo||data.gmail?'OK':'missing');
       el.style.background = 'rgba(16,185,129,.07)';
       el.style.border = '1px solid rgba(16,185,129,.2)';
       el.style.color = '#34d399';
+      toast('Backend terhubung!','s',2000);
       loadProductFiles();
     } else throw new Error(data.message);
   } catch(e) {
-    el.textContent = '✗ Cannot connect: ' + e.message + ' — Pastikan server.js sudah berjalan';
+    el.textContent = '✗ ' + e.message;
     el.style.background = 'rgba(244,63,94,.07)';
     el.style.border = '1px solid rgba(244,63,94,.2)';
     el.style.color = '#fb7185';
+    toast('Gagal terhubung ke backend','e',3000);
   }
 }
 window.testBackend = testBackend;
@@ -3480,28 +3515,15 @@ var navToPatched = function(page) {
     if(content) content.style.display = isOwner ? 'block' : 'none';
     if(isOwner){
       populateProductSelect();
-      /* Auto-load files from bucket every time Products page is opened */
-      setTimeout(function(){
-        var statusEl = gi('backend-status');
-        /* Sync api-url-send → api-url if not set */
-        var u2=gi('api-url-send'); var u1=gi('api-url');
-        if(u2&&u1&&!u1.value) u1.value=u2.value;
-        var k2=gi('api-key-send'); var k1=gi('api-key');
-        if(k2&&k1&&!k1.value) k1.value=k2.value;
-        loadProductFiles();
-      }, 200);
+      syncApiInputs();
+      setTimeout(function(){ loadProductFiles(); }, 250);
     }
   }
   if(page === 'send'){
-    /* Sync api-url from products page if available */
-    var u1=gi('api-url'); var u2=gi('api-url-send');
-    var k1=gi('api-key'); var k2=gi('api-key-send');
-    if(u1&&u2&&u1.value&&!u2.value) u2.value=u1.value;
-    if(k1&&k2&&k1.value&&!k2.value) k2.value=k1.value;
+    syncApiInputs();
     populateProductSelect();
     renderSendHistory();
-    /* Auto-load files for dropdown */
-    if(productFiles.length===0) setTimeout(loadProductFiles,300);
+    if(productFiles.length===0) setTimeout(loadProductFiles, 300);
   }
 };
 window.navTo = navToPatched;
@@ -3509,28 +3531,27 @@ window.drawerNav = function(page){ navToPatched(page); closeDrawer(); document.q
 
 /* ── Persist API config in localStorage ── */
 (function(){
-  /* Restore saved config */
-  var savedUrl = localStorage.getItem('zx_api_url');
-  var savedKey = localStorage.getItem('zx_api_key');
+  /* Restore & sync all API config inputs from localStorage */
+  var savedUrl = localStorage.getItem('zx_api_url') || '';
+  var savedKey = localStorage.getItem('zx_api_key') || 'mdzz_admin_2024';
   if(savedUrl){
-    var els = ['api-url','api-url-send'];
-    els.forEach(function(id){ var el=gi(id); if(el) el.value=savedUrl; });
+    ['api-url','api-url-send'].forEach(function(id){var el=gi(id);if(el)el.value=savedUrl;});
   }
   if(savedKey){
-    var els2 = ['api-key','api-key-send'];
-    els2.forEach(function(id){ var el=gi(id); if(el) el.value=savedKey; });
+    ['api-key','api-key-send'].forEach(function(id){var el=gi(id);if(el)el.value=savedKey;});
   }
-  /* Save on change */
-  function saveConfig(){
-    var u=gi('api-url')||gi('api-url-send');
-    var k=gi('api-key')||gi('api-key-send');
-    if(u) localStorage.setItem('zx_api_url',u.value);
-    if(k) localStorage.setItem('zx_api_key',k.value);
-  }
+  /* Auto-save on every input change */
   ['api-url','api-url-send','api-key','api-key-send'].forEach(function(id){
-    var el=gi(id); if(el) el.addEventListener('change',saveConfig);
+    var el=gi(id);
+    if(el){
+      el.addEventListener('input', function(){
+        localStorage.setItem(id.includes('url')?'zx_api_url':'zx_api_key', el.value);
+        /* sync twin field */
+        var twin = id==='api-url'?'api-url-send':id==='api-url-send'?'api-url':id==='api-key'?'api-key-send':'api-key';
+        var tw=gi(twin);if(tw)tw.value=el.value;
+      });
+    }
   });
-  /* Render history */
   renderSendHistory();
 })();
 
