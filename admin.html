@@ -2,541 +2,1226 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>MDZZXITERS — ADMIN PANEL</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Black+Ops+One&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MDZZXITERS — CONTROL CENTER</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+/* ══════════════════════════════════════════════════════
+   RESET + VARIABLES
+══════════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;min-height:100vh;background:#080810;color:#e8e8f4;font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased}
-input,select{-webkit-user-select:text;user-select:text}
+html,body{width:100%;height:100%;overflow:hidden;background:#060d1a;font-family:'Space Grotesk',sans-serif;color:#d4e8ff;-webkit-font-smoothing:antialiased}
+input,select,textarea{-webkit-user-select:text;user-select:text;font-family:inherit}
 :root{
-  --r:#e01212;--r2:#ff3030;--r3:#ff5050;
-  --g:#22c55e;--y:#f59e0b;--blue:#3b82f6;--cyan:#06b6d4;
-  --bg:#080810;--card:rgba(16,16,28,.97);--card2:rgba(22,22,36,.92);
-  --brd:rgba(255,255,255,.09);--brd-r:rgba(224,18,18,.22);
-  --t1:#f0f0f8;--t2:#9090b0;--t3:#404060;--t4:#c0c0d8;
-  --hud:'Orbitron',monospace;--mono:'Share Tech Mono',monospace;--body:'Rajdhani',sans-serif;
+  /* palette */
+  --bg:  #060d1a;
+  --bg2: #091425;
+  --bg3: #0d1e38;
+  --card:rgba(9,20,42,.97);
+  --card2:rgba(12,26,52,.95);
+  --glass:rgba(14,30,60,.88);
+  /* blues */
+  --b1:#1d4ed8;--b2:#2563eb;--b3:#3b82f6;--b4:#60a5fa;--b5:#93c5fd;
+  /* sky */
+  --sky:#0ea5e9;--sky2:#38bdf8;--sky3:#7dd3fc;
+  /* accents */
+  --cyan:#06b6d4;--purple:#818cf8;--grn:#10b981;--gold:#f59e0b;--rose:#f43f5e;
+  /* borders */
+  --bdr:rgba(56,189,248,.12);--bdr2:rgba(56,189,248,.2);--bdr3:rgba(56,189,248,.06);
+  /* glow */
+  --glow:rgba(37,99,235,.35);--glow2:rgba(6,182,212,.25);
+  /* text */
+  --t1:#e2f4ff;--t2:#6288aa;--t3:#1e3a5a;--t4:#a0c8e8;--t5:#c8e0f4;
+  /* sidebar */
+  --sb:260px;--sb-c:60px;
+  /* nav height mobile */
+  --nav-h:58px;
+  /* mono */
+  --mono:'JetBrains Mono',monospace;
+  --hud:'Orbitron',monospace;
 }
-::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(224,18,18,.25);border-radius:4px}
+::-webkit-scrollbar-thumb{background:rgba(56,189,248,.2);border-radius:4px}
 
-/* ═══ LOGIN ═══ */
-#login-page{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(224,18,18,.06) 0%,#080810 60%);z-index:100;transition:opacity .45s ease;}
-#login-page.hide{opacity:0;pointer-events:none}
-.login-bg{position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(224,18,18,.05) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(224,18,18,.04) 0%,transparent 50%);pointer-events:none;}
-.login-box{width:92%;max-width:380px;background:rgba(14,14,24,.98);border:1px solid var(--brd-r);border-radius:22px;padding:36px 28px 32px;box-shadow:0 32px 100px rgba(0,0,0,.7),0 0 60px rgba(224,18,18,.06);position:relative;z-index:2;}
-.login-logo{display:flex;align-items:center;gap:16px;margin-bottom:10px}
-.login-m{width:52px;height:52px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;}
-.login-m svg.hex-bg{position:absolute;inset:0;width:100%;height:100%;}
-.login-m span{font-family:'Black Ops One',cursive;font-size:22px;color:#ff3030;position:relative;z-index:2;text-shadow:0 0 16px rgba(224,18,18,.9),0 2px 0 rgba(0,0,0,.6);line-height:1;}
-.login-title{font-family:var(--hud);font-size:15px;font-weight:900;color:var(--r2);letter-spacing:1.5px}
-.login-sub{font-family:var(--mono);font-size:8.5px;color:var(--t2);letter-spacing:2px;margin-top:3px}
-.login-divider{height:1px;margin:20px 0;background:linear-gradient(90deg,transparent,rgba(224,18,18,.2),transparent);}
-.login-label{font-family:var(--hud);font-size:8px;letter-spacing:2.5px;color:var(--t2);display:block;margin-bottom:8px;}
-.login-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(224,18,18,.15);border-radius:13px;padding:14px 16px;color:var(--t1);font-family:var(--mono);font-size:13px;outline:none;letter-spacing:1px;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;margin-bottom:14px;}
-.login-input:focus{border-color:var(--r2);box-shadow:0 0 0 3px rgba(224,18,18,.1)}
-.login-btn{width:100%;padding:15px;margin-top:4px;background:linear-gradient(150deg,#7a0000 0%,#cc0000 50%,#ff2020 100%);border:none;border-radius:14px;color:#fff;font-family:var(--hud);font-size:11px;font-weight:700;letter-spacing:3px;cursor:pointer;box-shadow:0 8px 28px rgba(224,18,18,.25);transition:transform .1s,filter .15s;position:relative;overflow:hidden;}
-.login-btn::after{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.1) 0%,transparent 50%);pointer-events:none;}
-.login-btn:active{transform:scale(.97);filter:brightness(.88)}
-.login-err{margin-top:14px;padding:12px 14px;border-radius:11px;background:rgba(224,18,18,.07);border:1px solid rgba(224,18,18,.2);color:#ff5050;font-family:var(--mono);font-size:11px;text-align:center;display:none;animation:shake .4s ease;}
+/* ══════ ANIMATED BG ══════ */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 80% 10%,rgba(37,99,235,.09) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 60% at 10% 90%,rgba(6,182,212,.06) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%,rgba(129,140,248,.04) 0%,transparent 70%);
+}
+
+/* ══════════════════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════════════════ */
+#login-page{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  background:#060d1a;
+  transition:opacity .5s ease;
+}
+#login-page.fade-out{opacity:0;pointer-events:none}
+.login-bg-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(56,189,248,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.04) 1px,transparent 1px);
+  background-size:44px 44px;
+  pointer-events:none;
+}
+.login-orb{
+  position:absolute;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(37,99,235,.14) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-55%);pointer-events:none;
+  animation:lorb 8s ease-in-out infinite;
+}
+@keyframes lorb{0%,100%{transform:translate(-50%,-55%) scale(1);}50%{transform:translate(-50%,-55%) scale(1.12);}}
+.login-card{
+  position:relative;z-index:2;
+  width:100%;max-width:420px;
+  background:rgba(9,18,36,.98);
+  border:1px solid var(--bdr2);
+  border-radius:28px;
+  padding:42px 36px 36px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.02) inset,0 40px 100px rgba(0,0,0,.8),0 0 80px rgba(37,99,235,.08);
+  backdrop-filter:blur(40px);
+}
+.login-card::before{
+  content:'';position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(56,189,248,.5),transparent);
+}
+.login-logo-wrap{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+.login-logo-hex{
+  width:54px;height:54px;flex-shrink:0;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.login-logo-hex svg{position:absolute;inset:0;width:100%;height:100%;}
+.login-M{
+  font-family:var(--hud);font-size:22px;color:var(--sky2);
+  position:relative;z-index:2;
+  text-shadow:0 0 20px rgba(56,189,248,.9),0 0 40px rgba(56,189,248,.3);
+  animation:Mpls 3s ease-in-out infinite;
+}
+@keyframes Mpls{0%,100%{filter:brightness(.9);}50%{filter:brightness(1.3);text-shadow:0 0 28px rgba(56,189,248,1),0 0 50px rgba(56,189,248,.4);}}
+.login-brand{font-family:var(--hud);font-size:16px;font-weight:700;color:var(--sky2);letter-spacing:2px;display:block;}
+.login-brand-sub{font-family:var(--mono);font-size:7.5px;color:var(--t2);letter-spacing:3px;display:block;margin-top:3px;}
+.login-divider{height:1px;margin:22px 0;background:linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent);}
+.l-field{margin-bottom:14px;}
+.l-field label{font-family:var(--hud);font-size:7.5px;letter-spacing:2.5px;color:var(--t2);display:block;margin-bottom:7px;}
+.l-input{
+  width:100%;background:rgba(56,189,248,.04);
+  border:1px solid rgba(56,189,248,.14);border-radius:12px;
+  padding:13px 16px;color:var(--t1);
+  font-family:var(--mono);font-size:13px;letter-spacing:.5px;
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.l-input:focus{border-color:var(--sky2);box-shadow:0 0 0 3px rgba(56,189,248,.1);}
+.l-input::placeholder{color:var(--t3);}
+.btn-login{
+  width:100%;padding:15px;margin-top:8px;
+  background:linear-gradient(150deg,#1e3a8a 0%,#2563eb 45%,#0ea5e9 80%,#38bdf8 100%);
+  border:none;border-radius:14px;color:#fff;
+  font-family:var(--hud);font-size:10px;font-weight:700;letter-spacing:4px;
+  cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 8px 32px rgba(37,99,235,.35);
+  transition:transform .12s,filter .15s;
+}
+.btn-login::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,transparent 50%);pointer-events:none;}
+.btn-login::after{content:'';position:absolute;left:-80%;top:0;width:46%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);animation:sheen 5s ease infinite;pointer-events:none;}
+@keyframes sheen{0%,100%{left:-80%;}44%{left:130%;}}
+.btn-login:active{transform:scale(.97);filter:brightness(.88)}
+.login-err{
+  margin-top:12px;padding:11px 14px;border-radius:11px;
+  background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.2);
+  color:#fb7185;font-family:var(--mono);font-size:10.5px;text-align:center;
+  display:none;animation:shake .4s ease;
+}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-.login-footer{margin-top:20px;text-align:center;font-family:var(--mono);font-size:8px;color:var(--t3);letter-spacing:1.5px;}
+.login-footer{margin-top:18px;text-align:center;font-family:var(--mono);font-size:7.5px;color:var(--t3);letter-spacing:2px;}
 
-/* ═══ DASHBOARD ═══ */
-#dashboard{display:none}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(10,10,20,.97);border-bottom:1px solid rgba(224,18,18,.1);position:sticky;top:0;z-index:10;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
-.topbar::after{content:'';position:absolute;bottom:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(224,18,18,.3),transparent);}
-.tb-left{display:flex;align-items:center;gap:12px}
-.tb-m{width:36px;height:36px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;}
-.tb-m svg.hex-bg{position:absolute;inset:0;width:100%;height:100%;}
-.tb-m span{font-family:'Black Ops One',cursive;font-size:15px;color:#ff3030;position:relative;z-index:2;text-shadow:0 0 10px rgba(224,18,18,.85),0 1px 0 rgba(0,0,0,.5);line-height:1;}
-.tb-brand{font-family:var(--hud);font-size:12px;font-weight:900;color:#ff4040;letter-spacing:1.5px;display:block;line-height:1.3;text-shadow:0 0 20px rgba(224,18,18,.3);}
-.tb-sub{font-family:var(--mono);font-size:7px;color:var(--t2);letter-spacing:2px;display:block;margin-top:1px}
-.tb-right{display:flex;align-items:center;gap:8px}
-.tb-user{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);}
-.tb-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#7a0000,#e01212);border:1.5px solid rgba(224,18,18,.4);display:flex;align-items:center;justify-content:center;font-family:'Black Ops One',cursive;font-size:10px;color:#fff;font-weight:700;box-shadow:0 0 8px rgba(224,18,18,.3);}
-.tb-uname{font-family:var(--mono);font-size:9px;color:var(--t4);letter-spacing:.3px}
-.tb-role{font-family:var(--mono);font-size:7px;padding:2px 6px;border-radius:4px;letter-spacing:.5px;}
-.tb-role.owner{background:rgba(224,18,18,.12);border:1px solid rgba(224,18,18,.2);color:#ff5050;}
-.tb-role.admin{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:#60a0ff;}
-.btn-sm{padding:6px 12px;border-radius:8px;font-family:var(--mono);font-size:9px;letter-spacing:.5px;cursor:pointer;border:none;transition:all .15s;}
-.btn-logout{background:rgba(255,255,255,.06);color:var(--t2);border:1px solid var(--brd)}
-.btn-logout:active{background:rgba(255,255,255,.12)}
+/* ══════════════════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════════════════ */
+#app{display:none;width:100%;height:100vh;overflow:hidden;position:relative;z-index:1;}
 
-/* ═══ TABS ═══ */
-.tab-bar{display:flex;gap:0;padding:0 16px;background:rgba(10,10,20,.9);border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
-.tab-bar::-webkit-scrollbar{display:none}
-.tab{padding:12px 14px;font-family:var(--hud);font-size:8.5px;font-weight:700;letter-spacing:1.5px;color:var(--t3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;position:relative;}
-.tab.active{color:var(--r2);border-bottom-color:var(--r2)}
-.tab:active{opacity:.7}
-.tab-dot{position:absolute;top:9px;right:8px;width:5px;height:5px;border-radius:50%;background:var(--g);animation:pulse-g 2s ease infinite;}
-.page{padding:14px 14px 80px}
-.tab-page{display:none}
-.tab-page.active{display:block}
-
-/* ═══ STATS ═══ */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px}
-.stat{background:var(--card);border:1px solid var(--brd);border-radius:13px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
-.stat-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.stat-ico.red{background:rgba(224,18,18,.1);border:1px solid rgba(224,18,18,.18)}
-.stat-ico.green{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.18)}
-.stat-ico.blue{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.18)}
-.stat-ico.yellow{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.18)}
-.stat-ico.gray{background:rgba(255,255,255,.05);border:1px solid var(--brd)}
-.stat-ico.cyan{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.18)}
-.stat-ico svg{width:15px;height:15px}
-.stat-val{font-family:var(--hud);font-size:20px;font-weight:900;display:block;line-height:1}
-.stat-val.red{color:#ff4040}.stat-val.green{color:var(--g)}.stat-val.blue{color:#60a0ff}.stat-val.yellow{color:var(--y)}.stat-val.gray{color:var(--t3)}.stat-val.cyan{color:var(--cyan)}
-.stat-lbl{font-family:var(--mono);font-size:6.5px;color:var(--t2);letter-spacing:1px;display:block}
-
-/* ═══ REALTIME BADGE ═══ */
-.rt-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:7.5px;letter-spacing:1px;padding:3px 8px;border-radius:20px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.18);color:#22c55e;margin-bottom:12px;}
-.rt-dot{width:5px;height:5px;border-radius:50%;background:#22c55e;animation:pulse-g 1.5s ease infinite;}
-
-/* ═══ SECTIONS ═══ */
-.section{background:var(--card);border:1px solid var(--brd);border-radius:16px;overflow:hidden;margin-bottom:14px;}
-.sec-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--brd);background:rgba(255,255,255,.015);}
-.sec-title{font-family:var(--hud);font-size:9px;font-weight:700;color:var(--t1);letter-spacing:2px}
-.sec-badge{font-family:var(--mono);font-size:8px;color:var(--t2);background:rgba(255,255,255,.05);padding:3px 8px;border-radius:5px;}
-
-/* ═══ SEARCH BAR ═══ */
-.search-bar{
-  display:flex;align-items:center;gap:8px;
-  padding:10px 15px;border-bottom:1px solid var(--brd);
-  background:rgba(0,0,0,.15);
+/* ── SIDEBAR ── */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;
+  width:var(--sb);z-index:50;
+  background:rgba(7,14,28,.98);
+  border-right:1px solid var(--bdr);
+  display:flex;flex-direction:column;
+  transition:transform .32s cubic-bezier(.4,0,.2,1),width .28s ease;
+  backdrop-filter:blur(40px);
+  will-change:transform;
 }
-.search-ico{flex-shrink:0;opacity:.4;}
-.search-ico svg{width:14px;height:14px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;}
-.search-input{
-  flex:1;background:transparent;border:none;outline:none;
-  color:var(--t1);font-family:var(--mono);font-size:11px;
-  letter-spacing:.4px;caret-color:var(--r2);
+.sidebar.collapsed{width:var(--sb-c);}
+.sidebar.mobile-hidden{transform:translateX(-100%);}
+
+.sb-header{
+  padding:18px 16px 14px;
+  border-bottom:1px solid var(--bdr3);
+  display:flex;align-items:center;gap:12px;
+  flex-shrink:0;
 }
-.search-input::placeholder{color:var(--t3);font-size:10px;}
-.search-clear{
-  flex-shrink:0;background:rgba(255,255,255,.06);border:none;
-  border-radius:5px;padding:3px 7px;
-  font-family:var(--mono);font-size:8px;color:var(--t2);
-  cursor:pointer;transition:background .15s;display:none;
+.sb-logo{
+  width:36px;height:36px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;position:relative;
 }
-.search-clear.vis{display:block;}
-.search-clear:active{background:rgba(255,255,255,.12)}
-.search-count{
-  flex-shrink:0;font-family:var(--mono);font-size:8px;color:var(--t3);
-  white-space:nowrap;
+.sb-logo svg{position:absolute;inset:0;width:100%;height:100%;}
+.sb-logo-M{font-family:var(--hud);font-size:14px;color:var(--sky2);position:relative;z-index:2;text-shadow:0 0 12px rgba(56,189,248,.9);}
+.sb-brand-wrap{overflow:hidden;transition:opacity .2s,width .28s;}
+.sb-brand{font-family:var(--hud);font-size:11px;font-weight:700;color:var(--sky2);letter-spacing:1.5px;display:block;white-space:nowrap;}
+.sb-brand-sub{font-family:var(--mono);font-size:6.5px;color:var(--t2);letter-spacing:2px;display:block;margin-top:2px;white-space:nowrap;}
+.sidebar.collapsed .sb-brand-wrap{opacity:0;width:0;pointer-events:none;}
+
+.sb-toggle{
+  margin-left:auto;flex-shrink:0;
+  background:rgba(56,189,248,.06);border:1px solid var(--bdr);
+  border-radius:8px;padding:6px;cursor:pointer;
+  color:var(--t2);transition:all .18s;display:flex;align-items:center;justify-content:center;
+}
+.sb-toggle:hover{background:rgba(56,189,248,.12);color:var(--sky2);}
+.sb-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;transition:transform .28s;}
+.sidebar.collapsed .sb-toggle svg{transform:rotate(180deg);}
+
+.sb-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 8px;scrollbar-width:none;}
+.sb-nav::-webkit-scrollbar{display:none}
+
+.sb-section-label{
+  font-family:var(--hud);font-size:6.5px;letter-spacing:3px;color:var(--t3);
+  padding:10px 8px 5px;white-space:nowrap;overflow:hidden;
+  transition:opacity .2s;
+}
+.sidebar.collapsed .sb-section-label{opacity:0;height:0;padding:0;overflow:hidden;}
+
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 10px;border-radius:12px;
+  cursor:pointer;transition:all .18s;
+  position:relative;overflow:hidden;
+  margin-bottom:2px;white-space:nowrap;
+}
+.nav-item:hover{background:rgba(56,189,248,.07);}
+.nav-item.active{background:rgba(37,99,235,.15);border:1px solid rgba(56,189,248,.18);}
+.nav-item.active::before{
+  content:'';position:absolute;left:0;top:20%;bottom:20%;
+  width:3px;border-radius:3px;
+  background:linear-gradient(180deg,var(--sky),var(--cyan));
+  box-shadow:0 0 10px rgba(56,189,248,.6);
+}
+.nav-item-ico{
+  width:20px;height:20px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.nav-item-ico svg{width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s;}
+.nav-item.active .nav-item-ico svg{stroke:var(--sky2);}
+.nav-item:hover .nav-item-ico svg{stroke:var(--sky3);}
+.nav-item-label{
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;
+  color:var(--t2);transition:color .18s;
+  overflow:hidden;white-space:nowrap;
+}
+.nav-item.active .nav-item-label{color:var(--t1);}
+.nav-item:hover .nav-item-label{color:var(--t5);}
+.nav-badge{
+  margin-left:auto;flex-shrink:0;
+  font-family:var(--mono);font-size:8px;letter-spacing:.3px;
+  padding:2px 7px;border-radius:20px;
+  background:rgba(37,99,235,.18);border:1px solid rgba(56,189,248,.22);
+  color:var(--sky2);white-space:nowrap;
+  transition:opacity .2s;
+}
+.sidebar.collapsed .nav-item-label,.sidebar.collapsed .nav-badge,.sidebar.collapsed .sb-section-label{opacity:0;width:0;overflow:hidden;padding:0;margin:0;}
+
+.sb-footer{
+  padding:12px 10px;border-top:1px solid var(--bdr3);flex-shrink:0;
+}
+.sb-user-card{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:12px;
+  background:rgba(56,189,248,.04);border:1px solid var(--bdr3);
+}
+.sb-avatar{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#1e3a8a,#2563eb);
+  border:1.5px solid rgba(56,189,248,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--hud);font-size:12px;color:#fff;
+  box-shadow:0 0 10px rgba(37,99,235,.3);
+}
+.sb-user-info{flex:1;min-width:0;overflow:hidden;transition:opacity .2s,width .28s;}
+.sb-user-name{font-size:12px;font-weight:600;color:var(--t1);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-user-role{font-family:var(--mono);font-size:7px;color:var(--t2);letter-spacing:1px;display:block;}
+.sidebar.collapsed .sb-user-info{opacity:0;width:0;}
+.btn-logout-sb{
+  flex-shrink:0;background:none;border:none;cursor:pointer;
+  color:var(--t2);padding:5px;border-radius:7px;
+  transition:all .15s;display:flex;align-items:center;
+}
+.btn-logout-sb:hover{background:rgba(244,63,94,.1);color:#fb7185;}
+.btn-logout-sb svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+.sidebar.collapsed .btn-logout-sb{display:none;}
+
+/* ── MAIN ── */
+.main{
+  position:fixed;top:0;right:0;bottom:0;
+  left:var(--sb);
+  display:flex;flex-direction:column;
+  transition:left .28s ease;
+  overflow:hidden;
+}
+.sidebar.collapsed~.main,.main.expanded{left:var(--sb-c);}
+.main.full-width{left:0;}
+
+/* ── TOPBAR ── */
+.topbar{
+  height:58px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  background:rgba(6,13,26,.97);
+  border-bottom:1px solid var(--bdr);
+  backdrop-filter:blur(40px);
+  position:relative;z-index:20;
+}
+.topbar::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(56,189,248,.2),transparent);
+}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.hamburger{
+  background:none;border:1px solid var(--bdr);border-radius:9px;
+  padding:7px;cursor:pointer;color:var(--t2);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.hamburger:hover{background:rgba(56,189,248,.08);color:var(--sky2);border-color:var(--bdr2);}
+.hamburger svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+.topbar-title{font-family:var(--hud);font-size:13px;font-weight:700;color:var(--t1);letter-spacing:1px;}
+.topbar-title span{color:var(--sky2);}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.tb-chip{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 11px;border-radius:20px;
+  font-family:var(--mono);font-size:8px;letter-spacing:.5px;
+}
+.tb-chip.online{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:#34d399;}
+.tb-chip.time{background:rgba(56,189,248,.06);border:1px solid var(--bdr);color:var(--t2);}
+.chip-dot{width:5px;height:5px;border-radius:50%;background:#34d399;animation:gdot 2s ease infinite;}
+@keyframes gdot{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.5);}50%{box-shadow:0 0 0 4px rgba(52,211,153,0);}}
+.tb-avatar-sm{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,#1e3a8a,#2563eb);
+  border:1.5px solid rgba(56,189,248,.28);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--hud);font-size:11px;color:#fff;
+  box-shadow:0 0 8px rgba(37,99,235,.3);cursor:pointer;
 }
 
-/* ═══ PROJECT FILTER ═══ */
-.filter-bar{display:flex;align-items:center;gap:8px;padding:10px 15px;border-bottom:1px solid var(--brd);overflow-x:auto;scrollbar-width:none;}
+/* ── CONTENT ── */
+.content{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  background:var(--bg);
+  scrollbar-width:thin;
+  padding:22px 22px 40px;
+  position:relative;
+}
+.content::-webkit-scrollbar{width:4px}
+
+/* ── PAGE SYSTEM ── */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ══════════════════════════════════════════════════════
+   COMPONENTS
+══════════════════════════════════════════════════════ */
+
+/* Section header */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.page-title{font-family:var(--hud);font-size:17px;font-weight:700;color:var(--t1);letter-spacing:1px;display:block;}
+.page-sub{font-family:var(--mono);font-size:8px;color:var(--t2);letter-spacing:2px;margin-top:3px;display:block;}
+.page-actions{display:flex;gap:8px;align-items:center;}
+
+/* Stat cards row */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+@media(max-width:1100px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr 1fr;}}
+
+.stat-card{
+  background:var(--card);border:1px solid var(--bdr);
+  border-radius:18px;padding:18px 16px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.stat-card:hover{border-color:var(--bdr2);box-shadow:0 0 0 1px rgba(56,189,248,.06) inset,0 8px 30px rgba(0,0,0,.4);}
+.stat-card::before{
+  content:'';position:absolute;top:0;right:0;width:90px;height:90px;border-radius:50%;
+  background:radial-gradient(circle,var(--c,rgba(56,189,248,.08)) 0%,transparent 70%);
+  transform:translate(20px,-20px);pointer-events:none;
+}
+.stat-card.c-blue{--c:rgba(37,99,235,.14);}
+.stat-card.c-cyan{--c:rgba(6,182,212,.12);}
+.stat-card.c-grn{--c:rgba(16,185,129,.12);}
+.stat-card.c-gold{--c:rgba(245,158,11,.1);}
+.stat-card.c-purple{--c:rgba(129,140,248,.1);}
+.stat-card.c-rose{--c:rgba(244,63,94,.1);}
+
+.stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.stat-label{font-family:var(--hud);font-size:7.5px;letter-spacing:2px;color:var(--t2);}
+.stat-ico{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+}
+.stat-ico svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.stat-ico.blue{background:rgba(37,99,235,.14);border:1px solid rgba(37,99,235,.22);color:var(--b4);}
+.stat-ico.cyan{background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.2);color:var(--cyan);}
+.stat-ico.grn{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.18);color:#34d399;}
+.stat-ico.gold{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.18);color:var(--gold);}
+.stat-ico.purple{background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.18);color:var(--purple);}
+.stat-ico.rose{background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.18);color:#fb7185;}
+.stat-val{font-family:var(--hud);font-size:28px;font-weight:900;color:var(--t1);line-height:1;display:block;margin-bottom:5px;}
+.stat-sub{font-family:var(--mono);font-size:9px;color:var(--t2);}
+.stat-delta{
+  font-family:var(--mono);font-size:9px;letter-spacing:.3px;
+  padding:2px 7px;border-radius:5px;display:inline-flex;align-items:center;gap:3px;
+}
+.stat-delta.up{background:rgba(16,185,129,.09);color:#34d399;}
+.stat-delta.down{background:rgba(244,63,94,.09);color:#fb7185;}
+.stat-delta.neutral{background:rgba(56,189,248,.07);color:var(--sky2);}
+
+/* Gradient stat cards (big ones) */
+.grad-card{
+  border-radius:18px;padding:22px 20px;
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  min-height:130px;
+}
+.grad-card.gc-blue{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 55%,#38bdf8 100%);}
+.grad-card.gc-cyan{background:linear-gradient(135deg,#0e7490 0%,#0891b2 50%,#22d3ee 100%);}
+.grad-card::before{content:'';position:absolute;top:-30%;right:-10%;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none;}
+.gc-label{font-family:var(--hud);font-size:8px;letter-spacing:2px;color:rgba(255,255,255,.65);margin-bottom:4px;}
+.gc-val{display:flex;align-items:flex-end;gap:6px;}
+.gc-num{font-family:var(--hud);font-size:38px;font-weight:900;color:#fff;line-height:1;}
+.gc-unit{font-family:var(--hud);font-size:12px;color:rgba(255,255,255,.7);padding-bottom:5px;}
+.gc-badge{
+  position:absolute;top:16px;right:16px;
+  padding:4px 10px;border-radius:20px;
+  background:rgba(255,255,255,.15);
+  font-family:var(--mono);font-size:9px;color:#fff;
+  backdrop-filter:blur(8px);
+}
+
+/* Charts */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px;}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr;}}
+.chart-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+@media(max-width:900px){.chart-grid-3{grid-template-columns:1fr;}}
+.chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+@media(max-width:700px){.chart-grid-2{grid-template-columns:1fr;}}
+
+.chart-card{
+  background:var(--card);border:1px solid var(--bdr);border-radius:18px;
+  padding:18px;overflow:hidden;position:relative;
+}
+.chart-card::before{content:'';position:absolute;top:0;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent);}
+.chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.chart-title{font-family:var(--hud);font-size:10px;font-weight:700;color:var(--t1);letter-spacing:1px;}
+.chart-sub{font-family:var(--mono);font-size:7.5px;color:var(--t2);margin-top:2px;}
+.chart-actions{display:flex;gap:6px;align-items:center;}
+.chart-pill{
+  padding:4px 10px;border-radius:20px;border:1px solid var(--bdr);
+  font-family:var(--mono);font-size:8px;color:var(--t2);cursor:pointer;
+  transition:all .15s;background:rgba(56,189,248,.04);
+}
+.chart-pill.active,.chart-pill:hover{background:rgba(37,99,235,.14);border-color:rgba(56,189,248,.22);color:var(--sky2);}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:8px;color:var(--t2);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.chart-wrap{position:relative;width:100%;}
+
+/* ══ SECTIONS / TABLES ══ */
+.section{background:var(--card);border:1px solid var(--bdr);border-radius:18px;overflow:hidden;margin-bottom:16px;}
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--bdr3);
+  background:rgba(56,189,248,.015);flex-wrap:wrap;gap:8px;
+}
+.section-title{font-family:var(--hud);font-size:9px;font-weight:700;color:var(--t1);letter-spacing:2px;}
+.section-badge{font-family:var(--mono);font-size:8px;color:var(--t2);background:rgba(56,189,248,.06);border:1px solid var(--bdr);padding:3px 9px;border-radius:5px;}
+.section-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+
+/* Filter chips */
+.filter-bar{display:flex;gap:7px;padding:11px 16px;border-bottom:1px solid var(--bdr3);overflow-x:auto;scrollbar-width:none;flex-wrap:wrap;}
 .filter-bar::-webkit-scrollbar{display:none}
-.filter-chip{padding:5px 11px;border-radius:20px;font-family:var(--mono);font-size:8.5px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--brd);background:rgba(255,255,255,.04);color:var(--t2);transition:all .2s;white-space:nowrap;flex-shrink:0;}
-.filter-chip.active{background:rgba(224,18,18,.1);border-color:rgba(224,18,18,.28);color:var(--r3);}
-.filter-chip:active{transform:scale(.95)}
+.chip{
+  padding:5px 12px;border-radius:20px;
+  font-family:var(--mono);font-size:8.5px;letter-spacing:.3px;
+  cursor:pointer;border:1px solid var(--bdr);background:rgba(56,189,248,.04);color:var(--t2);
+  transition:all .18s;white-space:nowrap;flex-shrink:0;
+}
+.chip.active{background:rgba(37,99,235,.14);border-color:rgba(56,189,248,.28);color:var(--sky2);}
+.chip:active{transform:scale(.95)}
 
-/* ═══ GEN AREA ═══ */
-.gen-area{padding:12px 15px;display:flex;gap:7px;align-items:flex-start;border-bottom:1px solid var(--brd);flex-wrap:wrap;}
-.gen-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;width:100%;}
-.gen-input{background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:10px;padding:10px 12px;color:var(--t1);font-family:var(--mono);font-size:12px;letter-spacing:1px;outline:none;}
-.gen-input:focus{border-color:rgba(224,18,18,.35)}
-.gen-select{background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:10px;padding:10px 12px;color:var(--t1);font-family:var(--mono);font-size:10px;letter-spacing:.5px;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;}
-.gen-select option{background:#12121e;color:var(--t1)}
-.btn-gen{padding:10px 16px;background:linear-gradient(135deg,#6a0000,#b00000);border:1px solid rgba(224,18,18,.28);border-radius:10px;color:#ff6060;font-family:var(--hud);font-size:8.5px;font-weight:700;letter-spacing:1.5px;cursor:pointer;white-space:nowrap;transition:all .15s;}
-.btn-gen:active{transform:scale(.95)}
+/* Search bar */
+.search-wrap{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 16px;border-bottom:1px solid var(--bdr3);
+}
+.search-ico{flex-shrink:0;display:flex;align-items:center;}
+.search-ico svg{width:14px;height:14px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;}
+.search-inp{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--t1);font-family:var(--mono);font-size:11.5px;letter-spacing:.4px;
+  caret-color:var(--sky2);
+}
+.search-inp::placeholder{color:var(--t3);font-size:10px;}
+.btn-clear{background:rgba(56,189,248,.07);border:1px solid var(--bdr);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:8px;color:var(--t2);cursor:pointer;display:none;transition:all .15s;}
+.btn-clear.vis{display:block;}
+.btn-clear:hover{background:rgba(56,189,248,.14);color:var(--sky2);}
+.search-res{font-family:var(--mono);font-size:8px;color:var(--t3);white-space:nowrap;}
 
-/* ── DURATION ROW ── */
-.dur-row{
-  display:flex;gap:7px;align-items:center;flex-wrap:wrap;
-  width:100%;padding-top:9px;border-top:1px solid rgba(255,255,255,.05);
-  margin-top:2px;
+/* Gen area */
+.gen-area{padding:14px 16px;border-bottom:1px solid var(--bdr3);background:rgba(56,189,248,.016);}
+.gen-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.gen-row:last-child{margin-bottom:0;}
+.gen-label{font-family:var(--hud);font-size:7.5px;letter-spacing:2px;color:var(--t2);white-space:nowrap;flex-shrink:0;}
+.f-input{
+  background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:10px;
+  padding:9px 12px;color:var(--t1);font-family:var(--mono);font-size:12px;
+  outline:none;letter-spacing:.5px;transition:border-color .18s;
 }
-.dur-label{font-family:var(--hud);font-size:7.5px;letter-spacing:2px;color:var(--t2);white-space:nowrap;flex-shrink:0;}
-.dur-toggle{
-  display:flex;border:1px solid var(--brd);border-radius:8px;overflow:hidden;flex-shrink:0;
+.f-input:focus{border-color:var(--sky2);}
+.f-input:disabled{opacity:.3;cursor:not-allowed;}
+.f-select{
+  background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:10px;
+  padding:9px 12px;color:var(--t1);font-family:var(--mono);font-size:10px;
+  outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
 }
-.dur-tog-btn{
-  padding:7px 11px;border:none;background:rgba(255,255,255,.04);
-  font-family:var(--mono);font-size:8.5px;color:var(--t2);cursor:pointer;
-  transition:all .18s;white-space:nowrap;
-}
-.dur-tog-btn.active{background:rgba(6,182,212,.15);color:var(--cyan);border-color:rgba(6,182,212,.22);}
-.dur-val-input{
-  width:62px;background:rgba(255,255,255,.05);border:1px solid var(--brd);
-  border-radius:9px;padding:8px 10px;color:var(--t1);
-  font-family:var(--mono);font-size:12px;outline:none;text-align:center;
-}
-.dur-val-input:focus{border-color:rgba(6,182,212,.4);}
-.dur-val-input:disabled{opacity:.28;cursor:not-allowed;}
-.dur-unit-select{
-  background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:9px;
-  padding:8px 10px;color:var(--t1);font-family:var(--mono);font-size:9px;
-  outline:none;-webkit-appearance:none;cursor:pointer;
-}
-.dur-unit-select:focus{border-color:rgba(6,182,212,.4);}
-.dur-unit-select:disabled{opacity:.28;cursor:not-allowed;}
-.dur-unit-select option{background:#12121e;color:var(--t1)}
-.dur-preview{
-  font-family:var(--mono);font-size:8px;color:rgba(6,182,212,.7);
-  padding:4px 9px;border-radius:6px;background:rgba(6,182,212,.07);
-  border:1px solid rgba(6,182,212,.14);white-space:nowrap;display:none;
-}
-.dur-preview.vis{display:inline-block;}
+.f-select:focus{border-color:var(--sky2);}
+.f-select:disabled{opacity:.3;}
+.f-select option{background:#0d1e38;color:var(--t1);}
 
-/* ═══ KEY ROWS ═══ */
-.list{max-height:420px;overflow-y:auto;scrollbar-width:none}
-.list::-webkit-scrollbar{display:none}
-.key-row{display:flex;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
+/* Duration toggle */
+.dur-toggle-wrap{
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  padding-top:10px;border-top:1px solid rgba(56,189,248,.06);
+}
+.dur-toggle-btns{display:flex;border:1px solid var(--bdr);border-radius:9px;overflow:hidden;flex-shrink:0;}
+.dur-tog{
+  padding:7px 13px;border:none;background:rgba(56,189,248,.04);
+  font-family:var(--mono);font-size:8.5px;color:var(--t2);
+  cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.dur-tog.on{background:rgba(6,182,212,.14);color:var(--cyan);}
+.dur-preview-badge{
+  font-family:var(--mono);font-size:8px;color:var(--cyan);
+  padding:4px 10px;border-radius:6px;
+  background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.15);
+  display:none;white-space:nowrap;
+}
+.dur-preview-badge.vis{display:inline-block;}
+
+/* Buttons */
+.btn{
+  padding:9px 16px;border-radius:10px;
+  font-family:var(--hud);font-size:8.5px;font-weight:700;letter-spacing:1.5px;
+  cursor:pointer;border:1px solid transparent;transition:all .15s;
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;}
+.btn:active{transform:scale(.95);filter:brightness(.88);}
+.btn-primary{background:linear-gradient(135deg,#1e3a8a,#2563eb);border-color:rgba(56,189,248,.25);color:#fff;box-shadow:0 4px 16px rgba(37,99,235,.25);}
+.btn-secondary{background:rgba(56,189,248,.07);border-color:var(--bdr);color:var(--sky2);}
+.btn-danger{background:rgba(244,63,94,.08);border-color:rgba(244,63,94,.2);color:#fb7185;}
+.btn-success{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2);color:#34d399;}
+.btn-sm{padding:5px 10px;font-size:7.5px;border-radius:7px;}
+.btn-icon{padding:7px;border-radius:9px;background:rgba(56,189,248,.06);border:1px solid var(--bdr);color:var(--t2);}
+.btn-icon:hover{background:rgba(56,189,248,.12);color:var(--sky2);}
+
+/* ══ ROWS / LISTS ══ */
+.list-area{max-height:420px;overflow-y:auto;scrollbar-width:none;}
+.list-area::-webkit-scrollbar{display:none}
+
+.key-row{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;border-bottom:1px solid var(--bdr3);
+  transition:background .14s;
+}
 .key-row:last-child{border-bottom:none}
-.key-row:hover{background:rgba(255,255,255,.015)}
+.key-row:hover{background:rgba(56,189,248,.02);}
 .key-main{flex:1;min-width:0;}
-.key-val{font-family:var(--mono);font-size:11px;color:var(--t1);letter-spacing:.4px;display:block;}
-.key-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px;}
-.key-proj-tag{font-family:var(--mono);font-size:7px;color:var(--t2);letter-spacing:.5px;}
-.key-time{font-family:var(--mono);font-size:7px;color:var(--t3);}
-.key-expiry{
-  font-family:var(--mono);font-size:7px;padding:2px 6px;border-radius:4px;letter-spacing:.5px;
-}
-.key-expiry.active{background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.18);color:var(--cyan);}
-.key-expiry.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);color:var(--y);}
-.key-expiry.expired{background:rgba(224,18,18,.08);border:1px solid rgba(224,18,18,.18);color:var(--r3);}
-.key-expiry.none{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:var(--t3);}
-.key-status{font-family:var(--mono);font-size:7.5px;letter-spacing:.5px;padding:3px 7px;border-radius:5px;flex-shrink:0;}
-.key-status.unused{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#22c55e}
-.key-status.used{background:rgba(224,18,18,.07);border:1px solid rgba(224,18,18,.18);color:#ff5050}
-.key-status.revoked{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:var(--t3)}
-.key-status.expired{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);color:var(--y)}
-.btn-act{padding:5px 10px;border-radius:7px;font-family:var(--mono);font-size:8px;letter-spacing:.4px;cursor:pointer;border:1px solid;transition:all .15s;flex-shrink:0;}
-.btn-act:active{transform:scale(.92)}
-.btn-copy{background:rgba(59,130,246,.07);border-color:rgba(59,130,246,.2);color:#60a0ff}
-.btn-revoke{background:rgba(224,18,18,.07);border-color:rgba(224,18,18,.2);color:#ff5050}
+.key-val{font-family:var(--mono);font-size:11.5px;color:var(--t1);letter-spacing:.5px;display:block;}
+.key-meta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:4px;}
+.km-tag{font-family:var(--mono);font-size:7px;color:var(--t2);background:rgba(56,189,248,.05);border:1px solid var(--bdr3);padding:1px 5px;border-radius:3px;letter-spacing:.3px;}
+.km-exp.active{color:var(--cyan);}
+.km-exp.warn{color:var(--gold);}
+.km-exp.expired{color:#fb7185;}
+.km-exp.none{color:var(--t3);}
+.key-status{font-family:var(--mono);font-size:7.5px;letter-spacing:.5px;padding:3px 8px;border-radius:5px;flex-shrink:0;}
+.ks-unused{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:#34d399}
+.ks-used{background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.18);color:#fb7185}
+.ks-revoked{background:rgba(56,189,248,.04);border:1px solid var(--bdr3);color:var(--t3)}
+.ks-expired{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);color:var(--gold)}
 
-/* ═══ SESSIONS ═══ */
-.sess-row{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid rgba(255,255,255,.04);}
+.sess-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bdr3);}
 .sess-row:last-child{border-bottom:none}
-.sess-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Black Ops One',cursive;font-size:14px;flex-shrink:0;}
-.sess-av.online{background:rgba(34,197,94,.12);border:1.5px solid rgba(34,197,94,.28);color:#22c55e;}
-.sess-av.offline{background:rgba(255,255,255,.04);border:1.5px solid var(--brd);color:var(--t3);}
+.sess-av{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:14px;flex-shrink:0;}
+.sess-av.online{background:rgba(16,185,129,.12);border:1.5px solid rgba(16,185,129,.25);color:#34d399;}
+.sess-av.offline{background:rgba(56,189,248,.05);border:1.5px solid var(--bdr3);color:var(--t3);}
 .sess-info{flex:1;min-width:0;}
-.sess-key{font-family:var(--mono);font-size:10px;color:var(--t4);letter-spacing:.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.sess-meta{font-family:var(--mono);font-size:8px;color:var(--t3);display:block;margin-top:2px;}
-.dev-tag{background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:3px;padding:1px 4px;}
-.sess-badge{font-family:var(--mono);font-size:7.5px;padding:4px 8px;border-radius:6px;display:flex;align-items:center;gap:4px;flex-shrink:0;letter-spacing:.5px;}
-.sess-badge.online{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#22c55e}
-.sess-badge.offline{background:rgba(255,255,255,.04);border:1px solid var(--brd);color:var(--t3)}
-.online-dot{width:5px;height:5px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulse-g 2s ease infinite}
-.offline-dot{width:5px;height:5px;border-radius:50%;background:var(--t3);flex-shrink:0}
-@keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0)}}
+.sess-key{font-family:var(--mono);font-size:10.5px;color:var(--t4);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sess-meta{font-family:var(--mono);font-size:8px;color:var(--t3);margin-top:3px;display:block;}
+.dev-tag{background:rgba(56,189,248,.04);border:1px solid var(--bdr3);border-radius:3px;padding:1px 5px;}
+.online-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:7.5px;padding:3px 8px;border-radius:20px;flex-shrink:0;}
+.online-badge.on{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:#34d399;}
+.online-badge.off{background:rgba(56,189,248,.04);border:1px solid var(--bdr3);color:var(--t3);}
+.odot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.odot.g{background:#34d399;animation:gdot 2s ease infinite;}
+.odot.o{background:var(--t3);}
 
-/* ═══ ADMIN ROWS ═══ */
-.admin-row{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid rgba(255,255,255,.04);}
+.admin-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bdr3);}
 .admin-row:last-child{border-bottom:none}
-.admin-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Black Ops One',cursive;font-size:14px;background:linear-gradient(135deg,#5a0000,#c01010);border:1.5px solid rgba(224,18,18,.3);color:#fff;flex-shrink:0;box-shadow:0 0 10px rgba(224,18,18,.15);}
-.admin-info{flex:1;min-width:0}
-.admin-name{font-family:var(--hud);font-size:10px;font-weight:700;color:var(--t1);letter-spacing:.5px;display:block}
-.admin-user{font-family:var(--mono);font-size:9px;color:var(--t2);display:block;margin-top:1px}
-.admin-joined{font-family:var(--mono);font-size:7.5px;color:var(--t3);display:block;margin-top:1px}
-.role-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:.5px;padding:3px 7px;border-radius:5px;flex-shrink:0;}
-.role-tag.owner{background:rgba(224,18,18,.1);border:1px solid rgba(224,18,18,.22);color:var(--r3)}
-.role-tag.admin{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);color:#60a0ff}
+.admin-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:15px;background:linear-gradient(135deg,#1e3a8a,#2563eb);border:1.5px solid rgba(56,189,248,.25);color:#fff;flex-shrink:0;box-shadow:0 0 10px rgba(37,99,235,.2);}
+.admin-info{flex:1;min-width:0;}
+.admin-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--t1);display:block;}
+.admin-user{font-family:var(--mono);font-size:8.5px;color:var(--t2);display:block;margin-top:2px;}
+.admin-joined{font-family:var(--mono);font-size:7.5px;color:var(--t3);display:block;margin-top:1px;}
+.role-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:.5px;padding:3px 8px;border-radius:5px;flex-shrink:0;}
+.role-tag.owner{background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.2);color:var(--gold);}
+.role-tag.admin{background:rgba(37,99,235,.1);border:1px solid rgba(56,189,248,.2);color:var(--sky2);}
 
-/* ═══ ADD ADMIN FORM ═══ */
-.add-form{padding:12px 15px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--brd);flex-wrap:wrap;}
-.add-input{flex:1;min-width:70px;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:10px;padding:9px 12px;color:var(--t1);font-family:var(--mono);font-size:11px;outline:none;}
-.add-input:focus{border-color:rgba(224,18,18,.35)}
-.btn-add{padding:9px 14px;background:linear-gradient(135deg,#003a18,#006a30);border:1px solid rgba(34,197,94,.25);border-radius:10px;color:#4ade80;font-family:var(--hud);font-size:8px;font-weight:700;letter-spacing:1.5px;cursor:pointer;white-space:nowrap;}
-.btn-add:active{transform:scale(.95)}
-
-/* ═══ PROJECT MGMT ═══ */
-.proj-row{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid rgba(255,255,255,.04);}
+.proj-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bdr3);}
 .proj-row:last-child{border-bottom:none}
-.proj-ico{width:28px;height:28px;border-radius:7px;background:rgba(224,18,18,.08);border:1px solid rgba(224,18,18,.12);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:8px;color:var(--r2);flex-shrink:0;}
-.proj-name{font-family:var(--hud);font-size:10px;font-weight:700;color:var(--t1);letter-spacing:.5px;flex:1}
-.proj-stats{display:flex;gap:6px;}
-.proj-stat{font-family:var(--mono);font-size:7.5px;padding:2px 7px;border-radius:4px;}
-.proj-stat.total{background:rgba(255,255,255,.04);color:var(--t2);border:1px solid var(--brd);}
-.proj-stat.active{background:rgba(34,197,94,.07);color:#22c55e;border:1px solid rgba(34,197,94,.15);}
-.proj-stat.used{background:rgba(224,18,18,.06);color:#ff5050;border:1px solid rgba(224,18,18,.12);}
+.proj-ico{width:30px;height:30px;border-radius:8px;background:rgba(37,99,235,.1);border:1px solid rgba(56,189,248,.15);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:9px;color:var(--sky2);flex-shrink:0;}
+.proj-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--t1);flex:1;}
+.proj-stats{display:flex;gap:7px;}
+.ps{font-family:var(--mono);font-size:7.5px;padding:3px 8px;border-radius:4px;}
+.ps.total{background:rgba(56,189,248,.05);color:var(--t2);border:1px solid var(--bdr3);}
+.ps.active{background:rgba(16,185,129,.07);color:#34d399;border:1px solid rgba(16,185,129,.15);}
+.ps.used{background:rgba(244,63,94,.06);color:#fb7185;border:1px solid rgba(244,63,94,.12);}
 
-/* ═══ ACTIVITY FEED ═══ */
-.activity-row{display:flex;align-items:flex-start;gap:10px;padding:10px 15px;border-bottom:1px solid rgba(255,255,255,.03);}
-.activity-row:last-child{border-bottom:none}
-.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
-.act-dot.key{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5);}
-.act-dot.login{background:#60a0ff;box-shadow:0 0 6px rgba(96,160,255,.5);}
-.act-dot.revoke{background:#ff5050;box-shadow:0 0 6px rgba(255,80,80,.5);}
+/* Activity rows */
+.act-row{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-bottom:1px solid var(--bdr3);}
+.act-row:last-child{border-bottom:none}
+.act-dot-wrap{display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0;padding-top:3px;}
+.act-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.act-dot.key{background:#34d399;box-shadow:0 0 6px rgba(52,211,153,.5);}
+.act-dot.login{background:var(--sky2);box-shadow:0 0 6px rgba(56,189,248,.5);}
+.act-dot.revoke{background:#fb7185;box-shadow:0 0 6px rgba(251,113,133,.5);}
 .act-dot.offline{background:var(--t3);}
-.act-dot.expire{background:var(--y);box-shadow:0 0 6px rgba(245,158,11,.5);}
-.act-text{flex:1;font-family:var(--mono);font-size:9.5px;color:var(--t4);line-height:1.5}
+.act-dot.expire{background:var(--gold);box-shadow:0 0 6px rgba(245,158,11,.5);}
+.act-dot.admin{background:var(--purple);box-shadow:0 0 6px rgba(129,140,248,.5);}
+.act-dot.project{background:var(--cyan);box-shadow:0 0 6px rgba(6,182,212,.5);}
+.act-body{flex:1;min-width:0;}
+.act-text{font-family:var(--mono);font-size:10px;color:var(--t4);line-height:1.6;}
 .act-text b{color:var(--t1);}
-.act-time{font-family:var(--mono);font-size:7.5px;color:var(--t3);flex-shrink:0;margin-top:2px;}
+.act-by{font-family:var(--mono);font-size:7.5px;color:var(--t3);margin-top:2px;}
+.act-time{font-family:var(--mono);font-size:7.5px;color:var(--t3);flex-shrink:0;white-space:nowrap;margin-top:3px;}
 
-/* ═══ EMPTY ═══ */
-.empty{padding:28px 16px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--t3)}
+/* Analytics mini-stat */
+.analytics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+@media(max-width:700px){.analytics-grid{grid-template-columns:1fr 1fr;}}
+.mini-stat{background:var(--card2);border:1px solid var(--bdr3);border-radius:14px;padding:16px 14px;}
+.ms-label{font-family:var(--hud);font-size:7px;letter-spacing:2px;color:var(--t2);display:block;margin-bottom:6px;}
+.ms-val{font-family:var(--hud);font-size:22px;font-weight:700;color:var(--t1);display:block;line-height:1;}
+.ms-sub{font-family:var(--mono);font-size:8px;color:var(--t2);margin-top:4px;display:block;}
 
-/* ═══ TOAST ═══ */
-#toast{position:fixed;top:65px;left:50%;transform:translateX(-50%);z-index:200;pointer-events:none;display:flex;flex-direction:column;gap:6px;width:88%;max-width:340px;}
-.t-item{padding:11px 14px;border-radius:12px;font-family:var(--mono);font-size:10.5px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);animation:tin .28s ease;box-shadow:0 10px 36px rgba(0,0,0,.5);}
-.t-item.out{animation:tout .24s ease forwards}
-.t-s{background:rgba(6,28,10,.97);border:1px solid rgba(34,197,94,.2);color:#22c55e}
-.t-e{background:rgba(28,4,4,.97);border:1px solid rgba(224,18,18,.2);color:#ff5050}
-.t-i{background:rgba(6,6,18,.97);border:1px solid rgba(255,255,255,.08);color:#8888a0}
-.t-w{background:rgba(24,16,4,.97);border:1px solid rgba(245,158,11,.2);color:var(--y)}
-@keyframes tin{from{opacity:0;transform:translateY(-12px) scale(.9)}to{opacity:1;transform:none}}
-@keyframes tout{to{opacity:0;transform:translateY(-8px)}}
-
-/* ═══ CONFIRM MODAL ═══ */
-.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;animation:tin .2s ease;}
-.modal-ov.hidden{display:none}
-.modal-box{width:100%;max-width:300px;background:rgba(12,12,22,.99);border:1px solid rgba(255,255,255,.06);border-radius:18px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.8);animation:popin .3s cubic-bezier(.34,1.4,.64,1);}
-@keyframes popin{from{transform:scale(.85) translateY(8px);opacity:0}to{transform:none;opacity:1}}
-.modal-body{padding:24px 20px;text-align:center}
-.modal-title{font-family:var(--hud);font-size:12px;font-weight:700;color:var(--t1);letter-spacing:.5px;margin-bottom:8px}
-.modal-msg{font-family:var(--body);font-size:13px;color:var(--t2);line-height:1.5}
-.modal-acts{display:flex;border-top:1px solid rgba(255,255,255,.05)}
-.modal-btn{flex:1;padding:15px;background:none;border:none;font-family:var(--body);font-size:14px;font-weight:600;color:#606070;cursor:pointer;transition:background .12s;}
-.modal-btn:active{background:rgba(255,255,255,.05)}
-.modal-btn.danger{color:#ff3030;border-left:1px solid rgba(255,255,255,.05);font-weight:700}
-
-/* expired auto-check banner */
+/* Expire banner */
 .expire-banner{
   display:none;align-items:center;gap:8px;
-  margin-bottom:10px;padding:9px 13px;border-radius:10px;
-  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);
-  font-family:var(--mono);font-size:9px;color:var(--y);
+  margin-bottom:14px;padding:10px 14px;border-radius:12px;
+  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);
+  font-family:var(--mono);font-size:9px;color:var(--gold);
 }
 .expire-banner.vis{display:flex;}
-.eb-dot{width:6px;height:6px;border-radius:50%;background:var(--y);flex-shrink:0;animation:pulse-g 2s ease infinite;}
+.eb-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;animation:gdot 2s ease infinite;}
+
+/* Empty */
+.empty{padding:32px 16px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--t3);}
+
+/* Form fields inline */
+.add-form{padding:13px 16px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--bdr3);flex-wrap:wrap;background:rgba(56,189,248,.016);}
+.add-form .f-input{flex:1;min-width:80px;}
+
+/* ══ TOAST ══ */
+#toast-wrap{position:fixed;top:70px;right:20px;z-index:500;display:flex;flex-direction:column;gap:7px;pointer-events:none;max-width:340px;}
+.toast{
+  display:flex;align-items:center;gap:9px;
+  padding:11px 15px;border-radius:13px;
+  font-family:var(--mono);font-size:10.5px;
+  backdrop-filter:blur(20px);animation:tin .28s ease;
+  box-shadow:0 8px 32px rgba(0,0,0,.55);
+}
+.toast.out{animation:tout .22s ease forwards}
+.toast.ts{background:rgba(6,22,14,.97);border:1px solid rgba(16,185,129,.22);color:#34d399}
+.toast.te{background:rgba(22,6,6,.97);border:1px solid rgba(244,63,94,.22);color:#fb7185}
+.toast.ti{background:rgba(6,12,22,.97);border:1px solid var(--bdr);color:var(--t4)}
+.toast.tw{background:rgba(20,14,4,.97);border:1px solid rgba(245,158,11,.22);color:var(--gold)}
+.t-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.ts .t-dot{background:#34d399;}.te .t-dot{background:#fb7185;}.ti .t-dot{background:var(--sky2);}.tw .t-dot{background:var(--gold);}
+@keyframes tin{from{opacity:0;transform:translateX(16px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateX(10px)}}
+
+/* ══ MODAL ══ */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;animation:ovin .18s ease;}
+.modal-ov.hidden{display:none}
+@keyframes ovin{from{opacity:0}to{opacity:1}}
+.modal-box{width:100%;max-width:310px;background:rgba(8,16,32,.99);border:1px solid rgba(56,189,248,.18);border-radius:22px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.9);animation:popin .3s cubic-bezier(.34,1.4,.64,1);}
+@keyframes popin{from{transform:scale(.82) translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.modal-box::before{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,.4),transparent);}
+.modal-body{padding:24px 22px;text-align:center;}
+.modal-title{font-family:var(--hud);font-size:12px;font-weight:700;color:var(--t1);letter-spacing:.5px;margin-bottom:8px;}
+.modal-msg{font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--t2);line-height:1.55;}
+.modal-acts{display:flex;border-top:1px solid rgba(56,189,248,.07);}
+.modal-btn{flex:1;padding:15px;background:none;border:none;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;transition:background .12s;}
+.modal-btn:active{background:rgba(56,189,248,.05);}
+.modal-btn.confirm{color:var(--sky2);border-left:1px solid rgba(56,189,248,.07);font-weight:700;}
+.modal-btn.danger{color:#fb7185;border-left:1px solid rgba(56,189,248,.07);font-weight:700;}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .main{left:0!important;}
+  .content{padding:16px 14px 100px;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .chart-grid{grid-template-columns:1fr;}
+  .chart-grid-3{grid-template-columns:1fr;}
+  .analytics-grid{grid-template-columns:1fr 1fr;}
+  .grad-card{min-height:100px;}
+  .gc-num{font-size:28px;}
+  .topbar{padding:0 14px;}
+  .topbar-title{font-size:11px;}
+  .hamburger{display:flex!important;}
+}
+@media(min-width:769px){
+  .hamburger.mobile-only{display:none!important;}
+}
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:49;backdrop-filter:blur(4px);
+}
+.overlay.vis{display:block;}
+
+/* RT indicator */
+.rt-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:7.5px;letter-spacing:1px;
+  padding:3px 9px;border-radius:20px;
+  background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.18);color:#34d399;
+}
+
+/* Online count strip */
+.online-strip{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 18px;background:rgba(16,185,129,.04);
+  border-bottom:1px solid rgba(16,185,129,.08);
+  font-family:var(--mono);font-size:8.5px;color:#34d399;
+}
+
+/* Big number display for analytics */
+.big-metric{text-align:center;padding:20px 0;}
+.bm-val{font-family:var(--hud);font-size:52px;font-weight:900;color:var(--t1);display:block;line-height:1;text-shadow:0 0 30px rgba(56,189,248,.2);}
+.bm-label{font-family:var(--mono);font-size:9px;color:var(--t2);letter-spacing:2px;margin-top:6px;display:block;}
+
+/* Period tabs */
+.period-tabs{display:flex;background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:10px;padding:3px;gap:2px;}
+.period-tab{flex:1;padding:7px 12px;border:none;background:none;border-radius:7px;font-family:var(--mono);font-size:9px;color:var(--t2);cursor:pointer;transition:all .18s;text-align:center;}
+.period-tab.active{background:rgba(37,99,235,.18);color:var(--sky2);border:1px solid rgba(56,189,248,.18);}
 </style>
 </head>
 <body>
+<!-- SIDEBAR OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeMobileSidebar()"></div>
 
-<!-- LOGIN -->
+<!-- ══════ LOGIN ══════ -->
 <div id="login-page">
-  <div class="login-bg"></div>
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="login-m">
-        <svg class="hex-bg" viewBox="0 0 52 52" fill="none">
-          <polygon points="26,2 49,14 49,38 26,50 3,38 3,14" fill="url(#lgrd)" stroke="rgba(224,18,18,.5)" stroke-width="1.5"/>
-          <polygon points="26,6 45,16.5 45,35.5 26,46 7,35.5 7,16.5" fill="none" stroke="rgba(224,18,18,.15)" stroke-width=".8"/>
-          <defs><radialGradient id="lgrd" cx="40%" cy="30%" r="75%" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#3a0000"/><stop offset="100%" stop-color="#0e0006"/></radialGradient></defs>
+  <div class="login-bg-grid"></div>
+  <div class="login-orb"></div>
+  <div class="login-card">
+    <div class="login-logo-wrap">
+      <div class="login-logo-hex">
+        <svg viewBox="0 0 54 54" fill="none">
+          <polygon points="27,2 50,14.5 50,39.5 27,52 4,39.5 4,14.5" fill="url(#lhbg)" stroke="rgba(56,189,248,.4)" stroke-width="1.4"/>
+          <polygon points="27,8 44,17.5 44,36.5 27,46 10,36.5 10,17.5" fill="none" stroke="rgba(56,189,248,.1)" stroke-width=".8"/>
+          <defs><radialGradient id="lhbg" cx="40%" cy="28%" r="72%"><stop offset="0%" stop-color="#0f2040"/><stop offset="100%" stop-color="#060d1a"/></radialGradient></defs>
         </svg>
-        <span>M</span>
+        <span class="login-M">M</span>
       </div>
       <div>
-        <div class="login-title">MDZZXITERS</div>
-        <div class="login-sub">TEAM OF CORPORATION</div>
+        <span class="login-brand">MDZZXITERS</span>
+        <span class="login-brand-sub">CONTROL CENTER v2.0</span>
       </div>
     </div>
     <div class="login-divider"></div>
-    <label class="login-label">USERNAME</label>
-    <input type="text" id="adm-user" class="login-input" placeholder="admin username" autocomplete="off" autocorrect="off" autocapitalize="none"/>
-    <label class="login-label">PASSWORD</label>
-    <input type="password" id="adm-pass" class="login-input" placeholder="••••••••" autocomplete="off"/>
-    <button class="login-btn" onclick="adminLogin()">SIGN IN</button>
+    <div class="l-field">
+      <label>USERNAME</label>
+      <input type="text" id="adm-user" class="l-input" placeholder="enter username" autocomplete="off" autocorrect="off" autocapitalize="none"/>
+    </div>
+    <div class="l-field">
+      <label>PASSWORD</label>
+      <input type="password" id="adm-pass" class="l-input" placeholder="••••••••" autocomplete="off"/>
+    </div>
+    <button class="btn-login" onclick="adminLogin()">SIGN IN TO CONTROL CENTER</button>
     <div class="login-err" id="adm-err">Invalid credentials. Access denied.</div>
-    <div class="login-footer">MDZZXITERS TEAM · SECURE ACCESS</div>
+    <div class="login-footer">MDZZXITERS CORP · SECURE ACCESS · v2.0</div>
   </div>
 </div>
 
-<div id="toast"></div>
-
+<div id="toast-wrap"></div>
 <div id="modal" class="modal-ov hidden">
   <div class="modal-box">
-    <div class="modal-body">
-      <div class="modal-title" id="modal-title"></div>
-      <div class="modal-msg" id="modal-msg"></div>
-    </div>
+    <div class="modal-body"><div class="modal-title" id="modal-title"></div><div class="modal-msg" id="modal-msg"></div></div>
     <div class="modal-acts" id="modal-acts"></div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard">
-  <div class="topbar">
-    <div class="tb-left">
-      <div class="tb-m">
-        <svg class="hex-bg" viewBox="0 0 36 36" fill="none">
-          <polygon points="18,1.5 33,9.5 33,26.5 18,34.5 3,26.5 3,9.5" fill="url(#tbrd)" stroke="rgba(224,18,18,.45)" stroke-width="1.2"/>
-          <defs><radialGradient id="tbrd" cx="40%" cy="30%" r="75%" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#300000"/><stop offset="100%" stop-color="#0a0004"/></radialGradient></defs>
+<!-- ══════ APP ══════ -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">
+        <svg viewBox="0 0 36 36" fill="none">
+          <polygon points="18,1.5 33,9.5 33,26.5 18,34.5 3,26.5 3,9.5" fill="url(#sbhbg)" stroke="rgba(56,189,248,.35)" stroke-width="1"/>
+          <defs><radialGradient id="sbhbg" cx="40%" cy="28%" r="72%"><stop offset="0%" stop-color="#0f2040"/><stop offset="100%" stop-color="#060d1a"/></radialGradient></defs>
         </svg>
-        <span>M</span>
+        <span class="sb-logo-M">M</span>
       </div>
-      <div>
-        <span class="tb-brand">MDZZXITERS</span>
-        <span class="tb-sub">TEAM OF CORPORATION</span>
+      <div class="sb-brand-wrap">
+        <span class="sb-brand">MDZZXITERS</span>
+        <span class="sb-brand-sub">CONTROL CENTER</span>
+      </div>
+      <button class="sb-toggle" onclick="toggleSidebar()" title="Collapse sidebar">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+
+    <div class="sb-nav">
+      <div class="sb-section-label">MAIN</div>
+      <div class="nav-item active" onclick="navTo('overview')" id="nav-overview">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+        <span class="nav-item-label">Overview</span>
+      </div>
+      <div class="nav-item" onclick="navTo('analytics')" id="nav-analytics">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <span class="nav-item-label">Analytics</span>
+        <span class="nav-badge" id="nb-analytics">Charts</span>
+      </div>
+
+      <div class="sb-section-label">MANAGEMENT</div>
+      <div class="nav-item" onclick="navTo('keys')" id="nav-keys">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/><line x1="21" y1="4" x2="21" y2="9"/><line x1="21" y1="4" x2="16" y2="4"/></svg></div>
+        <span class="nav-item-label">Keys</span>
+        <span class="nav-badge" id="nb-keys">0</span>
+      </div>
+      <div class="nav-item" onclick="navTo('users')" id="nav-users">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <span class="nav-item-label">Users</span>
+        <span class="nav-badge" id="nb-users" style="background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.25);color:#34d399;">0 Online</span>
+      </div>
+      <div class="nav-item" onclick="navTo('projects')" id="nav-projects">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+        <span class="nav-item-label">Projects</span>
+        <span class="nav-badge" id="nb-projects">0</span>
+      </div>
+
+      <div class="sb-section-label">SYSTEM</div>
+      <div class="nav-item" onclick="navTo('team')" id="nav-team">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+        <span class="nav-item-label">Team</span>
+      </div>
+      <div class="nav-item" onclick="navTo('activity')" id="nav-activity">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+        <span class="nav-item-label">Activity Log</span>
+        <span class="nav-badge" id="nb-activity" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.22);color:#34d399;display:none;">LIVE</span>
       </div>
     </div>
-    <div class="tb-right">
-      <div class="tb-user">
-        <div class="tb-avatar" id="tb-avatar">M</div>
-        <div style="display:flex;flex-direction:column;gap:1px;">
-          <span class="tb-uname" id="tb-uname">admin</span>
-          <span class="tb-role" id="tb-role">ADMIN</span>
+
+    <div class="sb-footer">
+      <div class="sb-user-card">
+        <div class="sb-avatar" id="sb-avatar">M</div>
+        <div class="sb-user-info">
+          <span class="sb-user-name" id="sb-uname">Admin</span>
+          <span class="sb-user-role" id="sb-role">ADMIN</span>
         </div>
+        <button class="btn-logout-sb" onclick="adminLogout()" title="Logout">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
       </div>
-      <button class="btn-sm btn-logout" onclick="adminLogout()">LOGOUT</button>
     </div>
-  </div>
+  </nav>
 
-  <div class="tab-bar">
-    <button class="tab active" data-tab="keys"     onclick="switchTab('keys')">KEYS<span class="tab-dot" id="tab-dot-keys"  style="display:none"></span></button>
-    <button class="tab"        data-tab="users"    onclick="switchTab('users')">USERS<span class="tab-dot" id="tab-dot-users" style="display:none"></span></button>
-    <button class="tab"        data-tab="team"     onclick="switchTab('team')">TEAM<span class="tab-dot" id="tab-dot-team"  style="display:none"></span></button>
-    <button class="tab"        data-tab="activity" onclick="switchTab('activity')">ACTIVITY</button>
-    <button class="tab"        data-tab="projects" onclick="switchTab('projects')">PROJECTS</button>
-  </div>
-
-  <div class="page">
-    <!-- STATS -->
-    <div class="stats-row">
-      <div class="stat">
-        <div class="stat-ico red"><svg viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="3" stroke="#ff4040" stroke-width="1.5"/><line x1="7" y1="10" x2="13" y2="10" stroke="#ff4040" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="7" x2="10" y2="13" stroke="#ff4040" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-        <span class="stat-val red"  id="s-total">—</span><span class="stat-lbl">TOTAL KEYS</span>
+  <!-- MAIN -->
+  <div class="main" id="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleMobileSidebar()" id="hamburger">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="topbar-title" id="topbar-title"><span>Overview</span></div>
       </div>
-      <div class="stat">
-        <div class="stat-ico green"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#22c55e" stroke-width="1.5"/><circle cx="10" cy="10" r="3" fill="#22c55e"/></svg></div>
-        <span class="stat-val green" id="s-online">—</span><span class="stat-lbl">ONLINE</span>
-      </div>
-      <div class="stat">
-        <div class="stat-ico cyan"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#06b6d4" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-        <span class="stat-val cyan" id="s-expiring">—</span><span class="stat-lbl">AKAN EXPIRED</span>
-      </div>
-      <div class="stat">
-        <div class="stat-ico blue"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="#60a0ff" stroke-width="1.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="#60a0ff" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-        <span class="stat-val blue" id="s-admins">—</span><span class="stat-lbl">ADMINS</span>
+      <div class="topbar-right">
+        <div class="tb-chip time" id="tb-clock">--:--</div>
+        <div class="tb-chip online"><span class="chip-dot"></span><span id="tb-online-count">0 Online</span></div>
+        <div class="tb-avatar-sm" id="tb-avatar" onclick="navTo('team')">M</div>
+        <button class="btn btn-secondary btn-sm" onclick="adminLogout()">Logout</button>
       </div>
     </div>
 
-    <!-- TAB: KEYS -->
-    <div class="tab-page active" id="page-keys">
-      <div class="rt-badge"><span class="rt-dot"></span>REALTIME SYNC</div>
+    <!-- CONTENT -->
+    <div class="content" id="content">
 
-      <div class="expire-banner" id="expire-banner">
-        <div class="eb-dot"></div>
-        <span id="expire-banner-txt">Beberapa key akan expired segera.</span>
-      </div>
-
-      <div class="section">
-        <div class="sec-head">
-          <span class="sec-title">KEY MANAGEMENT</span>
-          <span class="sec-badge" id="key-count">0 keys</span>
-        </div>
-
-        <!-- SEARCH -->
-        <div class="search-bar">
-          <div class="search-ico">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <!-- ══ PAGE: OVERVIEW ══ -->
+      <div class="page active" id="page-overview">
+        <div class="page-header">
+          <div>
+            <span class="page-title">Control Center</span>
+            <span class="page-sub">MDZZXITERS · REALTIME DASHBOARD</span>
           </div>
-          <input type="text" id="key-search" class="search-input"
-            placeholder="Cari key, project, device ID..."
-            oninput="onSearchInput(this.value)" autocomplete="off" autocorrect="off"/>
-          <button class="search-clear" id="search-clear-btn" onclick="clearSearch()">CLEAR</button>
-          <span class="search-count" id="search-count"></span>
+          <div class="page-actions">
+            <div class="rt-badge"><span class="odot g" style="width:6px;height:6px;display:inline-block;border-radius:50%;margin-right:4px;"></span>REALTIME SYNC</div>
+          </div>
         </div>
 
-        <div class="filter-bar" id="key-filters"></div>
-
-        <!-- GENERATE -->
-        <div class="gen-area">
-          <div class="gen-row">
-            <input type="number" id="gen-qty" class="gen-input" placeholder="Qty" min="1" max="50" value="1" style="width:62px"/>
-            <select id="gen-project" class="gen-select"></select>
-            <button class="btn-gen" onclick="generateKeys()">+ GENERATE</button>
+        <!-- Gradient metric cards -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:20px;" id="overview-grad-grid">
+          <div class="grad-card gc-blue">
+            <div class="gc-label">TOTAL KEYS</div>
+            <div class="gc-val"><span class="gc-num" id="ov-total">0</span></div>
+            <div class="gc-badge" id="ov-total-delta">All time</div>
           </div>
-          <!-- DURATION ROW -->
-          <div class="dur-row">
-            <span class="dur-label">DURASI KEY</span>
-            <div class="dur-toggle">
-              <button class="dur-tog-btn active" id="durOff" onclick="setDurMode('off')">TANPA BATAS</button>
-              <button class="dur-tog-btn"        id="durOn"  onclick="setDurMode('on')">AUTO EXPIRED</button>
+          <div class="grad-card gc-cyan">
+            <div class="gc-label">THIS MONTH</div>
+            <div class="gc-val"><span class="gc-num" id="ov-month">0</span></div>
+            <div class="gc-badge" id="ov-month-label">Keys generated</div>
+          </div>
+          <div class="stat-card c-grn" style="min-height:130px;">
+            <div class="stat-top">
+              <span class="stat-label">ONLINE USERS</span>
+              <div class="stat-ico grn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg></div>
             </div>
-            <input  type="number" id="dur-val"  class="dur-val-input"  min="1" max="9999" value="30" placeholder="30" disabled oninput="updateDurPreview()"/>
-            <select id="dur-unit" class="dur-unit-select" disabled onchange="updateDurPreview()">
-              <option value="hours">Jam</option>
-              <option value="days"  selected>Hari</option>
-              <option value="months">Bulan</option>
-              <option value="years">Tahun</option>
-            </select>
-            <span class="dur-preview" id="dur-preview"></span>
+            <span class="stat-val" id="ov-online">0</span>
+            <span class="stat-sub">Active sessions</span>
+          </div>
+          <div class="stat-card c-gold" style="min-height:130px;">
+            <div class="stat-top">
+              <span class="stat-label">EXPIRING SOON</span>
+              <div class="stat-ico gold"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            </div>
+            <span class="stat-val" id="ov-expiring">0</span>
+            <span class="stat-sub">Within 24 hours</span>
           </div>
         </div>
 
-        <div class="list" id="keys-list"><div class="empty">Loading keys...</div></div>
-      </div>
-    </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+          <div class="stat-card c-blue">
+            <div class="stat-top"><span class="stat-label">ACTIVE KEYS</span><div class="stat-ico blue"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/></svg></div></div>
+            <span class="stat-val" id="ov-active">0</span>
+            <span class="stat-delta neutral" id="ov-active-pct">—</span>
+          </div>
+          <div class="stat-card c-rose">
+            <div class="stat-top"><span class="stat-label">USED KEYS</span><div class="stat-ico rose"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+            <span class="stat-val" id="ov-used">0</span>
+            <span class="stat-delta neutral" id="ov-used-pct">—</span>
+          </div>
+          <div class="stat-card c-purple">
+            <div class="stat-top"><span class="stat-label">PROJECTS</span><div class="stat-ico purple"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div></div>
+            <span class="stat-val" id="ov-projects">0</span>
+            <span class="stat-sub">Active projects</span>
+          </div>
+          <div class="stat-card c-cyan">
+            <div class="stat-top"><span class="stat-label">TEAM ADMINS</span><div class="stat-ico cyan"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div>
+            <span class="stat-val" id="ov-admins">0</span>
+            <span class="stat-sub">Team members</span>
+          </div>
+        </div>
 
-    <!-- TAB: USERS -->
-    <div class="tab-page" id="page-users">
-      <div class="rt-badge"><span class="rt-dot"></span>REALTIME SYNC</div>
-      <div class="section">
-        <div class="sec-head">
-          <span class="sec-title">USER MONITOR</span>
-          <span class="sec-badge" id="sess-count">0 users</span>
+        <!-- Charts row -->
+        <div class="chart-grid">
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Keys Generated — Monthly</div>
+                <div class="chart-sub">Total vs Used per month (last 12 months)</div>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div>Generated</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#06b6d4;"></div>Used</div>
+              </div>
+            </div>
+            <div class="chart-wrap" style="height:220px;"><canvas id="chart-monthly"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Keys by Project</div>
+                <div class="chart-sub">Distribution</div>
+              </div>
+            </div>
+            <div class="chart-wrap" style="height:220px;"><canvas id="chart-donut"></canvas></div>
+          </div>
         </div>
-        <div class="filter-bar" id="sess-filters"></div>
-        <div class="list" id="sess-list"><div class="empty">Loading sessions...</div></div>
-      </div>
-    </div>
 
-    <!-- TAB: TEAM -->
-    <div class="tab-page" id="page-team">
-      <div class="rt-badge"><span class="rt-dot"></span>REALTIME SYNC</div>
-      <div class="section">
-        <div class="sec-head">
-          <span class="sec-title">ADMIN TEAM</span>
-          <span class="sec-badge" id="admin-count">0 admins</span>
+        <div class="chart-grid-2">
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Keys by Day of Week</div>
+                <div class="chart-sub">Activity pattern</div>
+              </div>
+            </div>
+            <div class="chart-wrap" style="height:180px;"><canvas id="chart-weekly"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Key Status Breakdown</div>
+                <div class="chart-sub">Current state</div>
+              </div>
+            </div>
+            <div class="chart-wrap" style="height:180px;"><canvas id="chart-status"></canvas></div>
+          </div>
         </div>
-        <div class="add-form" id="add-admin-form">
-          <input type="text"     id="new-name" class="add-input" placeholder="Full Name"  style="max-width:90px"/>
-          <input type="text"     id="new-user" class="add-input" placeholder="Username"   style="max-width:90px"/>
-          <input type="password" id="new-pass" class="add-input" placeholder="Password"   style="max-width:90px"/>
-          <button class="btn-add" onclick="addAdmin()">+ ADD</button>
-        </div>
-        <div class="list" id="admin-list"><div class="empty">Loading team...</div></div>
-      </div>
-    </div>
 
-    <!-- TAB: ACTIVITY -->
-    <div class="tab-page" id="page-activity">
-      <div class="rt-badge"><span class="rt-dot"></span>REALTIME SYNC</div>
-      <div class="section">
-        <div class="sec-head">
-          <span class="sec-title">RECENT ACTIVITY</span>
-          <span class="sec-badge" id="act-count">0 events</span>
+        <!-- Recent activity preview -->
+        <div class="section">
+          <div class="section-head">
+            <span class="section-title">RECENT ACTIVITY</span>
+            <div class="section-actions">
+              <div class="rt-badge"><span class="odot g" style="width:5px;height:5px;display:inline-block;border-radius:50%;margin-right:3px;"></span>LIVE</div>
+              <button class="btn btn-secondary btn-sm" onclick="navTo('activity')">View All</button>
+            </div>
+          </div>
+          <div id="ov-activity-list"><div class="empty">No activity yet.</div></div>
         </div>
-        <div class="list" id="act-list" style="max-height:480px"><div class="empty">Loading activity...</div></div>
       </div>
-    </div>
 
-    <!-- TAB: PROJECTS -->
-    <div class="tab-page" id="page-projects">
-      <div class="section">
-        <div class="sec-head">
-          <span class="sec-title">PROJECTS</span>
-          <span class="sec-badge" id="proj-count">0 projects</span>
+      <!-- ══ PAGE: ANALYTICS ══ -->
+      <div class="page" id="page-analytics">
+        <div class="page-header">
+          <div><span class="page-title">Analytics</span><span class="page-sub">KEY STATISTICS · TRENDS · PERFORMANCE</span></div>
+          <div class="page-actions">
+            <div class="period-tabs" id="period-tabs">
+              <button class="period-tab active" onclick="setPeriod('week')">Week</button>
+              <button class="period-tab" onclick="setPeriod('month')">Month</button>
+              <button class="period-tab" onclick="setPeriod('year')">Year</button>
+              <button class="period-tab" onclick="setPeriod('all')">All Time</button>
+            </div>
+          </div>
         </div>
-        <div class="add-form">
-          <input type="text" id="new-proj" class="add-input" placeholder="New project name" style="flex:2"/>
-          <button class="btn-add" onclick="addProject()">+ ADD</button>
+
+        <div class="analytics-grid">
+          <div class="mini-stat c-blue"><span class="ms-label">PERIOD TOTAL</span><span class="ms-val" id="an-period-total">0</span><span class="ms-sub">Keys generated</span></div>
+          <div class="mini-stat"><span class="ms-label">PERIOD USED</span><span class="ms-val" id="an-period-used">0</span><span class="ms-sub">Keys activated</span></div>
+          <div class="mini-stat"><span class="ms-label">ACTIVE RATE</span><span class="ms-val" id="an-rate">0%</span><span class="ms-sub">Used / Total</span></div>
+          <div class="mini-stat"><span class="ms-label">THIS WEEK</span><span class="ms-val" id="an-week">0</span><span class="ms-sub">Keys generated</span></div>
+          <div class="mini-stat"><span class="ms-label">THIS MONTH</span><span class="ms-val" id="an-month">0</span><span class="ms-sub">Keys generated</span></div>
+          <div class="mini-stat"><span class="ms-label">THIS YEAR</span><span class="ms-val" id="an-year">0</span><span class="ms-sub">Keys generated</span></div>
         </div>
-        <div class="list" id="proj-list"><div class="empty">Loading projects...</div></div>
+
+        <div class="chart-card" style="margin-bottom:16px;">
+          <div class="chart-head">
+            <div><div class="chart-title">Key Generation Trend</div><div class="chart-sub" id="an-chart-sub">Last 12 months</div></div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div>Generated</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div>Used</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#fb7185;"></div>Revoked</div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:260px;"><canvas id="chart-trend"></canvas></div>
+        </div>
+
+        <div class="chart-grid-2">
+          <div class="chart-card">
+            <div class="chart-head"><div><div class="chart-title">Top Projects</div><div class="chart-sub">Keys by project</div></div></div>
+            <div class="chart-wrap" style="height:200px;"><canvas id="chart-proj-bar"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-head"><div><div class="chart-title">Platform Distribution</div><div class="chart-sub">Users by platform</div></div></div>
+            <div class="chart-wrap" style="height:200px;"><canvas id="chart-platform"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Monthly table -->
+        <div class="section">
+          <div class="section-head"><span class="section-title">MONTHLY KEY BREAKDOWN</span><span class="section-badge" id="an-table-count">12 months</span></div>
+          <div class="list-area" id="an-monthly-table"></div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
 
-<!-- FIREBASE -->
+      <!-- ══ PAGE: KEYS ══ -->
+      <div class="page" id="page-keys">
+        <div class="page-header">
+          <div><span class="page-title">Key Management</span><span class="page-sub">GENERATE · SEARCH · REVOKE · EXPIRE</span></div>
+          <div class="page-actions">
+            <div class="rt-badge"><span class="odot g" style="width:5px;height:5px;display:inline-block;border-radius:50%;margin-right:3px;"></span>REALTIME</div>
+          </div>
+        </div>
+
+        <div class="expire-banner" id="expire-banner">
+          <div class="eb-dot"></div>
+          <span id="expire-banner-txt">Beberapa key akan expired dalam 24 jam.</span>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <span class="section-title">KEY MANAGEMENT</span>
+            <span class="section-badge" id="key-count-badge">0 keys</span>
+          </div>
+
+          <!-- Search -->
+          <div class="search-wrap">
+            <div class="search-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+            <input type="text" id="key-search" class="search-inp" placeholder="Cari key, project, device ID, generator..." oninput="onSearch(this.value)" autocomplete="off"/>
+            <button class="btn-clear" id="btn-clear" onclick="clearSearch()">CLEAR</button>
+            <span class="search-res" id="search-res"></span>
+          </div>
+
+          <!-- Filters -->
+          <div class="filter-bar" id="key-filter-bar"></div>
+
+          <!-- Generate -->
+          <div class="gen-area">
+            <div class="gen-row">
+              <span class="gen-label">GENERATE</span>
+              <input type="number" id="gen-qty" class="f-input" placeholder="Qty" min="1" max="50" value="1" style="width:64px;"/>
+              <select id="gen-project" class="f-select"></select>
+              <button class="btn btn-primary" onclick="generateKeys()">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                GENERATE KEY
+              </button>
+            </div>
+            <div class="dur-toggle-wrap">
+              <span class="gen-label">DURASI</span>
+              <div class="dur-toggle-btns">
+                <button class="dur-tog on" id="durOff" onclick="setDur('off')">TANPA BATAS</button>
+                <button class="dur-tog" id="durOn" onclick="setDur('on')">AUTO EXPIRED</button>
+              </div>
+              <input type="number" id="dur-val" class="f-input" min="1" max="9999" value="30" style="width:66px;" disabled oninput="updateDurPreview()"/>
+              <select id="dur-unit" class="f-select" disabled onchange="updateDurPreview()">
+                <option value="hours">Jam</option>
+                <option value="days" selected>Hari</option>
+                <option value="months">Bulan</option>
+                <option value="years">Tahun</option>
+              </select>
+              <span class="dur-preview-badge" id="dur-preview"></span>
+            </div>
+          </div>
+
+          <div class="list-area" id="keys-list"><div class="empty">Loading keys...</div></div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: USERS ══ -->
+      <div class="page" id="page-users">
+        <div class="page-header">
+          <div><span class="page-title">User Sessions</span><span class="page-sub">REALTIME MONITOR · ALL CONNECTED DEVICES</span></div>
+          <div class="page-actions"><div class="rt-badge"><span class="odot g" style="width:5px;height:5px;display:inline-block;border-radius:50%;margin-right:3px;"></span>REALTIME</div></div>
+        </div>
+        <div class="online-strip">
+          <span class="odot g" style="width:7px;height:7px;display:inline-block;border-radius:50%;"></span>
+          <span id="users-online-count">0 users online</span>
+          <span style="color:var(--t3);margin-left:6px;">·</span>
+          <span style="color:var(--t2);margin-left:6px;" id="users-total-count">0 total sessions</span>
+        </div>
+        <div class="section">
+          <div class="section-head"><span class="section-title">ACTIVE SESSIONS</span><span class="section-badge" id="sess-count-badge">0</span></div>
+          <div class="filter-bar" id="sess-filter-bar"></div>
+          <div class="list-area" id="sess-list"><div class="empty">Loading sessions...</div></div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: PROJECTS ══ -->
+      <div class="page" id="page-projects">
+        <div class="page-header">
+          <div><span class="page-title">Projects</span><span class="page-sub">PRODUCT MANAGEMENT · KEY DISTRIBUTION</span></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+          <div class="stat-card c-blue"><div class="stat-top"><span class="stat-label">TOTAL PROJECTS</span><div class="stat-ico blue"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div></div><span class="stat-val" id="proj-total">0</span><span class="stat-sub">Active products</span></div>
+          <div class="stat-card c-grn"><div class="stat-top"><span class="stat-label">TOTAL KEYS ALL PROJ</span><div class="stat-ico grn"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/></svg></div></div><span class="stat-val" id="proj-all-keys">0</span><span class="stat-sub">All projects</span></div>
+          <div class="stat-card c-cyan"><div class="stat-top"><span class="stat-label">AVAILABLE</span><div class="stat-ico cyan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg></div></div><span class="stat-val" id="proj-avail">0</span><span class="stat-sub">Unused keys</span></div>
+          <div class="stat-card c-rose"><div class="stat-top"><span class="stat-label">IN USE</span><div class="stat-ico rose"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div><span class="stat-val" id="proj-inuse">0</span><span class="stat-sub">Activated keys</span></div>
+        </div>
+
+        <div class="section">
+          <div class="section-head"><span class="section-title">PROJECT LIST</span><span class="section-badge" id="proj-count-badge">0 projects</span></div>
+          <div class="add-form">
+            <input type="text" id="new-proj" class="f-input" placeholder="New project name..." style="flex:2;"/>
+            <button class="btn btn-success" onclick="addProject()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>ADD PROJECT</button>
+          </div>
+          <div class="list-area" id="proj-list"><div class="empty">Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: TEAM ══ -->
+      <div class="page" id="page-team">
+        <div class="page-header">
+          <div><span class="page-title">Admin Team</span><span class="page-sub">TEAM MANAGEMENT · ROLES · PERMISSIONS</span></div>
+        </div>
+        <div class="section">
+          <div class="section-head"><span class="section-title">TEAM MEMBERS</span><span class="section-badge" id="team-count-badge">0 admins</span></div>
+          <div class="add-form" id="add-admin-form">
+            <input type="text" id="new-name" class="f-input" placeholder="Full Name" style="max-width:100px;"/>
+            <input type="text" id="new-user" class="f-input" placeholder="Username" style="max-width:100px;"/>
+            <input type="password" id="new-pass" class="f-input" placeholder="Password" style="max-width:100px;"/>
+            <button class="btn btn-success" onclick="addAdmin()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>ADD ADMIN</button>
+          </div>
+          <div class="list-area" id="team-list"><div class="empty">Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: ACTIVITY ══ -->
+      <div class="page" id="page-activity">
+        <div class="page-header">
+          <div><span class="page-title">Activity Log</span><span class="page-sub">PERSISTENT · REALTIME · ALL ADMINS</span></div>
+          <div class="page-actions">
+            <div class="rt-badge"><span class="odot g" style="width:5px;height:5px;display:inline-block;border-radius:50%;margin-right:3px;"></span>LIVE UPDATES</div>
+            <button class="btn btn-secondary btn-sm" onclick="refreshActivity()">Refresh</button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+          <div class="stat-card c-blue"><div class="stat-top"><span class="stat-label">TOTAL EVENTS</span><div class="stat-ico blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div></div><span class="stat-val" id="act-total">0</span><span class="stat-sub">All recorded</span></div>
+          <div class="stat-card c-grn"><div class="stat-top"><span class="stat-label">KEY EVENTS</span><div class="stat-ico grn"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/></svg></div></div><span class="stat-val" id="act-key-count">0</span><span class="stat-sub">Generated/activated</span></div>
+          <div class="stat-card c-cyan"><div class="stat-top"><span class="stat-label">LOGIN EVENTS</span><div class="stat-ico cyan"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></div></div><span class="stat-val" id="act-login-count">0</span><span class="stat-sub">Login sessions</span></div>
+          <div class="stat-card c-rose"><div class="stat-top"><span class="stat-label">REVOKE EVENTS</span><div class="stat-ico rose"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div></div><span class="stat-val" id="act-revoke-count">0</span><span class="stat-sub">Revoked/expired</span></div>
+        </div>
+
+        <!-- Activity filter -->
+        <div class="section">
+          <div class="section-head"><span class="section-title">EVENT LOG</span><span class="section-badge" id="act-count-badge">0 events</span></div>
+          <div class="filter-bar">
+            <button class="chip active" onclick="setActFilter('all')">ALL</button>
+            <button class="chip" onclick="setActFilter('key')">KEY EVENTS</button>
+            <button class="chip" onclick="setActFilter('login')">LOGIN</button>
+            <button class="chip" onclick="setActFilter('revoke')">REVOKE</button>
+            <button class="chip" onclick="setActFilter('expire')">EXPIRED</button>
+            <button class="chip" onclick="setActFilter('admin')">ADMIN</button>
+            <button class="chip" onclick="setActFilter('project')">PROJECT</button>
+          </div>
+          <div class="list-area" style="max-height:580px;" id="act-list"><div class="empty">Loading activity log...</div></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══════════════════════════════════════════════════════
+     FIREBASE + APP LOGIC
+══════════════════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-
 <script>
-/* ═══════════════════════════════════════════
-   MDZZXITERS — ADMIN PANEL
-   Key Search · Duration Expiry · Multi-project
-═══════════════════════════════════════════ */
-
+/* ══════════════════════════════════════════════════
+   FIREBASE INIT
+══════════════════════════════════════════════════ */
 firebase.initializeApp({
   apiKey:"AIzaSyB2EZgrbnslC1tuyC0WtbIkA4SfJe5m2As",
   authDomain:"mdzzxiters-panel-30d5a.firebaseapp.com",
@@ -548,60 +1233,67 @@ firebase.initializeApp({
 var db=firebase.firestore();
 firebase.auth().signInAnonymously().catch(function(){});
 
-/* ── State ── */
+/* ══ STATE ══ */
 var currentAdmin=null;
-var allKeys=[];
-var allSessions=[];
-var allProjects=[];
-var keyFilter='ALL';
-var sessFilter='ALL';
-var keySearch='';
-var durMode='off'; // 'off' | 'on'
+var allKeys=[],allSessions=[],allProjects=[],allAdmins=[],activityLog=[];
+var keyFilter='ALL',sessFilter='ALL',keySearch='',durMode='off',actFilter='all',currentPeriod='month';
+var charts={};
 
-/* ── Helpers ── */
+/* ══ HELPERS ══ */
 function gi(id){return document.getElementById(id);}
 function toast(msg,type,ms){
-  type=type||'i';ms=ms||2400;
-  var c=gi('toast'),el=document.createElement('div');
-  el.className='t-item t-'+type;el.textContent=msg;c.appendChild(el);
-  setTimeout(function(){el.classList.add('out');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},260);},ms);
+  type=type||'i';ms=ms||2500;
+  var c=gi('toast-wrap'),el=document.createElement('div');
+  el.className='toast t'+type;
+  el.innerHTML='<span class="t-dot"></span><span>'+msg+'</span>';
+  c.appendChild(el);
+  setTimeout(function(){el.classList.add('out');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},240);},ms);
 }
 function fmtTime(ts){
   if(!ts)return '—';
-  var d=ts.toDate?ts.toDate():new Date(ts);
-  return d.toLocaleString('id-ID',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  var d=ts.toDate?ts.toDate():new Date(ts.seconds?ts.seconds*1000:ts);
+  return d.toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
 function timeAgo(ts){
-  if(!ts)return 'Never';
-  var d=ts.toDate?ts.toDate():new Date(ts);
+  if(!ts)return '—';
+  var d=ts.toDate?ts.toDate():new Date(ts.seconds?ts.seconds*1000:ts);
   var diff=Math.floor((Date.now()-d.getTime())/1000);
-  if(diff<60)return diff+'s ago';
-  if(diff<3600)return Math.floor(diff/60)+'m ago';
-  if(diff<86400)return Math.floor(diff/3600)+'h ago';
-  return Math.floor(diff/86400)+'d ago';
+  if(diff<60)return diff+'s ago';if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';return Math.floor(diff/86400)+'d ago';
 }
-
-/* ── Duration helpers ── */
-function calcExpiresAt(val, unit){
-  var now=Date.now();
-  val=parseInt(val)||1;
-  if(unit==='hours')  return new Date(now + val*3600*1000);
-  if(unit==='days')   return new Date(now + val*86400*1000);
-  if(unit==='months'){var d=new Date();d.setMonth(d.getMonth()+val);return d;}
-  if(unit==='years')  {var d=new Date();d.setFullYear(d.getFullYear()+val);return d;}
+function simpleHash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return 'h_'+Math.abs(h).toString(36);}
+function genKey(){
+  var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var seg=function(n){var s='';for(var i=0;i<n;i++)s+=c[Math.floor(Math.random()*c.length)];return s;};
+  return 'MDZZ-'+seg(4)+'-'+seg(4)+'-'+seg(4);
+}
+function copyClip(text){
+  if(navigator.clipboard){navigator.clipboard.writeText(text).catch(function(){fb_copy(text);});}
+  else{fb_copy(text);}
+}
+function fb_copy(text){
+  var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0;';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+}
+function calcExpiresAt(v,unit){
+  var now=Date.now();v=parseInt(v)||1;
+  if(unit==='hours')return new Date(now+v*3600000);
+  if(unit==='days')return new Date(now+v*86400000);
+  if(unit==='months'){var d=new Date();d.setMonth(d.getMonth()+v);return d;}
+  if(unit==='years'){var d=new Date();d.setFullYear(d.getFullYear()+v);return d;}
   return null;
 }
 function fmtExpiry(ts){
   if(!ts)return null;
-  var d=ts.toDate?ts.toDate():(ts instanceof Date?ts:new Date(ts.seconds?ts.seconds*1000:ts));
-  var now=Date.now();
-  var diff=d.getTime()-now;
-  if(diff<=0)return {label:'EXPIRED',cls:'expired'};
-  var h=Math.floor(diff/3600000);
-  var days=Math.floor(diff/86400000);
-  if(h<24)return {label:'~'+h+'j lagi',cls:'warn'};
-  if(days<7)return {label:days+'hr lagi',cls:'warn'};
-  return {label:d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'2-digit'}),cls:'active'};
+  var d=ts.toDate?ts.toDate():new Date(ts.seconds?ts.seconds*1000:ts);
+  var now=Date.now();var diff=d.getTime()-now;
+  if(diff<=0)return{label:'EXPIRED',cls:'expired'};
+  var h=Math.floor(diff/3600000);var days=Math.floor(diff/86400000);
+  if(h<24)return{label:'~'+h+'j lagi',cls:'warn'};
+  if(days<7)return{label:days+'hr lagi',cls:'warn'};
+  return{label:d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'2-digit'}),cls:'active'};
 }
 function isExpired(k){
   if(!k.expiresAt||!k.active)return false;
@@ -609,94 +1301,115 @@ function isExpired(k){
   return d.getTime()<Date.now();
 }
 
-/* ── Duration UI ── */
-function setDurMode(mode){
-  durMode=mode;
-  gi('durOff').className='dur-tog-btn'+(mode==='off'?' active':'');
-  gi('durOn').className='dur-tog-btn'+(mode==='on'?' active':'');
-  gi('dur-val').disabled=mode==='off';
-  gi('dur-unit').disabled=mode==='off';
-  if(mode==='off'){gi('dur-preview').className='dur-preview';gi('dur-preview').textContent='';}
-  else updateDurPreview();
-}
-function updateDurPreview(){
-  if(durMode==='off'){gi('dur-preview').className='dur-preview';return;}
-  var v=parseInt(gi('dur-val').value)||1;
-  var u=gi('dur-unit').value;
-  var labels={hours:'jam',days:'hari',months:'bulan',years:'tahun'};
-  var exp=calcExpiresAt(v,u);
-  var dstr=exp.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  gi('dur-preview').textContent='Expired: '+dstr;
-  gi('dur-preview').className='dur-preview vis';
-}
-window.setDurMode=setDurMode;
-window.updateDurPreview=updateDurPreview;
-
-/* ── Search ── */
-function onSearchInput(v){
-  keySearch=v.trim().toLowerCase();
-  gi('search-clear-btn').className='search-clear'+(keySearch?' vis':'');
-  renderKeys();
-}
-function clearSearch(){
-  gi('key-search').value='';
-  onSearchInput('');
-}
-window.onSearchInput=onSearchInput;
-window.clearSearch=clearSearch;
-
-function applySearchFilter(keys){
-  if(!keySearch)return keys;
-  return keys.filter(function(k){
-    var q=keySearch;
-    return (k.key&&k.key.toLowerCase().indexOf(q)>=0) ||
-           (k.project&&k.project.toLowerCase().indexOf(q)>=0) ||
-           (k.deviceId&&k.deviceId.toLowerCase().indexOf(q)>=0) ||
-           (k.generatedBy&&k.generatedBy.toLowerCase().indexOf(q)>=0);
-  });
+/* ══ CLOCK ══ */
+function updateClock(){
+  var n=new Date();
+  var h=n.getHours().toString().padStart(2,'0');
+  var m=n.getMinutes().toString().padStart(2,'0');
+  var s=n.getSeconds().toString().padStart(2,'0');
+  var el=gi('tb-clock');if(el)el.textContent=h+':'+m+':'+s;
+  setTimeout(updateClock,1000);
 }
 
-function simpleHash(str){
-  var hash=0;
-  for(var i=0;i<str.length;i++){var ch=str.charCodeAt(i);hash=((hash<<5)-hash)+ch;hash|=0;}
-  return 'h_'+Math.abs(hash).toString(36);
+/* ══ SIDEBAR ══ */
+var sbCollapsed=false;
+function toggleSidebar(){
+  sbCollapsed=!sbCollapsed;
+  var sb=gi('sidebar');var main=gi('main');
+  if(sbCollapsed){sb.classList.add('collapsed');main.style.left='var(--sb-c)';}
+  else{sb.classList.remove('collapsed');main.style.left='var(--sb)';}
 }
-function genKey(){
-  var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  var seg=function(n){var s='';for(var i=0;i<n;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;};
-  return 'MDZZ-'+seg(4)+'-'+seg(4)+'-'+seg(4);
+function toggleMobileSidebar(){
+  var sb=gi('sidebar'),ov=gi('overlay');
+  if(sb.classList.contains('mobile-open')){sb.classList.remove('mobile-open');ov.classList.remove('vis');}
+  else{sb.classList.add('mobile-open');ov.classList.add('vis');}
 }
-function copyToClipboard(text){
-  if(navigator.clipboard){navigator.clipboard.writeText(text).catch(function(){fallbackCopy(text)});}
-  else{fallbackCopy(text);}
-}
-function fallbackCopy(text){
-  var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
-  document.body.appendChild(ta);ta.focus();ta.select();
-  try{document.execCommand('copy');}catch(e){}
-  document.body.removeChild(ta);
+function closeMobileSidebar(){
+  gi('sidebar').classList.remove('mobile-open');gi('overlay').classList.remove('vis');
 }
 
-/* ═══ CONFIRM MODAL ═══ */
-function showModal(title,msg,onConfirm){
-  gi('modal-title').textContent=title;
-  gi('modal-msg').textContent=msg;
+/* ══ NAVIGATION ══ */
+var pageTitles={
+  overview:'Overview',analytics:'Analytics',keys:'Key Management',
+  users:'User Sessions',projects:'Projects',team:'Admin Team',activity:'Activity Log'
+};
+function navTo(page){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var pg=gi('page-'+page);if(pg)pg.classList.add('active');
+  var nav=gi('nav-'+page);if(nav)nav.classList.add('active');
+  var title=gi('topbar-title');if(title)title.innerHTML='<span>'+pageTitles[page]+'</span>';
+  if(window.innerWidth<=768)closeMobileSidebar();
+  if(page==='analytics'){renderAnalytics();renderAnalyticsCharts();}
+  if(page==='activity'){renderActivity();}
+  if(page==='overview'){renderOverviewCharts();}
+}
+
+/* ══ MODAL ══ */
+function showModal(title,msg,onOk,dangerOk){
+  gi('modal-title').textContent=title;gi('modal-msg').textContent=msg;
   var acts=gi('modal-acts');acts.innerHTML='';
-  var btnC=document.createElement('button');btnC.className='modal-btn';btnC.textContent='Cancel';
-  btnC.onclick=function(){gi('modal').classList.add('hidden');};
-  var btnD=document.createElement('button');btnD.className='modal-btn danger';btnD.textContent='Confirm';
-  btnD.onclick=function(){gi('modal').classList.add('hidden');onConfirm();};
-  acts.appendChild(btnC);acts.appendChild(btnD);
+  var bC=document.createElement('button');bC.className='modal-btn';bC.textContent='Cancel';
+  bC.onclick=function(){gi('modal').classList.add('hidden');};
+  var bD=document.createElement('button');
+  bD.className='modal-btn '+(dangerOk?'danger':'confirm');bD.textContent='Confirm';
+  bD.onclick=function(){gi('modal').classList.add('hidden');onOk();};
+  acts.appendChild(bC);acts.appendChild(bD);
   gi('modal').classList.remove('hidden');
 }
 
-/* ═══ TABS ═══ */
-function switchTab(tab){
-  document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',t.getAttribute('data-tab')===tab);});
-  document.querySelectorAll('.tab-page').forEach(function(p){p.classList.toggle('active',p.id==='page-'+tab);});
+/* ══ DURATION ══ */
+function setDur(mode){
+  durMode=mode;
+  gi('durOff').className='dur-tog'+(mode==='off'?' on':'');
+  gi('durOn').className='dur-tog'+(mode==='on'?' on':'');
+  gi('dur-val').disabled=mode==='off';
+  gi('dur-unit').disabled=mode==='off';
+  if(mode==='off'){gi('dur-preview').className='dur-preview-badge';gi('dur-preview').textContent='';}
+  else updateDurPreview();
 }
+function updateDurPreview(){
+  if(durMode==='off'){gi('dur-preview').className='dur-preview-badge';return;}
+  var v=parseInt(gi('dur-val').value)||1;var u=gi('dur-unit').value;
+  var exp=calcExpiresAt(v,u);
+  if(!exp)return;
+  gi('dur-preview').textContent='Exp: '+exp.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+  gi('dur-preview').className='dur-preview-badge vis';
+}
+window.setDur=setDur;window.updateDurPreview=updateDurPreview;
 
-/* ═══ AUTO-SETUP ═══ */
+/* ══ SEARCH ══ */
+function onSearch(v){
+  keySearch=v.trim().toLowerCase();
+  var clr=gi('btn-clear');if(clr)clr.className='btn-clear'+(keySearch?' vis':'');
+  renderKeys();
+}
+function clearSearch(){gi('key-search').value='';onSearch('');}
+window.onSearch=onSearch;window.clearSearch=clearSearch;
+
+/* ══ PERIOD ══ */
+function setPeriod(p){
+  currentPeriod=p;
+  document.querySelectorAll('.period-tab').forEach(function(el,i){
+    el.className='period-tab'+((['week','month','year','all'][i]===p)?' active':'');
+  });
+  renderAnalytics();renderAnalyticsCharts();
+}
+window.setPeriod=setPeriod;
+
+/* ══ ACT FILTER ══ */
+var actFilterEl=null;
+function setActFilter(f){
+  actFilter=f;
+  gi('page-activity').querySelectorAll('.chip').forEach(function(el){
+    el.className='chip'+(el.textContent.toLowerCase().replace(/ /g,'')===f||
+      (f==='all'&&el.textContent==='ALL')?' active':'');
+  });
+  renderActivity();
+}
+window.setActFilter=setActFilter;
+
+/* ══ AUTO SETUP ══ */
 function autoSetup(){
   return db.collection('admins').get().then(function(snap){
     if(snap.empty){
@@ -709,61 +1422,140 @@ function autoSetup(){
   });
 }
 
-/* ═══ LOGIN ═══ */
+/* ══ LOGIN ══ */
 function adminLogin(){
-  var username=gi('adm-user').value.trim().toLowerCase();
-  var password=gi('adm-pass').value;
-  if(!username||!password){gi('adm-err').textContent='Please fill all fields.';gi('adm-err').style.display='block';return;}
-  var hashed=simpleHash(password);
-  db.collection('admins').where('username','==',username).get()
+  var u=(gi('adm-user').value||'').trim().toLowerCase();
+  var p=gi('adm-pass').value;
+  var err=gi('adm-err');
+  err.style.display='none';
+  if(!u||!p){err.textContent='Please fill all fields.';err.style.display='block';return;}
+  db.collection('admins').where('username','==',u).get()
     .then(function(snap){
-      if(snap.empty){gi('adm-err').textContent='Invalid credentials.';gi('adm-err').style.display='block';return;}
+      if(snap.empty){err.textContent='Invalid credentials.';err.style.display='block';return;}
       var doc=snap.docs[0],data=doc.data();
-      if(data.password!==hashed){gi('adm-err').textContent='Wrong password.';gi('adm-err').style.display='block';return;}
+      if(data.password!==simpleHash(p)){err.textContent='Wrong password.';err.style.display='block';return;}
       currentAdmin={id:doc.id,username:data.username,name:data.name,role:data.role};
-      localStorage.setItem('_mdz_adm',JSON.stringify(currentAdmin));
-      enterDashboard();
-    }).catch(function(e){gi('adm-err').textContent='Connection error: '+e.message;gi('adm-err').style.display='block';});
+      localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
+      enterApp();
+      /* Log admin login */
+      pushActivityFS('login','Admin <b>'+(data.name||data.username)+'</b> login ke dashboard',currentAdmin.name||currentAdmin.username);
+    }).catch(function(e){err.textContent='Connection error: '+e.message;err.style.display='block';});
 }
 gi('adm-pass').addEventListener('keydown',function(e){if(e.key==='Enter')adminLogin();});
 gi('adm-user').addEventListener('keydown',function(e){if(e.key==='Enter')gi('adm-pass').focus();});
 
-function adminLogout(){currentAdmin=null;localStorage.removeItem('_mdz_adm');location.reload();}
+function adminLogout(){
+  if(currentAdmin){
+    pushActivityFS('offline','Admin <b>'+(currentAdmin.name||currentAdmin.username)+'</b> logout dari dashboard',currentAdmin.name||currentAdmin.username);
+  }
+  currentAdmin=null;localStorage.removeItem('_mdzz_adm');location.reload();
+}
 
-function enterDashboard(){
-  gi('login-page').classList.add('hide');
+function enterApp(){
+  gi('login-page').classList.add('fade-out');
   setTimeout(function(){
     gi('login-page').style.display='none';
-    gi('dashboard').style.display='block';
+    gi('app').style.display='block';
     var name=currentAdmin.name||currentAdmin.username||'?';
-    gi('tb-avatar').textContent=name.charAt(0).toUpperCase();
-    gi('tb-uname').textContent=name;
-    var roleEl=gi('tb-role');
-    if(roleEl){roleEl.textContent=currentAdmin.role==='owner'?'OWNER':'ADMIN';roleEl.className='tb-role '+(currentAdmin.role||'admin');}
+    var ini=name.charAt(0).toUpperCase();
+    gi('sb-avatar').textContent=ini;gi('tb-avatar').textContent=ini;
+    gi('sb-uname').textContent=name;
+    gi('sb-role').textContent=currentAdmin.role==='owner'?'OWNER':'ADMIN';
+    var roleEl=gi('tb-avatar');if(roleEl)roleEl.title=name+' ('+currentAdmin.role+')';
     if(currentAdmin.role!=='owner'){var f=gi('add-admin-form');if(f)f.style.display='none';}
+    gi('nb-activity').style.display='inline-flex';
+    updateClock();
     loadAll();
-    startRealtimeListeners();
-    /* run expiry check after data loads */
-    setTimeout(checkExpiredKeys,3500);
-    /* periodic check every 5 minutes */
+    startListeners();
+    setTimeout(checkExpiredKeys,4000);
     setInterval(checkExpiredKeys,300000);
-  },400);
+  },420);
 }
 
 function checkSaved(){
-  var saved=JSON.parse(localStorage.getItem('_mdz_adm')||'null');
+  var saved=JSON.parse(localStorage.getItem('_mdzz_adm')||'null');
   if(!saved||!saved.id)return;
   db.collection('admins').doc(saved.id).get().then(function(snap){
     if(snap.exists){
-      var data=snap.data();
-      currentAdmin={id:snap.id,username:data.username,name:data.name,role:data.role};
-      localStorage.setItem('_mdz_adm',JSON.stringify(currentAdmin));
-      enterDashboard();
-    } else {localStorage.removeItem('_mdz_adm');}
+      var d=snap.data();
+      currentAdmin={id:snap.id,username:d.username,name:d.name,role:d.role};
+      localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
+      enterApp();
+    } else {localStorage.removeItem('_mdzz_adm');}
   }).catch(function(){});
 }
 
-/* ═══ AUTO EXPIRED KEY CHECKER ═══ */
+/* ══ LOAD ALL ══ */
+function loadAll(){loadProjects();loadKeys();loadSessions();}
+
+/* ══════════════════════════
+   ACTIVITY LOG (PERSISTENT)
+══════════════════════════ */
+function pushActivityFS(type,text,admin){
+  admin=admin||(currentAdmin?currentAdmin.name:'system');
+  db.collection('activity_log').add({
+    type:type,text:text,admin:admin,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(){});
+}
+
+function refreshActivity(){
+  db.collection('activity_log').orderBy('createdAt','desc').limit(200).get().then(function(snap){
+    activityLog=[];
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;activityLog.push(d);});
+    renderActivity();updateActStats();
+  }).catch(function(){});
+}
+
+function updateActStats(){
+  var el=gi('act-total');if(el)el.textContent=activityLog.length;
+  var kc=activityLog.filter(function(a){return a.type==='key';}).length;
+  var lc=activityLog.filter(function(a){return a.type==='login';}).length;
+  var rc=activityLog.filter(function(a){return a.type==='revoke'||a.type==='expire';}).length;
+  var ek=gi('act-key-count');var el2=gi('act-login-count');var er=gi('act-revoke-count');
+  if(ek)ek.textContent=kc;if(el2)el2.textContent=lc;if(er)er.textContent=rc;
+  var cb=gi('act-count-badge');if(cb)cb.textContent=activityLog.length+' events';
+}
+
+function renderActivity(){
+  var list=activityLog;
+  if(actFilter!=='all'){
+    list=activityLog.filter(function(a){
+      if(actFilter==='revoke')return a.type==='revoke'||a.type==='expire';
+      return a.type===actFilter;
+    });
+  }
+  var el=gi('act-list');if(!el)return;
+  if(!list.length){el.innerHTML='<div class="empty">No activity logged yet.</div>';return;}
+  var html='';
+  list.forEach(function(a){
+    html+='<div class="act-row">';
+    html+='<div class="act-dot-wrap"><div class="act-dot '+(a.type||'key')+'"></div></div>';
+    html+='<div class="act-body">';
+    html+='<div class="act-text">'+a.text+'</div>';
+    html+='<div class="act-by">by <b>'+(a.admin||'system')+'</b></div>';
+    html+='</div>';
+    html+='<div class="act-time">'+timeAgo(a.createdAt)+'</div>';
+    html+='</div>';
+  });
+  el.innerHTML=html;
+  /* Also update overview preview */
+  var ovList=gi('ov-activity-list');
+  if(ovList){
+    var prev=list.slice(0,6);var ph='';
+    prev.forEach(function(a){
+      ph+='<div class="act-row">';
+      ph+='<div class="act-dot-wrap"><div class="act-dot '+(a.type||'key')+'"></div></div>';
+      ph+='<div class="act-body"><div class="act-text">'+a.text+'</div><div class="act-by">by <b>'+(a.admin||'system')+'</b></div></div>';
+      ph+='<div class="act-time">'+timeAgo(a.createdAt)+'</div>';
+      ph+='</div>';
+    });
+    ovList.innerHTML=ph||'<div class="empty">No activity yet.</div>';
+  }
+  updateActStats();
+}
+
+/* ══ EXPIRE CHECKER ══ */
 function checkExpiredKeys(){
   var now=Date.now();
   var toRevoke=allKeys.filter(function(k){
@@ -771,363 +1563,529 @@ function checkExpiredKeys(){
     var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
     return d.getTime()<now;
   });
-  /* revoke all expired */
   if(toRevoke.length){
-    var promises=toRevoke.map(function(k){
-      return db.collection('keys').doc(k._id).update({active:false}).then(function(){
-        pushActivity('expire','Key <b>'+k.key+'</b> auto-expired dan di-revoke');
+    toRevoke.forEach(function(k){
+      db.collection('keys').doc(k._id).update({active:false}).then(function(){
+        pushActivityFS('expire','Key <b>'+k.key+'</b> auto-expired dan di-revoke secara otomatis','system');
         toast('Key expired: '+k.key,'w',3000);
       });
     });
-    Promise.all(promises).catch(function(){});
   }
-  /* warn about keys expiring in next 24h */
-  var expiring24h=allKeys.filter(function(k){
+  var exp24=allKeys.filter(function(k){
     if(!k.active||!k.expiresAt)return false;
     var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
-    var diff=d.getTime()-now;
-    return diff>0&&diff<86400000;
+    var diff=d.getTime()-now;return diff>0&&diff<86400000;
   });
-  var banner=gi('expire-banner'),bannerTxt=gi('expire-banner-txt');
-  var expStat=gi('s-expiring');
-  if(expStat)expStat.textContent=expiring24h.length||0;
-  if(expiring24h.length&&banner){
-    bannerTxt.textContent=expiring24h.length+' key akan expired dalam 24 jam ke depan.';
-    banner.className='expire-banner vis';
-  } else if(banner){
-    banner.className='expire-banner';
+  var el=gi('ov-expiring');if(el)el.textContent=exp24.length;
+  var banner=gi('expire-banner');
+  if(banner){
+    if(exp24.length){
+      gi('expire-banner-txt').textContent=exp24.length+' key akan expired dalam 24 jam ke depan';
+      banner.className='expire-banner vis';
+    } else {banner.className='expire-banner';}
   }
 }
 
-/* ═══ LOAD ALL ═══ */
-function loadAll(){loadProjects();loadKeys();loadSessions();}
-
-/* ═══ PROJECTS — PRIVATE EXTREME REMOVED ═══ */
+/* ══ PROJECTS ══ */
 function loadProjects(){
   db.collection('projects').orderBy('name').get().then(function(snap){
     allProjects=[];
-    snap.forEach(function(doc){allProjects.push({id:doc.id,name:doc.data().name});});
-
-    /* Hapus PRIVATE EXTREME jika masih ada di Firestore */
-    allProjects.filter(function(p){return p.name==='PRIVATE EXTREME';})
-      .forEach(function(p){
-        db.collection('projects').doc(p.id).delete().catch(function(){});
-      });
+    snap.forEach(function(d){allProjects.push({id:d.id,name:d.data().name});});
+    /* remove PRIVATE EXTREME */
+    allProjects.filter(function(p){return p.name==='PRIVATE EXTREME';}).forEach(function(p){
+      db.collection('projects').doc(p.id).delete().catch(function(){});
+    });
     allProjects=allProjects.filter(function(p){return p.name!=='PRIVATE EXTREME';});
-
-    var defaultProjects=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE'];
+    var defaults=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE'];
     var existing=allProjects.map(function(p){return p.name;});
-    var missing=defaultProjects.filter(function(n){return existing.indexOf(n)<0;});
+    var missing=defaults.filter(function(n){return existing.indexOf(n)<0;});
     if(missing.length){
-      var adds=missing.map(function(n){return db.collection('projects').add({name:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});});
-      Promise.all(adds).then(function(){loadProjects();});
+      Promise.all(missing.map(function(n){return db.collection('projects').add({name:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}))
+        .then(function(){loadProjects();});
       if(!allProjects.length)return;
     }
     renderProjects();renderProjectSelect();renderKeyFilters();renderSessFilters();
-  }).catch(function(e){toast('Error loading projects: '+e.message,'e');});
+    updateOverviewStats();
+  }).catch(function(e){toast('Error projects: '+e.message,'e');});
 }
-
 function renderProjects(){
-  gi('proj-count').textContent=allProjects.length+' projects';
+  var total=allProjects.length;
+  var el=gi('proj-count-badge');if(el)el.textContent=total+' projects';
+  var pt=gi('proj-total');if(pt)pt.textContent=total;
+  var pn=gi('nb-projects');if(pn)pn.textContent=total;
+  var allK=allKeys.length;
+  var avail=allKeys.filter(function(k){return k.active&&!k.used;}).length;
+  var inuse=allKeys.filter(function(k){return k.used&&k.active;}).length;
+  var pak=gi('proj-all-keys');if(pak)pak.textContent=allK;
+  var pav=gi('proj-avail');if(pav)pav.textContent=avail;
+  var pin=gi('proj-inuse');if(pin)pin.textContent=inuse;
   if(!allProjects.length){gi('proj-list').innerHTML='<div class="empty">No projects yet.</div>';return;}
   var html='';
   allProjects.forEach(function(p){
-    var all=allKeys.filter(function(k){return k.project===p.name;});
-    var act=all.filter(function(k){return k.active;}).length;
-    var used=all.filter(function(k){return k.used&&k.active;}).length;
+    var pKeys=allKeys.filter(function(k){return k.project===p.name;});
+    var act=pKeys.filter(function(k){return k.active;}).length;
+    var used=pKeys.filter(function(k){return k.used&&k.active;}).length;
     html+='<div class="proj-row">';
     html+='<div class="proj-ico">'+p.name.charAt(0)+'</div>';
     html+='<span class="proj-name">'+p.name+'</span>';
     html+='<div class="proj-stats">';
-    html+='<span class="proj-stat total">'+all.length+' keys</span>';
-    html+='<span class="proj-stat active">'+act+' active</span>';
-    html+='<span class="proj-stat used">'+used+' used</span>';
+    html+='<span class="ps total">'+pKeys.length+' keys</span>';
+    html+='<span class="ps active">'+act+' active</span>';
+    html+='<span class="ps used">'+used+' used</span>';
     html+='</div>';
-    if(currentAdmin.role==='owner'){
-      html+='<button class="btn-act btn-revoke" onclick="deleteProject(\''+p.id+'\',\''+p.name+'\')">DEL</button>';
+    if(currentAdmin&&currentAdmin.role==='owner'){
+      html+='<button class="btn btn-danger btn-sm" onclick="deleteProject(\''+p.id+'\',\''+p.name+'\')">DEL</button>';
     }
     html+='</div>';
   });
   gi('proj-list').innerHTML=html;
 }
-
 function renderProjectSelect(){
-  var sel=gi('gen-project');sel.innerHTML='';
-  allProjects.forEach(function(p){var opt=document.createElement('option');opt.value=p.name;opt.textContent=p.name;sel.appendChild(opt);});
+  var sel=gi('gen-project');if(!sel)return;sel.innerHTML='';
+  allProjects.forEach(function(p){var o=document.createElement('option');o.value=p.name;o.textContent=p.name;sel.appendChild(o);});
 }
-
 function addProject(){
-  var name=gi('new-proj').value.trim().toUpperCase();
+  var name=(gi('new-proj').value||'').trim().toUpperCase();
   if(!name){toast('Enter project name','e');return;}
-  if(name==='PRIVATE EXTREME'){toast('Nama project tidak diizinkan','e');return;}
+  if(name==='PRIVATE EXTREME'){toast('Nama ini tidak diizinkan','e');return;}
   if(allProjects.some(function(p){return p.name===name;})){toast('Project already exists','e');return;}
   db.collection('projects').add({name:name,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
-    .then(function(){gi('new-proj').value='';toast('Project "'+name+'" created!','s');loadProjects();})
-    .catch(function(e){toast('Error: '+e.message,'e');});
+    .then(function(){
+      gi('new-proj').value='';
+      toast('Project "'+name+'" created!','s');
+      pushActivityFS('project','Project <b>'+name+'</b> dibuat oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
+      loadProjects();
+    }).catch(function(e){toast('Error: '+e.message,'e');});
 }
-
 function deleteProject(id,name){
-  if(currentAdmin.role!=='owner'){toast('Only owner can delete projects','e');return;}
-  showModal('DELETE PROJECT','Delete "'+name+'"? Keys tetap ada tapi tidak terhubung ke project.',function(){
-    db.collection('projects').doc(id).delete().then(function(){toast('Project deleted','s');loadProjects();})
-      .catch(function(e){toast('Error: '+e.message,'e');});
-  });
+  if(currentAdmin.role!=='owner'){toast('Only owner can delete','e');return;}
+  showModal('DELETE PROJECT','Delete "'+name+"? Keys akan tetap ada.",function(){
+    db.collection('projects').doc(id).delete().then(function(){
+      toast('Deleted','s');
+      pushActivityFS('project','Project <b>'+name+'</b> dihapus oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
+      loadProjects();
+    }).catch(function(e){toast('Error: '+e.message,'e');});
+  },true);
 }
+window.addProject=addProject;window.deleteProject=deleteProject;
 
-/* ═══ KEY FILTERS ═══ */
+/* ══ KEY FILTERS ══ */
 function renderKeyFilters(){
-  var html='<button class="filter-chip'+(keyFilter==='ALL'?' active':'')+'" onclick="setKeyFilter(\'ALL\')">ALL</button>';
-  allProjects.forEach(function(p){html+='<button class="filter-chip'+(keyFilter===p.name?' active':'')+'" onclick="setKeyFilter(\''+p.name+'\')">'+p.name+'</button>';});
-  gi('key-filters').innerHTML=html;
+  var html='<button class="chip'+(keyFilter==='ALL'?' active':'')+'" onclick="setKeyFilter(\'ALL\')">ALL</button>';
+  allProjects.forEach(function(p){html+='<button class="chip'+(keyFilter===p.name?' active':'')+'" onclick="setKeyFilter(\''+p.name+'\')">'+p.name+'</button>';});
+  var fb=gi('key-filter-bar');if(fb)fb.innerHTML=html;
 }
 function setKeyFilter(f){keyFilter=f;renderKeyFilters();renderKeys();}
-
 function renderSessFilters(){
-  var html='<button class="filter-chip'+(sessFilter==='ALL'?' active':'')+'" onclick="setSessFilter(\'ALL\')">ALL</button>';
-  allProjects.forEach(function(p){html+='<button class="filter-chip'+(sessFilter===p.name?' active':'')+'" onclick="setSessFilter(\''+p.name+'\')">'+p.name+'</button>';});
-  gi('sess-filters').innerHTML=html;
+  var html='<button class="chip'+(sessFilter==='ALL'?' active':'')+'" onclick="setSessFilter(\'ALL\')">ALL</button>';
+  allProjects.forEach(function(p){html+='<button class="chip'+(sessFilter===p.name?' active':'')+'" onclick="setSessFilter(\''+p.name+'\')">'+p.name+'</button>';});
+  var fb=gi('sess-filter-bar');if(fb)fb.innerHTML=html;
 }
 function setSessFilter(f){sessFilter=f;renderSessFilters();renderSessions();}
+window.setKeyFilter=setKeyFilter;window.setSessFilter=setSessFilter;
 
-/* ═══ KEYS ═══ */
+/* ══ KEYS ══ */
 function loadKeys(){
   db.collection('keys').orderBy('createdAt','desc').get().then(function(snap){
     allKeys=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
-    renderKeys();renderProjects();checkExpiredKeys();
+    renderKeys();renderProjects();updateOverviewStats();checkExpiredKeys();
   }).catch(function(e){toast('Error loading keys: '+e.message,'e');});
+}
+
+function searchFilter(keys){
+  if(!keySearch)return keys;
+  return keys.filter(function(k){
+    var q=keySearch;
+    return (k.key&&k.key.toLowerCase().indexOf(q)>=0)||(k.project&&k.project.toLowerCase().indexOf(q)>=0)||(k.deviceId&&k.deviceId.toLowerCase().indexOf(q)>=0)||(k.generatedBy&&k.generatedBy.toLowerCase().indexOf(q)>=0);
+  });
 }
 
 function renderKeys(){
   var filtered=keyFilter==='ALL'?allKeys:allKeys.filter(function(k){return k.project===keyFilter;});
-  filtered=applySearchFilter(filtered);
-
-  gi('key-count').textContent=allKeys.length+' keys';
-  gi('s-total').textContent=allKeys.length;
-
-  /* search count hint */
-  var sc=gi('search-count');
-  if(keySearch&&sc)sc.textContent=filtered.length+' hasil';
-  else if(sc)sc.textContent='';
-
-  if(!filtered.length){
-    gi('keys-list').innerHTML='<div class="empty">'+(keySearch?'Tidak ada key yang cocok.':'No keys found.')+'</div>';
-    return;
-  }
+  filtered=searchFilter(filtered);
+  var badge=gi('key-count-badge');if(badge)badge.textContent=allKeys.length+' keys';
+  var sr=gi('search-res');if(sr)sr.textContent=keySearch?filtered.length+' hasil':'';
+  if(!filtered.length){gi('keys-list').innerHTML='<div class="empty">'+(keySearch?'Tidak ada key yang cocok.':'No keys found.')+'</div>';return;}
   var html='';
   filtered.forEach(function(d){
     var expired=isExpired(d);
-    var statusClass=!d.active?(expired?'expired':'revoked'):(d.used?'used':'unused');
-    var statusLabel=!d.active?(expired?'EXPIRED':'REVOKED'):(d.used?'IN USE':'AVAILABLE');
+    var sc=!d.active?(expired?'ks-expired':'ks-revoked'):(d.used?'ks-used':'ks-unused');
+    var sl=!d.active?(expired?'EXPIRED':'REVOKED'):(d.used?'IN USE':'AVAILABLE');
     var expInfo=d.expiresAt?fmtExpiry(d.expiresAt):null;
-
-    /* highlight search match */
-    var keyDisplay=d.key||'—';
-    if(keySearch&&keyDisplay.toLowerCase().indexOf(keySearch)>=0){
+    var keyDisp=d.key||'—';
+    if(keySearch&&keyDisp.toLowerCase().indexOf(keySearch)>=0){
       var re=new RegExp('('+keySearch.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
-      keyDisplay=keyDisplay.replace(re,'<span style="background:rgba(224,18,18,.25);border-radius:2px;padding:0 1px;">$1</span>');
+      keyDisp=keyDisp.replace(re,'<span style="background:rgba(56,189,248,.2);border-radius:2px;">$1</span>');
     }
-
     html+='<div class="key-row">';
     html+='<div class="key-main">';
-    html+='<span class="key-val">'+keyDisplay+'</span>';
+    html+='<span class="key-val">'+keyDisp+'</span>';
     html+='<div class="key-meta">';
-    html+='<span class="key-proj-tag">'+(d.project||'—')+'</span>';
-    html+='<span class="key-time">'+fmtTime(d.createdAt)+'</span>';
-    if(expInfo){
-      html+='<span class="key-expiry '+expInfo.cls+'">'+expInfo.label+'</span>';
-    } else if(d.expiresAt===undefined||d.expiresAt===null) {
-      html+='<span class="key-expiry none">TANPA BATAS</span>';
-    }
-    if(d.deviceId){html+='<span class="key-time" style="color:rgba(255,255,255,.2);font-size:6.5px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="'+d.deviceId+'">DEV:'+d.deviceId.substr(-8)+'</span>';}
-    html+='</div>';
-    html+='</div>';
-    html+='<span class="key-status '+statusClass+'">'+statusLabel+'</span>';
-    html+='<button class="btn-act btn-copy" onclick="copyKey(\''+d.key+'\')">COPY</button>';
-    if(d.active&&!expired){
-      html+='<button class="btn-act btn-revoke" onclick="revokeKey(\''+d._id+'\')">REVOKE</button>';
-    }
+    html+='<span class="km-tag">'+(d.project||'—')+'</span>';
+    html+='<span class="km-tag">'+fmtTime(d.createdAt)+'</span>';
+    if(d.generatedBy)html+='<span class="km-tag">by '+d.generatedBy+'</span>';
+    if(expInfo){html+='<span class="km-tag km-exp '+expInfo.cls+'">'+expInfo.label+'</span>';}
+    else if(!d.expiresAt){html+='<span class="km-tag km-exp none">no expiry</span>';}
+    if(d.deviceId)html+='<span class="km-tag" style="font-size:6.5px;opacity:.5;" title="'+d.deviceId+'">DEV:...'+d.deviceId.slice(-6)+'</span>';
+    html+='</div></div>';
+    html+='<span class="key-status '+sc+'">'+sl+'</span>';
+    html+='<button class="btn btn-secondary btn-sm" onclick="copyKey(\''+d.key+'\')">COPY</button>';
+    if(d.active&&!expired)html+='<button class="btn btn-danger btn-sm" onclick="revokeKey(\''+d._id+'\')">REVOKE</button>';
     html+='</div>';
   });
   gi('keys-list').innerHTML=html;
 }
 
 function generateKeys(){
-  var qty=parseInt(gi('gen-qty').value)||1;
-  if(qty<1)qty=1;if(qty>50)qty=50;
+  var qty=Math.min(50,Math.max(1,parseInt(gi('gen-qty').value)||1));
   var project=gi('gen-project').value;
-  if(!project){toast('Select a project first','e');return;}
-
-  /* build expiry */
+  if(!project){toast('Select a project','e');return;}
   var expiresAt=null;
   if(durMode==='on'){
-    var v=parseInt(gi('dur-val').value)||1;
-    var u=gi('dur-unit').value;
+    var v=parseInt(gi('dur-val').value)||1;var u=gi('dur-unit').value;
     expiresAt=calcExpiresAt(v,u);
-    if(!expiresAt){toast('Durasi tidak valid','e');return;}
+    if(!expiresAt){toast('Invalid duration','e');return;}
   }
-
   var generated=[],promises=[];
   for(var i=0;i<qty;i++){
-    var key=genKey();
-    generated.push(key);
-    var doc={
-      key:key,project:project,active:true,used:false,
-      deviceId:null,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-      usedAt:null,
+    var key=genKey();generated.push(key);
+    promises.push(db.collection('keys').add({
+      key:key,project:project,active:true,used:false,deviceId:null,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),usedAt:null,
       generatedBy:currentAdmin.username,
       expiresAt:expiresAt?firebase.firestore.Timestamp.fromDate(expiresAt):null
-    };
-    promises.push(db.collection('keys').add(doc));
+    }));
   }
   Promise.all(promises).then(function(){
-    var expInfo=expiresAt?(' | Expired: '+expiresAt.toLocaleDateString('id-ID')):'';
-    toast(qty+' key dibuat untuk '+project+expInfo,'s',3000);
-    if(qty===1){copyToClipboard(generated[0]);toast('Key copied!','i',1400);}
-    pushActivity('key',qty+' key baru untuk <b>'+project+'</b>'+(expiresAt?' (exp '+expiresAt.toLocaleDateString('id-ID')+')':' (tanpa batas)')+ ' oleh <b>'+currentAdmin.name+'</b>');
+    var expStr=expiresAt?(' | exp '+expiresAt.toLocaleDateString('id-ID')):'';
+    toast(qty+' key generated for '+project+expStr,'s',3000);
+    if(qty===1){copyClip(generated[0]);toast('Key copied to clipboard','i',1500);}
+    pushActivityFS('key',qty+' key dibuat untuk <b>'+project+'</b>'+(expiresAt?' (exp '+expiresAt.toLocaleDateString('id-ID')+')':', tanpa batas')+' oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
   }).catch(function(e){toast('Error: '+e.message,'e');});
 }
 
-function revokeKey(keyId){
-  showModal('REVOKE KEY','Revoke key ini? User akan kehilangan akses segera.',function(){
-    var k=allKeys.find(function(x){return x._id===keyId;});
-    db.collection('keys').doc(keyId).update({active:false}).then(function(){
-      toast('Key revoked.','s');
-      if(k)pushActivity('revoke','Key <b>'+k.key+'</b> di-revoke oleh <b>'+currentAdmin.name+'</b>');
+function revokeKey(id){
+  showModal('REVOKE KEY','Revoke this key? User loses access immediately.',function(){
+    var k=allKeys.find(function(x){return x._id===id;});
+    db.collection('keys').doc(id).update({active:false}).then(function(){
+      toast('Key revoked','s');
+      if(k)pushActivityFS('revoke','Key <b>'+k.key+'</b> di-revoke oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
     }).catch(function(e){toast('Error: '+e.message,'e');});
-  });
+  },true);
 }
+function copyKey(key){copyClip(key);toast('Copied: '+key,'s',1800);}
+window.generateKeys=generateKeys;window.revokeKey=revokeKey;window.copyKey=copyKey;
 
-function copyKey(key){copyToClipboard(key);toast('Copied: '+key,'s',1800);}
-
-/* ═══ SESSIONS ═══ */
+/* ══ SESSIONS ══ */
 function loadSessions(){
   db.collection('sessions').orderBy('lastSeen','desc').get().then(function(snap){
     allSessions=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allSessions.push(d);});
-    renderSessions();
-  }).catch(function(e){toast('Error loading sessions: '+e.message,'e');});
+    renderSessions();updateOverviewStats();
+  }).catch(function(e){toast('Error sessions: '+e.message,'e');});
 }
-
 function renderSessions(){
-  var filtered=allSessions;
-  if(sessFilter!=='ALL'){
-    filtered=allSessions.filter(function(s){
-      var k=allKeys.find(function(k){return k.key===s.key;});
-      return k&&k.project===sessFilter;
-    });
-  }
-  var online=0,offline=0;
-  allSessions.forEach(function(s){if(s.online)online++;else offline++;});
-  gi('s-online').textContent=online;
-  gi('sess-count').textContent=filtered.length+' users';
-  if(!filtered.length){gi('sess-list').innerHTML='<div class="empty">No users found.</div>';return;}
+  var online=allSessions.filter(function(s){return s.online;}).length;
+  var ob=gi('tb-online-count');if(ob)ob.textContent=online+' Online';
+  var nbu=gi('nb-users');if(nbu)nbu.textContent=online+' Online';
+  var uc=gi('users-online-count');if(uc)uc.textContent=online+' users online';
+  var ut=gi('users-total-count');if(ut)ut.textContent=allSessions.length+' total sessions';
+  var ovo=gi('ov-online');if(ovo)ovo.textContent=online;
+  var filtered=sessFilter==='ALL'?allSessions:allSessions.filter(function(s){
+    var k=allKeys.find(function(k){return k.key===s.key;});return k&&k.project===sessFilter;
+  });
+  var sb=gi('sess-count-badge');if(sb)sb.textContent=filtered.length;
+  if(!filtered.length){gi('sess-list').innerHTML='<div class="empty">No sessions found.</div>';return;}
   var html='';
   filtered.forEach(function(d){
-    var isOnline=d.online===true;
-    var initial=(d.platform||'?').charAt(0);
-    var matchedKey=allKeys.find(function(k){return k.key===d.key;});
-    var projLabel=matchedKey?matchedKey.project:'—';
+    var isOn=d.online===true;var ini=(d.platform||'?').charAt(0);
+    var mk=allKeys.find(function(k){return k.key===d.key;});
+    var pj=mk?mk.project:'—';
     html+='<div class="sess-row">';
-    html+='<div class="sess-av '+(isOnline?'online':'offline')+'">'+initial+'</div>';
-    html+='<div class="sess-info">';
-    html+='<span class="sess-key">'+(d.key||'—')+'</span>';
-    html+='<span class="sess-meta"><span class="dev-tag">'+(d.platform||'?')+'</span> · <span class="dev-tag">'+projLabel+'</span> · '+timeAgo(d.lastSeen)+'</span>';
-    html+='</div>';
-    html+='<span class="sess-badge '+(isOnline?'online':'offline')+'">';
-    html+=isOnline?'<span class="online-dot"></span>ONLINE':'<span class="offline-dot"></span>OFFLINE';
-    html+='</span></div>';
+    html+='<div class="sess-av '+(isOn?'online':'offline')+'">'+ini+'</div>';
+    html+='<div class="sess-info"><span class="sess-key">'+(d.key||'—')+'</span>';
+    html+='<span class="sess-meta"><span class="dev-tag">'+(d.platform||'?')+'</span> · <span class="dev-tag">'+pj+'</span> · '+timeAgo(d.lastSeen)+'</span></div>';
+    html+='<span class="online-badge '+(isOn?'on':'off')+'"><span class="odot '+(isOn?'g':'o')+'"></span>'+(isOn?'ONLINE':'OFFLINE')+'</span></div>';
   });
   gi('sess-list').innerHTML=html;
 }
 
-/* ═══ ADMINS ═══ */
-var allAdmins=[];
+/* ══ ADMINS / TEAM ══ */
+var allAdminsData=[];
 function renderAdmins(){
-  gi('admin-count').textContent=allAdmins.length+' admins';
-  gi('s-admins').textContent=allAdmins.length;
-  var dot=gi('tab-dot-team');if(dot)dot.style.display=allAdmins.length>1?'block':'none';
-  if(!allAdmins.length){gi('admin-list').innerHTML='<div class="empty">No admins.</div>';return;}
+  gi('team-count-badge').textContent=allAdminsData.length+' admins';
+  gi('ov-admins').textContent=allAdminsData.length;
+  gi('s-admins')||null;
+  if(!allAdminsData.length){gi('team-list').innerHTML='<div class="empty">No admins.</div>';return;}
   var html='';
-  allAdmins.forEach(function(d){
-    var initial=(d.name||d.username||'?').charAt(0).toUpperCase();
+  allAdminsData.forEach(function(d){
+    var ini=(d.name||d.username||'?').charAt(0).toUpperCase();
     html+='<div class="admin-row">';
-    html+='<div class="admin-av">'+initial+'</div>';
-    html+='<div class="admin-info">';
-    html+='<span class="admin-name">'+(d.name||'—')+'</span>';
-    html+='<span class="admin-user">@'+(d.username||'—')+'</span>';
-    html+='<span class="admin-joined">Joined: '+fmtTime(d.createdAt)+'</span>';
-    html+='</div>';
+    html+='<div class="admin-av">'+ini+'</div>';
+    html+='<div class="admin-info"><span class="admin-name">'+(d.name||'—')+'</span><span class="admin-user">@'+(d.username||'—')+'</span><span class="admin-joined">'+fmtTime(d.createdAt)+'</span></div>';
     html+='<span class="role-tag '+(d.role||'admin')+'">'+(d.role||'ADMIN').toUpperCase()+'</span>';
-    if(currentAdmin.role==='owner'&&d._id!==currentAdmin.id){
-      html+='<button class="btn-act btn-revoke" onclick="removeAdmin(\''+d._id+'\',\''+d.username+'\')">REMOVE</button>';
+    if(currentAdmin&&currentAdmin.role==='owner'&&d._id!==currentAdmin.id){
+      html+='<button class="btn btn-danger btn-sm" onclick="removeAdmin(\''+d._id+'\',\''+d.username+'\')">REMOVE</button>';
     }
     html+='</div>';
   });
-  gi('admin-list').innerHTML=html;
+  gi('team-list').innerHTML=html;
 }
-
 function addAdmin(){
   if(currentAdmin.role!=='owner'){toast('Only owner can add admins','e');return;}
-  var name=gi('new-name').value.trim(),username=gi('new-user').value.trim().toLowerCase(),password=gi('new-pass').value;
+  var name=(gi('new-name').value||'').trim();
+  var username=(gi('new-user').value||'').trim().toLowerCase();
+  var password=gi('new-pass').value;
   if(!name||!username||!password){toast('Fill all fields','e');return;}
   if(password.length<6){toast('Password min 6 chars','e');return;}
   db.collection('admins').where('username','==',username).get().then(function(snap){
-    if(!snap.empty){toast('Username already exists','e');return;}
+    if(!snap.empty){toast('Username exists','e');return;}
     return db.collection('admins').add({
-      username:username,password:simpleHash(password),name:name,
-      role:'admin',createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      username:username,password:simpleHash(password),
+      name:name,role:'admin',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
       gi('new-name').value='';gi('new-user').value='';gi('new-pass').value='';
       toast('Admin "'+name+'" added!','s');
-      pushActivity('key','Admin <b>'+name+'</b> (@'+username+') ditambahkan');
+      pushActivityFS('admin','Admin <b>'+name+'</b> (@'+username+') ditambahkan ke team oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
     });
   }).catch(function(e){toast('Error: '+e.message,'e');});
 }
-
 function removeAdmin(id,username){
   if(currentAdmin.role!=='owner'){toast('Only owner can remove admins','e');return;}
-  showModal('REMOVE ADMIN','Remove @'+username+' dari team?',function(){
+  showModal('REMOVE ADMIN','Remove @'+username+' from the team?',function(){
     db.collection('admins').doc(id).delete().then(function(){
       toast('Admin removed','s');
-      pushActivity('revoke','Admin @'+username+' dihapus dari team');
+      pushActivityFS('admin','Admin @'+username+' dihapus dari team oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
     }).catch(function(e){toast('Error: '+e.message,'e');});
+  },true);
+}
+window.addAdmin=addAdmin;window.removeAdmin=removeAdmin;
+
+/* ══ OVERVIEW STATS ══ */
+function updateOverviewStats(){
+  var total=allKeys.length;
+  var active=allKeys.filter(function(k){return k.active;}).length;
+  var used=allKeys.filter(function(k){return k.used;}).length;
+  var online=allSessions.filter(function(s){return s.online;}).length;
+  var now=new Date();
+  var thisMonth=allKeys.filter(function(k){
+    if(!k.createdAt)return false;
+    var d=k.createdAt.toDate?k.createdAt.toDate():new Date(k.createdAt.seconds?k.createdAt.seconds*1000:0);
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  }).length;
+  var ovt=gi('ov-total');if(ovt)ovt.textContent=total;
+  var ovm=gi('ov-month');if(ovm)ovm.textContent=thisMonth;
+  var ova=gi('ov-active');if(ova)ova.textContent=active;
+  var ovu=gi('ov-used');if(ovu)ovu.textContent=used;
+  var ovp=gi('ov-projects');if(ovp)ovp.textContent=allProjects.length;
+  var nb=gi('nb-keys');if(nb)nb.textContent=total;
+  var pct=total>0?Math.round(active/total*100)+'%':'—';
+  var ap=gi('ov-active-pct');if(ap){ap.textContent=pct+' active';ap.className='stat-delta neutral';}
+  var upct=total>0?Math.round(used/total*100)+'%':'—';
+  var up=gi('ov-used-pct');if(up){up.textContent=upct+' used';up.className='stat-delta neutral';}
+}
+
+/* ══ ANALYTICS ══ */
+function getMonthlyData(){
+  var months=[];var now=new Date();
+  for(var i=11;i>=0;i--){
+    var d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    var label=d.toLocaleString('id-ID',{month:'short',year:'2-digit'});
+    var mKeys=allKeys.filter(function(k){
+      if(!k.createdAt)return false;
+      var kd=k.createdAt.toDate?k.createdAt.toDate():new Date(k.createdAt.seconds?k.createdAt.seconds*1000:0);
+      return kd.getFullYear()===d.getFullYear()&&kd.getMonth()===d.getMonth();
+    });
+    months.push({
+      label:label,total:mKeys.length,
+      used:mKeys.filter(function(k){return k.used;}).length,
+      revoked:mKeys.filter(function(k){return !k.active;}).length
+    });
+  }
+  return months;
+}
+function getPeriodKeys(){
+  var now=Date.now();
+  return allKeys.filter(function(k){
+    if(!k.createdAt)return false;
+    var d=k.createdAt.toDate?k.createdAt.toDate():new Date(k.createdAt.seconds?k.createdAt.seconds*1000:0);
+    var diff=now-d.getTime();
+    if(currentPeriod==='week')return diff<7*86400000;
+    if(currentPeriod==='month')return diff<30*86400000;
+    if(currentPeriod==='year')return diff<365*86400000;
+    return true;
+  });
+}
+function renderAnalytics(){
+  var period=getPeriodKeys();
+  var el1=gi('an-period-total');if(el1)el1.textContent=period.length;
+  var el2=gi('an-period-used');if(el2)el2.textContent=period.filter(function(k){return k.used;}).length;
+  var rate=period.length>0?Math.round(period.filter(function(k){return k.used;}).length/period.length*100)+'%':'0%';
+  var el3=gi('an-rate');if(el3)el3.textContent=rate;
+  var now=Date.now();
+  var week=allKeys.filter(function(k){if(!k.createdAt)return false;var d=k.createdAt.toDate?k.createdAt.toDate():new Date(k.createdAt.seconds?k.createdAt.seconds*1000:0);return now-d.getTime()<7*86400000;}).length;
+  var month=allKeys.filter(function(k){if(!k.createdAt)return false;var d=k.createdAt.toDate?k.createdAt.toDate():new Date(k.createdAt.seconds?k.createdAt.seconds*1000:0);return now-d.getTime()<30*86400000;}).length;
+  var year=allKeys.filter(function(k){if(!k.createdAt)return false;var d=k.createdAt.toDate?k.createdAt.toDate():new Date(k.createdAt.seconds?k.createdAt.seconds*1000:0);return now-d.getTime()<365*86400000;}).length;
+  var ew=gi('an-week');if(ew)ew.textContent=week;
+  var em=gi('an-month');if(em)em.textContent=month;
+  var ey=gi('an-year');if(ey)ey.textContent=year;
+  /* monthly table */
+  var md=getMonthlyData();
+  var tbl='';
+  md.slice().reverse().forEach(function(m){
+    tbl+='<div class="key-row">';
+    tbl+='<div class="key-main"><span class="key-val">'+m.label+'</span>';
+    tbl+='<div class="key-meta"><span class="km-tag">'+m.total+' generated</span><span class="km-tag">'+m.used+' used</span><span class="km-tag">'+m.revoked+' revoked</span></div></div>';
+    var pct=m.total>0?Math.round(m.used/m.total*100):0;
+    tbl+='<div style="text-align:right;min-width:60px;"><span style="font-family:var(--hud);font-size:14px;font-weight:700;color:var(--sky2);">'+pct+'%</span><br/><span style="font-family:var(--mono);font-size:8px;color:var(--t3);">used rate</span></div>';
+    tbl+='</div>';
+  });
+  var atbl=gi('an-monthly-table');if(atbl)atbl.innerHTML=tbl||'<div class="empty">No data.</div>';
+}
+
+/* ══ CHARTS ══ */
+Chart.defaults.color='#6288aa';
+Chart.defaults.borderColor='rgba(56,189,248,.06)';
+Chart.defaults.font.family='JetBrains Mono';
+Chart.defaults.font.size=10;
+
+function mkChart(id,cfg){
+  var el=gi(id);if(!el)return null;
+  if(charts[id]){charts[id].destroy();}
+  charts[id]=new Chart(el,cfg);
+  return charts[id];
+}
+
+function renderOverviewCharts(){
+  /* Monthly line chart */
+  var md=getMonthlyData();
+  mkChart('chart-monthly',{
+    type:'line',
+    data:{
+      labels:md.map(function(m){return m.label;}),
+      datasets:[{
+        label:'Generated',data:md.map(function(m){return m.total;}),
+        borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.1)',
+        borderWidth:2,fill:true,tension:.45,pointRadius:3,pointHoverRadius:5,
+        pointBackgroundColor:'#3b82f6',pointBorderColor:'rgba(59,130,246,.3)',
+      },{
+        label:'Used',data:md.map(function(m){return m.used;}),
+        borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,.07)',
+        borderWidth:2,fill:true,tension:.45,pointRadius:3,pointHoverRadius:5,
+        pointBackgroundColor:'#06b6d4',borderDash:[],
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'rgba(6,16,32,.95)',borderColor:'rgba(56,189,248,.2)',borderWidth:1,titleColor:'#e2f4ff',bodyColor:'#6288aa',padding:10}},
+      scales:{
+        x:{grid:{color:'rgba(56,189,248,.05)'},ticks:{color:'#6288aa',font:{size:9}}},
+        y:{grid:{color:'rgba(56,189,248,.05)'},ticks:{color:'#6288aa',font:{size:9}},beginAtZero:true}
+      }
+    }
+  });
+
+  /* Donut project distribution */
+  var projColors=['#3b82f6','#06b6d4','#10b981','#f59e0b','#818cf8','#f43f5e'];
+  var projData=allProjects.map(function(p){return allKeys.filter(function(k){return k.project===p.name;}).length;});
+  mkChart('chart-donut',{
+    type:'doughnut',
+    data:{
+      labels:allProjects.map(function(p){return p.name;}),
+      datasets:[{data:projData.length?projData:[1],backgroundColor:projData.length?projColors.slice(0,projData.length):['rgba(56,189,248,.08)'],borderColor:'rgba(6,13,26,.98)',borderWidth:3,hoverOffset:8}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'70%',
+      plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyle:'circle',font:{size:9}}},tooltip:{backgroundColor:'rgba(6,16,32,.95)',borderColor:'rgba(56,189,248,.2)',borderWidth:1}}
+    }
+  });
+
+  /* Weekly bar */
+  var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var dayCounts=days.map(function(d,i){
+    return allKeys.filter(function(k){
+      if(!k.createdAt)return false;
+      var kd=k.createdAt.toDate?k.createdAt.toDate():new Date(k.createdAt.seconds?k.createdAt.seconds*1000:0);
+      return (kd.getDay()+(6))%7===i;
+    }).length;
+  });
+  mkChart('chart-weekly',{
+    type:'bar',
+    data:{
+      labels:days,
+      datasets:[{label:'Keys',data:dayCounts,backgroundColor:dayCounts.map(function(v,i){return i===dayCounts.indexOf(Math.max.apply(null,dayCounts))?'rgba(56,189,248,.7)':'rgba(56,189,248,.2)';}),borderColor:'rgba(56,189,248,.4)',borderWidth:1,borderRadius:6,hoverBackgroundColor:'rgba(56,189,248,.8)'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(6,16,32,.95)',borderColor:'rgba(56,189,248,.2)',borderWidth:1}},scales:{x:{grid:{display:false},ticks:{color:'#6288aa'}},y:{grid:{color:'rgba(56,189,248,.05)'},ticks:{color:'#6288aa'},beginAtZero:true}}}
+  });
+
+  /* Status breakdown */
+  var active=allKeys.filter(function(k){return k.active&&!k.used;}).length;
+  var inuse=allKeys.filter(function(k){return k.used&&k.active;}).length;
+  var revoked=allKeys.filter(function(k){return !k.active&&!isExpired(k);}).length;
+  var expired=allKeys.filter(function(k){return isExpired(k);}).length;
+  mkChart('chart-status',{
+    type:'doughnut',
+    data:{
+      labels:['Available','In Use','Revoked','Expired'],
+      datasets:[{data:[active,inuse,revoked,expired],backgroundColor:['rgba(16,185,129,.7)','rgba(56,189,248,.7)','rgba(56,189,248,.15)','rgba(245,158,11,.7)'],borderColor:'rgba(6,13,26,.98)',borderWidth:3,hoverOffset:6}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:10,usePointStyle:true,pointStyle:'circle',font:{size:9}}},tooltip:{backgroundColor:'rgba(6,16,32,.95)',borderColor:'rgba(56,189,248,.2)',borderWidth:1}}}
   });
 }
 
-/* ═══ ACTIVITY FEED ═══ */
-var activityLog=[];
-function pushActivity(type,text){
-  activityLog.unshift({type:type,text:text,time:Date.now()});
-  if(activityLog.length>60)activityLog.pop();
-  renderActivity();
-}
-function renderActivity(){
-  var el=gi('act-list');if(!el)return;
-  gi('act-count').textContent=activityLog.length+' events';
-  if(!activityLog.length){el.innerHTML='<div class="empty">No activity yet.</div>';return;}
-  var html='';
-  activityLog.forEach(function(a){
-    html+='<div class="activity-row">';
-    html+='<span class="act-dot '+a.type+'"></span>';
-    html+='<span class="act-text">'+a.text+'</span>';
-    html+='<span class="act-time">'+timeAgo({toDate:function(){return new Date(a.time);}})+'</span>';
-    html+='</div>';
+function renderAnalyticsCharts(){
+  var md=getMonthlyData();
+  /* Trend chart */
+  mkChart('chart-trend',{
+    type:'line',
+    data:{
+      labels:md.map(function(m){return m.label;}),
+      datasets:[{
+        label:'Generated',data:md.map(function(m){return m.total;}),
+        borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',borderWidth:2,fill:true,tension:.45,pointRadius:3,
+      },{
+        label:'Used',data:md.map(function(m){return m.used;}),
+        borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.05)',borderWidth:2,fill:true,tension:.45,pointRadius:3,
+      },{
+        label:'Revoked',data:md.map(function(m){return m.revoked;}),
+        borderColor:'#fb7185',backgroundColor:'rgba(251,113,133,.05)',borderWidth:2,fill:true,tension:.45,pointRadius:3,
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{usePointStyle:true,padding:16,font:{size:10}}},tooltip:{mode:'index',intersect:false,backgroundColor:'rgba(6,16,32,.95)',borderColor:'rgba(56,189,248,.2)',borderWidth:1}},scales:{x:{grid:{color:'rgba(56,189,248,.04)'},ticks:{color:'#6288aa',font:{size:9}}},y:{grid:{color:'rgba(56,189,248,.04)'},ticks:{color:'#6288aa',font:{size:9}},beginAtZero:true}}}
   });
-  el.innerHTML=html;
+
+  /* Project bar */
+  var projColors=['#3b82f6','#06b6d4','#10b981','#f59e0b','#818cf8','#f43f5e'];
+  var pd=allProjects.map(function(p){return{name:p.name,count:allKeys.filter(function(k){return k.project===p.name;}).length};});
+  mkChart('chart-proj-bar',{
+    type:'bar',
+    data:{labels:pd.map(function(p){return p.name;}),datasets:[{label:'Keys',data:pd.map(function(p){return p.count;}),backgroundColor:projColors.slice(0,pd.length),borderRadius:7,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(6,16,32,.95)',borderColor:'rgba(56,189,248,.2)',borderWidth:1}},scales:{x:{grid:{color:'rgba(56,189,248,.04)'},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#a0c8e8'}}}}
+  });
+
+  /* Platform donut */
+  var platforms={};
+  allSessions.forEach(function(s){var p=s.platform||'Unknown';platforms[p]=(platforms[p]||0)+1;});
+  var pLabels=Object.keys(platforms);var pData=pLabels.map(function(k){return platforms[k];});
+  mkChart('chart-platform',{
+    type:'doughnut',
+    data:{labels:pLabels.length?pLabels:['No data'],datasets:[{data:pData.length?pData:[1],backgroundColor:['rgba(56,189,248,.7)','rgba(16,185,129,.7)','rgba(245,158,11,.7)','rgba(129,140,248,.7)'],borderColor:'rgba(6,13,26,.98)',borderWidth:3,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:10,usePointStyle:true,pointStyle:'circle',font:{size:9}}},tooltip:{backgroundColor:'rgba(6,16,32,.95)',borderColor:'rgba(56,189,248,.2)',borderWidth:1}}}
+  });
 }
 
-/* ═══ REALTIME LISTENERS ═══ */
-function startRealtimeListeners(){
+/* ══ REALTIME LISTENERS ══ */
+function startListeners(){
+  /* Sessions */
   db.collection('sessions').onSnapshot(function(snap){
     allSessions=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allSessions.push(d);});
-    renderSessions();
-    var online=allSessions.filter(function(s){return s.online;}).length;
-    gi('tab-dot-users').style.display=online>0?'block':'none';
+    renderSessions();updateOverviewStats();
   },function(){});
 
+  /* Keys */
   db.collection('keys').onSnapshot(function(snap,change){
     allKeys=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
@@ -1136,49 +2094,57 @@ function startRealtimeListeners(){
       var tb=b.createdAt?b.createdAt.toMillis?b.createdAt.toMillis():0:0;
       return tb-ta;
     });
-    renderKeys();renderProjects();checkExpiredKeys();
+    renderKeys();renderProjects();updateOverviewStats();checkExpiredKeys();
     if(change){
       change.docChanges().forEach(function(ch){
         var d=ch.doc.data();
-        if(ch.type==='added'&&d.key)pushActivity('key','Key <b>'+d.key+'</b> dibuat untuk <b>'+(d.project||'—')+'</b>');
-        if(ch.type==='modified'&&d.used&&d.deviceId)pushActivity('login','Key <b>'+d.key+'</b> digunakan di perangkat baru');
-        if(ch.type==='modified'&&!d.active)pushActivity('revoke','Key <b>'+d.key+'</b> di-revoke');
+        if(ch.type==='added'&&d.key)pushActivityFS('key','Key <b>'+d.key+'</b> dibuat untuk <b>'+(d.project||'—')+'</b>',currentAdmin?currentAdmin.name:'system');
+        if(ch.type==='modified'&&d.used&&d.deviceId)pushActivityFS('login','Key <b>'+d.key+'</b> digunakan oleh perangkat baru',currentAdmin?currentAdmin.name:'system');
+        if(ch.type==='modified'&&!d.active)pushActivityFS('revoke','Key <b>'+d.key+'</b> non-aktif',currentAdmin?currentAdmin.name:'system');
       });
     }
   },function(){});
 
-  db.collection('admins').orderBy('createdAt').onSnapshot(function(snap,change){
-    allAdmins=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdmins.push(d);});
+  /* Admins */
+  db.collection('admins').orderBy('createdAt').onSnapshot(function(snap){
+    allAdminsData=[];
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
     renderAdmins();
-    if(change){
-      change.docChanges().forEach(function(ch){
-        var d=ch.doc.data();
-        if(ch.type==='added'&&d.username)pushActivity('login','Admin <b>'+(d.name||d.username)+'</b> bergabung');
-        if(ch.type==='removed')pushActivity('revoke','Satu admin dihapus dari team');
-      });
-    }
+    gi('ov-admins').textContent=allAdminsData.length;
   },function(){
     db.collection('admins').onSnapshot(function(snap){
-      allAdmins=[];
-      snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdmins.push(d);});
+      allAdminsData=[];
+      snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
       renderAdmins();
     },function(){});
   });
 
-  db.collection('sessions').onSnapshot(function(snap,change){
-    if(change){
-      change.docChanges().forEach(function(ch){
-        var d=ch.doc.data();
-        if(ch.type==='modified'&&d.online===true)pushActivity('login','User <b>'+(d.key||'unknown')+'</b> login ke <b>'+(d.panel||'—')+'</b>');
-        if(ch.type==='modified'&&d.online===false)pushActivity('offline','User <b>'+(d.key||'unknown')+'</b> offline');
-      });
-    }
-  },function(){});
+  /* Activity log realtime */
+  db.collection('activity_log').orderBy('createdAt','desc').limit(200).onSnapshot(function(snap){
+    activityLog=[];
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;activityLog.push(d);});
+    renderActivity();
+    /* update chart if overview active */
+    if(gi('page-overview').classList.contains('active'))renderOverviewCharts();
+  },function(){refreshActivity();});
 }
 
-/* ═══ INIT ═══ */
+/* ══ INIT ══ */
 autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
+
+/* ══ RESPONSIVE: auto-collapse sidebar on small screens ══ */
+(function(){
+  if(window.innerWidth<=768){
+    gi('sidebar').classList.add('mobile-hidden');
+  }
+  window.addEventListener('resize',function(){
+    var sb=gi('sidebar');
+    if(window.innerWidth>768){
+      sb.classList.remove('mobile-hidden','mobile-open');
+      gi('overlay').classList.remove('vis');
+    }
+  });
+})();
 </script>
 </body>
 </html>
