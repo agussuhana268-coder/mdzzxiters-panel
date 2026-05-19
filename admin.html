@@ -184,7 +184,7 @@ body::before{
   color:var(--t2);transition:all .18s;display:flex;align-items:center;justify-content:center;
 }
 .sb-toggle:hover{background:rgba(56,189,248,.12);color:var(--sky2);}
-.sb-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;transition:transform .28s;}
+.sb-toggle{display:none!important;}.sb-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;transition:transform .28s;}
 .sidebar.collapsed .sb-toggle svg{transform:rotate(180deg);}
 
 .sb-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 8px;scrollbar-width:none;}
@@ -287,7 +287,7 @@ body.sb-open{overflow:hidden;}
   background:rgba(6,13,26,.97);
   border-bottom:1px solid var(--bdr);
   backdrop-filter:blur(40px);
-  position:relative;z-index:20;
+  position:relative;z-index:170;
 }
 .topbar::after{
   content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
@@ -730,8 +730,8 @@ body.sb-open{overflow:hidden;}
   .key-row{flex-wrap:wrap;gap:7px;}
   /* Toast position */
   #toast-wrap{right:10px;left:10px;max-width:none;align-items:flex-end;}
-  /* Hamburger always visible on mobile */
-  .hamburger{display:flex!important;}
+  /* Hamburger visible on mobile */
+  .hamburger{display:flex;}
   /* Hide desktop-only logout button in topbar on very small screens */
   .topbar .btn.btn-secondary{display:none;}
   /* Inline override grids */
@@ -887,9 +887,7 @@ body.sb-open{overflow:hidden;}
         <span class="sb-brand">MDZZXITERS</span>
         <span class="sb-brand-sub">CONTROL CENTER</span>
       </div>
-      <button class="sb-toggle" onclick="toggleSidebar()" title="Collapse sidebar">
-        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </button>
+
     </div>
 
     <div class="sb-nav">
@@ -952,13 +950,10 @@ body.sb-open{overflow:hidden;}
     <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-left">
-        <button class="hamburger" onclick="toggleMobileSidebar()" id="hamburger" aria-label="Menu" type="button">
+        <button class="hamburger" onclick="toggleSidebar()" id="hamburger" aria-label="Menu" type="button" style="touch-action:manipulation;">
           <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
-        <!-- Desktop collapse toggle -->
-        <button class="hamburger" onclick="toggleSidebar()" id="sb-collapse-btn" style="display:none;" aria-label="Collapse sidebar" type="button">
-          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
+
         <div class="topbar-title" id="topbar-title"><span>Overview</span></div>
       </div>
       <div class="topbar-right">
@@ -1438,36 +1433,39 @@ function updateClock(){
 var sbCollapsed=false;
 var isMobile=function(){return window.innerWidth<=768;};
 
+/* Unified toggle — works for both mobile and desktop */
 function toggleSidebar(){
-  /* Desktop: collapse to icon-only */
-  if(isMobile()){toggleMobileSidebar();return;}
-  sbCollapsed=!sbCollapsed;
-  var sb=gi('sidebar'),main=gi('main');
-  if(sbCollapsed){sb.classList.add('collapsed');main.style.left='var(--sb-c)';}
-  else{sb.classList.remove('collapsed');main.style.left='var(--sb)';}
-}
-
-function toggleMobileSidebar(){
   var sb=gi('sidebar'),ov=gi('overlay');
-  var isOpen=sb.classList.contains('open');
-  if(isOpen){
-    /* Close */
-    sb.classList.remove('open');
-    ov.classList.remove('vis');
-    document.body.classList.remove('sb-open');
+  if(isMobile()){
+    /* Mobile: slide in/out */
+    var isOpen=sb.classList.contains('open');
+    if(isOpen){
+      sb.classList.remove('open');
+      ov.classList.remove('vis');
+    } else {
+      sb.classList.add('open');
+      ov.classList.add('vis');
+    }
   } else {
-    /* Open */
-    sb.classList.add('open');
-    ov.classList.add('vis');
-    document.body.classList.add('sb-open');
+    /* Desktop: collapse to icons */
+    sbCollapsed=!sbCollapsed;
+    var main=gi('main');
+    if(sbCollapsed){
+      sb.classList.add('collapsed');
+      main.style.left='var(--sb-c)';
+    } else {
+      sb.classList.remove('collapsed');
+      main.style.left='var(--sb)';
+    }
   }
 }
+
+function toggleMobileSidebar(){toggleSidebar();}
 
 function closeMobileSidebar(){
   var sb=gi('sidebar'),ov=gi('overlay');
   sb.classList.remove('open');
   ov.classList.remove('vis');
-  document.body.classList.remove('sb-open');
 }
 
 /* ══ NAVIGATION ══ */
@@ -1621,13 +1619,10 @@ function enterApp(){
     gi('sb-uname').textContent=name;
     gi('sb-role').textContent=currentAdmin.role==='owner'?'OWNER':'ADMIN';
     /* Show correct button in topbar */
+    /* Desktop: main content offset by sidebar width */
     if(!isMobile()){
-      gi('hamburger').style.display='none';
-      gi('sb-collapse-btn').style.display='flex';
       gi('main').style.left='var(--sb)';
     } else {
-      gi('hamburger').style.display='flex';
-      gi('sb-collapse-btn').style.display='none';
       gi('main').style.left='0';
     }
     if(currentAdmin.role!=='owner'){var f=gi('add-admin-form');if(f)f.style.display='none';}
@@ -2315,14 +2310,9 @@ autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
       /* Restore desktop left margin */
       if(!sbCollapsed){gi('main').style.left='var(--sb)';}
       else{gi('main').style.left='var(--sb-c)';}
-      /* Show/hide correct buttons */
-      if(gi('hamburger'))gi('hamburger').style.display='none';
-      if(gi('sb-collapse-btn'))gi('sb-collapse-btn').style.display='flex';
     } else {
-      /* Mobile: restore mobile state */
-      if(!sbCollapsed)gi('main').style.left='0';
-      if(gi('hamburger'))gi('hamburger').style.display='flex';
-      if(gi('sb-collapse-btn'))gi('sb-collapse-btn').style.display='none';
+      /* Mobile: reset left */
+      gi('main').style.left='0';
     }
   });
   /* Keyboard: Escape closes mobile sidebar */
