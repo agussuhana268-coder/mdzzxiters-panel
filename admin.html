@@ -2601,8 +2601,8 @@ service cloud.firestore {
    Ganti 2 nilai ini dengan project Supabase kamu:
    Dashboard → Settings → API
 ══════════════════════════════════════════════════ */
-var SUPA_URL  = localStorage.getItem('supa_url')  || 'https://XXXXXXXXXXXX.supabase.co';
-var SUPA_KEY  = localStorage.getItem('supa_key')  || 'YOUR_SUPABASE_ANON_KEY';
+var SUPA_URL  = 'https://miorkkrwldqkmgugppyk.supabase.co';
+var SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0';
 var _supa     = null;
 
 function initSupabase(url, key){
@@ -2612,6 +2612,11 @@ function initSupabase(url, key){
   _supa = supabase.createClient(url, key);
 }
 initSupabase(SUPA_URL, SUPA_KEY);
+
+/* Auto-set Supabase config */
+localStorage.setItem('supa_url', 'https://miorkkrwldqkmgugppyk.supabase.co');
+localStorage.setItem('supa_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0');
+
 
 /* ══ DB Abstraction — drop-in Firestore replacement ══ */
 var db = {
