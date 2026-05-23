@@ -1274,38 +1274,25 @@ body.sb-open{overflow:hidden;}
    TUTORIAL JS LOGIC
 ══════════════════════════ */
 </style>
+
+<style>
+/* Force hide mode select screen - bypass permanently */
+#mode-select-screen { display: none !important; }
+</style>
 </head>
 <body>
+<script>
+// Force skip mode screen immediately
+localStorage.setItem('zx_mode','mobile');
+document.addEventListener('DOMContentLoaded', function(){
+  var s = document.getElementById('mode-select-screen');
+  if(s) s.style.display = 'none';
+});
+</script>
+
 <!-- SIDEBAR OVERLAY: positioned below topbar so topbar stays clickable -->
 <!-- MODE SELECT SCREEN -->
-<div id="mode-select-screen">
-  <div class="mss-logo">
-    <svg viewBox="0 0 64 64" fill="none">
-      <polygon points="32,2 60,17 60,47 32,62 4,47 4,17" fill="url(#mslg)" stroke="rgba(56,189,248,.4)" stroke-width="1.5"/>
-      <defs><radialGradient id="mslg" cx="40%" cy="28%" r="72%"><stop offset="0%" stop-color="#0f2040"/><stop offset="100%" stop-color="#060d1a"/></radialGradient></defs>
-    </svg>
-    <span class="mss-logo-M">M</span>
-  </div>
-  <div class="mss-title">PILIH MODE TAMPILAN</div>
-  <div class="mss-sub">MDZZXITERS CONTROL CENTER</div>
-  <div class="mss-cards">
-    <div class="mss-card" onclick="selectMode('mobile')" tabindex="0">
-      <div class="mss-ico">
-        <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/></svg>
-      </div>
-      <div class="mss-card-title">MOBILE</div>
-      <div class="mss-card-sub">Untuk HP / Tablet<br/>Potret · Optimized touch</div>
-    </div>
-    <div class="mss-card" onclick="selectMode('desktop')" tabindex="0">
-      <div class="mss-ico">
-        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      </div>
-      <div class="mss-card-title">DESKTOP</div>
-      <div class="mss-card-sub">Untuk PC / Laptop<br/>Sidebar · Landscape</div>
-    </div>
-  </div>
-  <div class="mss-note">Pilihan tersimpan otomatis<br/>Bisa diubah kapan saja lewat tombol di topbar</div>
-</div>
+
 
 <div class="overlay" id="overlay" onclick="closeMobileSidebar()" role="presentation"></div>
 
@@ -3713,7 +3700,8 @@ autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
 /* ══════════════════════════════════════
    MODE SYSTEM
 ══════════════════════════════════════ */
-var currentMode = localStorage.getItem('zx_mode') || '';
+localStorage.setItem('zx_mode','mobile');
+var currentMode = 'mobile';
 
 function applyMode(mode, skipSave){
   currentMode = mode;
@@ -3745,18 +3733,10 @@ function applyMode(mode, skipSave){
   }
 }
 
-function selectMode(mode){
-  /* Hide mode select screen */
-  var screen = gi('mode-select-screen');
-  if(screen){ screen.classList.add('hidden'); setTimeout(function(){screen.style.display='none';},400); }
-  applyMode(mode);
-}
+function selectMode(mode){ applyMode(mode); }
 window.selectMode = selectMode;
 
-function showModeSelect(){
-  var screen = gi('mode-select-screen');
-  if(screen){ screen.style.display='flex'; setTimeout(function(){screen.classList.remove('hidden');},10); }
-}
+function showModeSelect(){ /* mode screen removed */ }
 window.showModeSelect = showModeSelect;
 
 /* ── DRAWER (mobile mode nav) ── */
@@ -3813,19 +3793,12 @@ enterApp = function(){
     var dr = gi('drawer-role'); if(dr) dr.textContent = currentAdmin && currentAdmin.role==='owner' ? 'OWNER' : 'ADMIN';
 
     /* Apply saved mode or show selector */
-    var saved = localStorage.getItem('zx_mode') || 'mobile';
-    if(!localStorage.getItem('zx_mode')) localStorage.setItem('zx_mode','mobile');
-    applyMode(saved, true);
+    applyMode('mobile', true);
   }, 500);
 };
 
-/* ── Init: skip mode screen, auto default mobile ── */
-(function(){
-  var saved = localStorage.getItem('zx_mode') || 'mobile';
-  if(!localStorage.getItem('zx_mode')) localStorage.setItem('zx_mode','mobile');
-  var screen = gi('mode-select-screen');
-  if(screen) screen.style.display = 'none';
-})();
+/* mode fixed to mobile */
+localStorage.setItem('zx_mode','mobile');
 
 
 /* ══════════════════════════════════════════════
