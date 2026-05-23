@@ -1313,7 +1313,31 @@ body.sb-open{overflow:hidden;}
 <div id="login-page">
   <div class="login-bg-grid"></div>
   <div class="login-orb"></div>
-  <div class="login-card">
+
+  <!-- ══ SUPABASE CONFIG CARD (tampil jika belum setup) ══ -->
+  <div id="supa-login-cfg" style="position:absolute;top:18px;left:50%;transform:translateX(-50%);width:100%;max-width:420px;padding:0 20px;box-sizing:border-box;z-index:10;">
+    <div style="background:rgba(9,18,36,.98);border:1px solid rgba(245,158,11,.35);border-radius:18px;padding:20px 22px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2px;color:#f59e0b;margin-bottom:14px;">
+        ⚙ SUPABASE CONFIG
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,.35);margin-bottom:12px;line-height:1.6;">
+        Supabase → Settings → API → copy Project URL &amp; anon key
+      </div>
+      <input type="text" id="cfg-supa-url" autocomplete="off"
+        style="width:100%;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:11px 14px;color:#e2eeff;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;margin-bottom:9px;box-sizing:border-box;"
+        placeholder="https://xxxx.supabase.co"/>
+      <input id="cfg-supa-key" autocomplete="off"
+        style="width:100%;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:11px 14px;color:#e2eeff;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;margin-bottom:12px;box-sizing:border-box;"
+        placeholder="anon key: eyJhbGci..."/>
+      <button onclick="cfgSaveLogin()"
+        style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(245,158,11,.3),rgba(245,158,11,.15));border:1px solid rgba(245,158,11,.4);border-radius:11px;color:#fcd34d;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;">
+        SIMPAN &amp; CONNECT
+      </button>
+      <div id="cfg-supa-status" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);text-align:center;margin-top:10px;min-height:15px;"></div>
+    </div>
+  </div>
+
+  <div class="login-card" style="margin-top:200px;">
     <div class="login-logo-wrap">
       <div class="login-logo-hex">
         <svg viewBox="0 0 54 54" fill="none">
@@ -1339,24 +1363,6 @@ body.sb-open{overflow:hidden;}
     </div>
     <button class="btn-login" onclick="adminLogin()">SIGN IN TO CONTROL CENTER</button>
     <div class="login-err" id="adm-err">Invalid credentials. Access denied.</div>
-    <!-- Supabase Config (tampil jika belum dikonfigurasi) -->
-    <div id="supa-login-cfg" style="margin-top:14px;">
-      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,.12),transparent);margin-bottom:14px;"></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:2px;color:rgba(245,158,11,.8);margin-bottom:10px;text-align:center;">
-        ⚙ SUPABASE — BELUM DIKONFIGURASI
-      </div>
-      <input type="text" id="cfg-supa-url"
-        style="width:100%;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:10px 14px;color:#e2eeff;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;margin-bottom:8px;box-sizing:border-box;"
-        placeholder="Project URL: https://xxxx.supabase.co"/>
-      <input type="password" id="cfg-supa-key"
-        style="width:100%;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:10px 14px;color:#e2eeff;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;margin-bottom:10px;box-sizing:border-box;"
-        placeholder="Anon Key: eyJhbGci..."/>
-      <button onclick="cfgSaveLogin()"
-        style="width:100%;padding:11px;background:linear-gradient(135deg,rgba(245,158,11,.25),rgba(245,158,11,.15));border:1px solid rgba(245,158,11,.35);border-radius:10px;color:#fbbf24;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;">
-        SIMPAN KONFIGURASI
-      </button>
-      <div id="cfg-supa-status" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.4);text-align:center;margin-top:8px;min-height:14px;"></div>
-    </div>
     <div class="login-footer">MDZZXITERS CORP · SECURE ACCESS · v2.0</div>
   </div>
 </div>
@@ -3802,22 +3808,18 @@ enterApp = function(){
     var dr = gi('drawer-role'); if(dr) dr.textContent = currentAdmin && currentAdmin.role==='owner' ? 'OWNER' : 'ADMIN';
 
     /* Apply saved mode or show selector */
-    var saved = localStorage.getItem('zx_mode');
-    if(saved){
-      applyMode(saved, true);
-    } else {
-      /* Show mode selection screen */
-      var screen = gi('mode-select-screen');
-      if(screen){ screen.style.display = 'flex'; }
-    }
+    var saved = localStorage.getItem('zx_mode') || 'mobile';
+    if(!localStorage.getItem('zx_mode')) localStorage.setItem('zx_mode','mobile');
+    applyMode(saved, true);
   }, 500);
 };
 
-/* ── Init: hide mode screen until needed ── */
+/* ── Init: skip mode screen, auto default mobile ── */
 (function(){
-  var saved = localStorage.getItem('zx_mode');
+  var saved = localStorage.getItem('zx_mode') || 'mobile';
+  if(!localStorage.getItem('zx_mode')) localStorage.setItem('zx_mode','mobile');
   var screen = gi('mode-select-screen');
-  if(saved && screen){ screen.style.display = 'none'; }
+  if(screen) screen.style.display = 'none';
 })();
 
 
@@ -4380,38 +4382,45 @@ window.saveSupa=saveSupa;
 function cfgSaveLogin(){
   var url=(document.getElementById('cfg-supa-url').value||'').trim();
   var key=(document.getElementById('cfg-supa-key').value||'').trim();
-  var st =document.getElementById('cfg-supa-status');
+  var st=document.getElementById('cfg-supa-status');
   if(!url||!key){st.textContent='Isi URL dan Key dulu';st.style.color='#fb7185';return;}
-  if(!url.includes('supabase.co')){st.textContent='URL tidak valid';st.style.color='#fb7185';return;}
-  st.textContent='Mengecek koneksi...';st.style.color='rgba(255,255,255,.4)';
+  if(!url.startsWith('https')){st.textContent='URL harus diawali https://';st.style.color='#fb7185';return;}
+  st.textContent='Mengecek koneksi...';st.style.color='rgba(255,255,255,.5)';
   initSupabase(url,key);
   _supa.from('admins').select('id').limit(1).then(function(r){
     if(r.error){
-      st.textContent='✗ Gagal: '+r.error.message;
+      st.textContent='✗ '+r.error.message;
       st.style.color='#fb7185';
     } else {
       st.textContent='✓ Terhubung! Sekarang bisa login.';
       st.style.color='#34d399';
-      document.getElementById('supa-login-cfg').style.display='none';
+      var cfg=document.getElementById('supa-login-cfg');
+      if(cfg){ cfg.style.transition='opacity .3s'; cfg.style.opacity='0'; setTimeout(function(){cfg.style.display='none';},320); }
+      var lc=document.querySelector('.login-card');
+      if(lc) lc.style.marginTop='';
       autoSetup().catch(function(){});
     }
-  }).catch(function(e){st.textContent='✗ '+e.message;st.style.color='#fb7185';});
+  }).catch(function(e){
+    st.textContent='✗ Koneksi gagal — cek URL dan key';
+    st.style.color='#fb7185';
+  });
 }
 window.cfgSaveLogin=cfgSaveLogin;
 
-/* Auto hide panel jika Supabase sudah terkonfigurasi */
+/* Auto-hide config panel + restore margin jika sudah ada config tersimpan */
 (function(){
   var savedUrl=localStorage.getItem('supa_url')||'';
+  var savedKey=localStorage.getItem('supa_key')||'';
   var cfg=document.getElementById('supa-login-cfg');
-  if(!cfg)return;
-  if(savedUrl && !savedUrl.includes('XXXX') && savedUrl.includes('supabase.co')){
-    cfg.style.display='none';
+  var lc=document.querySelector('.login-card');
+  if(savedUrl && savedUrl.startsWith('https') && !savedUrl.includes('XXXX')){
+    if(cfg) cfg.style.display='none';
+    if(lc)  lc.style.marginTop='';
   } else {
-    /* Isi field dengan nilai tersimpan jika ada */
     var u=document.getElementById('cfg-supa-url');
     var k=document.getElementById('cfg-supa-key');
-    if(u&&savedUrl)u.value=savedUrl;
-    if(k&&localStorage.getItem('supa_key'))k.value=localStorage.getItem('supa_key');
+    if(u && savedUrl) u.value=savedUrl;
+    if(k && savedKey) k.value=savedKey;
   }
 })();
 
