@@ -1467,6 +1467,23 @@ body.sb-open{overflow:hidden;}
 
       <!-- ══ PAGE: OVERVIEW ══ -->
       <div class="page active" id="page-overview">
+
+        <!-- Supabase Config Panel -->
+        <div id="supa-cfg-panel" style="display:none;margin-bottom:16px;padding:14px 18px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:14px;">
+          <div style="font-family:var(--hud);font-size:8.5px;color:var(--gold);letter-spacing:1.5px;margin-bottom:12px;">⚙ SUPABASE CONFIG — WAJIB DIISI SEBELUM PAKAI</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+            <div style="flex:2;min-width:200px;">
+              <div style="font-family:var(--hud);font-size:7.5px;letter-spacing:1.5px;color:var(--t2);margin-bottom:5px;">PROJECT URL</div>
+              <input type="text" id="supa-url-input" class="f-input" placeholder="https://xxxx.supabase.co" style="width:100%;"/>
+            </div>
+            <div style="flex:3;min-width:200px;">
+              <div style="font-family:var(--hud);font-size:7.5px;letter-spacing:1.5px;color:var(--t2);margin-bottom:5px;">ANON KEY (public)</div>
+              <input type="password" id="supa-key-input" class="f-input" placeholder="eyJhbGciOi..." style="width:100%;"/>
+            </div>
+            <button class="btn btn-primary" onclick="saveSupa()">SIMPAN &amp; CONNECT</button>
+          </div>
+          <div id="supa-cfg-status" style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:10px;"></div>
+        </div>
         <div class="page-header">
           <div>
             <span class="page-title">Control Center</span>
@@ -2550,23 +2567,158 @@ service cloud.firestore {
 <!-- ══════════════════════════════════════════════════════
      FIREBASE + APP LOGIC
 ══════════════════════════════════════════════════════ -->
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
    FIREBASE INIT
 ══════════════════════════════════════════════════ */
-firebase.initializeApp({
-  apiKey:"AIzaSyB2EZgrbnslC1tuyC0WtbIkA4SfJe5m2As",
-  authDomain:"mdzzxiters-panel-30d5a.firebaseapp.com",
-  projectId:"mdzzxiters-panel-30d5a",
-  storageBucket:"mdzzxiters-panel-30d5a.firebasestorage.app",
-  messagingSenderId:"515480722704",
-  appId:"1:515480722704:web:225d9105e3fea021125995"
-});
-var db=firebase.firestore();
-firebase.auth().signInAnonymously().catch(function(){});
+/* ══════════════════════════════════════════════════
+   SUPABASE CONFIG
+   Ganti 2 nilai ini dengan project Supabase kamu:
+   Dashboard → Settings → API
+══════════════════════════════════════════════════ */
+var SUPA_URL  = localStorage.getItem('supa_url')  || 'https://XXXXXXXXXXXX.supabase.co';
+var SUPA_KEY  = localStorage.getItem('supa_key')  || 'YOUR_SUPABASE_ANON_KEY';
+var _supa     = null;
+
+function initSupabase(url, key){
+  SUPA_URL = url; SUPA_KEY = key;
+  localStorage.setItem('supa_url', url);
+  localStorage.setItem('supa_key', key);
+  _supa = supabase.createClient(url, key);
+}
+initSupabase(SUPA_URL, SUPA_KEY);
+
+/* ══ DB Abstraction — drop-in Firestore replacement ══ */
+var db = {
+  _col: function(name){ return name; },
+
+  collection: function(name){
+    var self = this;
+    var _name = name;
+    var _wheres = [];
+    var _order  = null;
+    var _orderDir = 'asc';
+    var _lim    = null;
+
+    var obj = {
+      where: function(field, op, val){
+        _wheres.push({field:field, op:op, val:val});
+        return obj;
+      },
+      orderBy: function(field, dir){
+        _order = field; _orderDir = dir||'asc';
+        return obj;
+      },
+      limit: function(n){ _lim = n; return obj; },
+      get: function(){
+        return new Promise(async function(resolve, reject){
+          try {
+            var q = _supa.from(_name).select('*');
+            _wheres.forEach(function(w){
+              if(w.op==='==') q = q.eq(w.field, w.val);
+            });
+            if(_order) q = q.order(_order, {ascending: _orderDir==='asc'});
+            if(_lim)   q = q.limit(_lim);
+            var {data, error} = await q;
+            if(error) throw error;
+            resolve({
+              docs: (data||[]).map(function(row){ return {id:row.id||row._id||row.key, data:function(){return row;}, exists:true}; }),
+              forEach: function(cb){ (data||[]).forEach(function(row){ cb({id:row.id||row._id||row.key, data:function(){return row;}, exists:true}); }); },
+              empty: !data || data.length===0
+            });
+          } catch(e){ reject(e); }
+        });
+      },
+      onSnapshot: function(cb, errCb){
+        // Polling fallback (Supabase realtime needs channel setup)
+        var run = async function(){
+          try {
+            var q = _supa.from(_name).select('*');
+            _wheres.forEach(function(w){ if(w.op==='==') q = q.eq(w.field, w.val); });
+            if(_order) q = q.order(_order, {ascending: _orderDir==='asc'});
+            if(_lim)   q = q.limit(_lim);
+            var {data, error} = await q;
+            if(error) throw error;
+            var snap = {
+              docs: (data||[]).map(function(row){ return {id:row.id||row.key, data:function(){return row;}, exists:true}; }),
+              forEach: function(fn){ (data||[]).forEach(function(row){ fn({id:row.id||row.key, data:function(){return row;}, exists:true}); }); },
+              empty: !data||data.length===0,
+              docChanges: function(){ return []; }
+            };
+            cb(snap);
+          } catch(e){ if(errCb) errCb(e); }
+        };
+        run();
+        var iv = setInterval(run, 8000); // poll tiap 8 detik
+        return function(){ clearInterval(iv); };
+      },
+      add: function(docData){
+        return new Promise(async function(resolve, reject){
+          try {
+            var ts = new Date().toISOString();
+            var payload = Object.assign({}, docData);
+            // Konversi FieldValue.serverTimestamp() → ISO string
+            Object.keys(payload).forEach(function(k){
+              if(payload[k] && payload[k]._methodName === 'serverTimestamp') payload[k] = ts;
+              if(payload[k] && payload[k]._methodName) payload[k] = ts;
+            });
+            var {data, error} = await _supa.from(_name).insert([payload]).select();
+            if(error) throw error;
+            var row = (data && data[0]) || {};
+            resolve({id: row.id || row.key || ts});
+          } catch(e){ reject(e); }
+        });
+      },
+      doc: function(id){
+        return {
+          get: function(){
+            return new Promise(async function(resolve, reject){
+              try {
+                var {data, error} = await _supa.from(_name).select('*').eq('id', id).limit(1);
+                if(error) throw error;
+                var row = data && data[0];
+                resolve({ exists: !!row, id: id, data: function(){ return row||{}; }});
+              } catch(e){ reject(e); }
+            });
+          },
+          update: function(updates){
+            return new Promise(async function(resolve, reject){
+              try {
+                var ts = new Date().toISOString();
+                var payload = Object.assign({}, updates);
+                Object.keys(payload).forEach(function(k){
+                  if(payload[k] && payload[k]._methodName) payload[k] = ts;
+                });
+                var {error} = await _supa.from(_name).update(payload).eq('id', id);
+                if(error) throw error;
+                resolve();
+              } catch(e){ reject(e); }
+            });
+          },
+          delete: function(){
+            return new Promise(async function(resolve, reject){
+              try {
+                var {error} = await _supa.from(_name).delete().eq('id', id);
+                if(error) throw error;
+                resolve();
+              } catch(e){ reject(e); }
+            });
+          },
+          child: function(field){ return { setValue: function(val){ return db.collection(_name).doc(id).update({[field]: val}); }}; }
+        };
+      }
+    };
+    return obj;
+  },
+
+  /* Firestore FieldValue shim */
+  _FieldValue: { serverTimestamp: function(){ return {_methodName:'serverTimestamp'}; }}
+};
+
+/* Patch firebase.firestore.FieldValue shim */
+if(typeof firebase === 'undefined'){ var firebase = {}; }
+firebase.firestore = { FieldValue: db._FieldValue };
 
 /* ══ STATE ══ */
 var currentAdmin=null;
@@ -2632,7 +2784,7 @@ function fmtExpiry(ts){
 }
 function isExpired(k){
   if(!k.expiresAt||!k.active)return false;
-  var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
+  var d=k.expires_at?new Date(k.expires_at):null; if(!d) return false; var _tmp=d;
   return d.getTime()<Date.now();
 }
 
@@ -2779,13 +2931,13 @@ window.setActFilter=setActFilter;
 
 /* ══ AUTO SETUP ══ */
 function autoSetup(){
-  return db.collection('admins').get().then(function(snap){
-    if(snap.empty){
-      return db.collection('admins').add({
-        username:'owner',password:simpleHash('MDZZX@2024'),
-        name:'Owner',role:'owner',
-        createdAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
+  return _supa.from('admins').select('id').limit(1).then(function(r){
+    if(!r.data || r.data.length===0){
+      return _supa.from('admins').insert([{
+        username:'owner', password:simpleHash('MDZZX@2024'),
+        name:'Owner', role:'owner',
+        created_at:new Date().toISOString()
+      }]);
     }
   });
 }
@@ -2797,12 +2949,12 @@ function adminLogin(){
   var err=gi('adm-err');
   err.style.display='none';
   if(!u||!p){err.textContent='Please fill all fields.';err.style.display='block';return;}
-  db.collection('admins').where('username','==',u).get()
-    .then(function(snap){
-      if(snap.empty){err.textContent='Invalid credentials.';err.style.display='block';return;}
-      var doc=snap.docs[0],data=doc.data();
-      if(data.password!==simpleHash(p)){err.textContent='Wrong password.';err.style.display='block';return;}
-      currentAdmin={id:doc.id,username:data.username,name:data.name,role:data.role};
+  _supa.from('admins').select('*').eq('username',u).limit(1).then(function(r){
+    var rows=r.data||[];
+    if(!rows.length){err.textContent='Invalid credentials.';err.style.display='block';return;}
+    var data=rows[0];
+    if(data.password!==simpleHash(p)){err.textContent='Wrong password.';err.style.display='block';return;}
+    currentAdmin={id:data.id,username:data.username,name:data.name,role:data.role};
       localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
       enterApp();
       /* Log admin login */
@@ -2845,10 +2997,10 @@ function enterApp(){
 function checkSaved(){
   var saved=JSON.parse(localStorage.getItem('_mdzz_adm')||'null');
   if(!saved||!saved.id)return;
-  db.collection('admins').doc(saved.id).get().then(function(snap){
-    if(snap.exists){
-      var d=snap.data();
-      currentAdmin={id:snap.id,username:d.username,name:d.name,role:d.role};
+  _supa.from('admins').select('*').eq('id',saved.id).limit(1).then(function(r){
+    var rows=r.data||[]; if(!rows.length){localStorage.removeItem('_mdzz_adm');return;}
+    var d=rows[0];
+    currentAdmin={id:d.id,username:d.username,name:d.name,role:d.role};
       localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
       enterApp();
     } else {localStorage.removeItem('_mdzz_adm');}
@@ -2863,16 +3015,17 @@ function loadAll(){loadProjects();loadKeys();loadSessions();}
 ══════════════════════════ */
 function pushActivityFS(type,text,admin){
   admin=admin||(currentAdmin?currentAdmin.name:'system');
-  db.collection('activity_log').add({
-    type:type,text:text,admin:admin,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(function(){});
+  _supa.from('activity_log').insert([{
+    type:type, text:text, admin:admin,
+    created_at:new Date().toISOString()
+  }]).catch(function(){});
 }
 
 function refreshActivity(){
-  db.collection('activity_log').orderBy('createdAt','desc').limit(200).get().then(function(snap){
+  _supa.from('activity_log').select('*').order('created_at',{ascending:false}).limit(200).then(function(result){
     activityLog=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;activityLog.push(d);});
+    var data=result.data||[];
+    data.forEach(function(d){d._id=d.id||d.created_at;activityLog.push(d);});
     renderActivity();updateActStats();
   }).catch(function(){});
 }
@@ -2930,12 +3083,12 @@ function checkExpiredKeys(){
   var now=Date.now();
   var toRevoke=allKeys.filter(function(k){
     if(!k.active||!k.expiresAt)return false;
-    var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
+    var d=k.expires_at?new Date(k.expires_at):null; if(!d) return false; var _tmp=d;
     return d.getTime()<now;
   });
   if(toRevoke.length){
     toRevoke.forEach(function(k){
-      db.collection('keys').doc(k._id).update({active:false}).then(function(){
+      _supa.from('keys').update({active:false}).eq('id',k._id).then(function(){
         pushActivityFS('expire','Key <b>'+k.key+'</b> auto-expired dan di-revoke secara otomatis','system');
         toast('Key expired: '+k.key,'w',3000);
       });
@@ -2943,7 +3096,7 @@ function checkExpiredKeys(){
   }
   var exp24=allKeys.filter(function(k){
     if(!k.active||!k.expiresAt)return false;
-    var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
+    var d=k.expires_at?new Date(k.expires_at):null; if(!d) return false; var _tmp=d;
     var diff=d.getTime()-now;return diff>0&&diff<86400000;
   });
   var el=gi('ov-expiring');if(el)el.textContent=exp24.length;
@@ -2958,20 +3111,20 @@ function checkExpiredKeys(){
 
 /* ══ PROJECTS ══ */
 function loadProjects(){
-  db.collection('projects').orderBy('name').get().then(function(snap){
+  _supa.from('projects').select('*').order('name',{ascending:true}).then(function(result){
     allProjects=[];
-    snap.forEach(function(d){allProjects.push({id:d.id,name:d.data().name});});
+    (result.data||[]).forEach(function(d){allProjects.push({id:d.id,name:d.name});});
     /* remove PRIVATE EXTREME */
     allProjects.filter(function(p){return p.name==='PRIVATE EXTREME';}).forEach(function(p){
-      db.collection('projects').doc(p.id).delete().catch(function(){});
+      _supa.from('projects').delete().eq('id',p.id).catch(function(){});
     });
     allProjects=allProjects.filter(function(p){return p.name!=='PRIVATE EXTREME';});
     var defaults=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE','ZX EXCLUSIVE'];
     var existing=allProjects.map(function(p){return p.name;});
     var missing=defaults.filter(function(n){return existing.indexOf(n)<0;});
     if(missing.length){
-      Promise.all(missing.map(function(n){return db.collection('projects').add({name:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}))
-        .then(function(){loadProjects();});
+      var rows=missing.map(function(n){return {name:n,created_at:new Date().toISOString()};});
+      _supa.from('projects').insert(rows).then(function(){loadProjects();});
       if(!allProjects.length)return;
     }
     renderProjects();renderProjectSelect();renderKeyFilters();renderSessFilters();
@@ -3019,7 +3172,7 @@ function addProject(){
   if(!name){toast('Enter project name','e');return;}
   if(name==='PRIVATE EXTREME'){toast('Nama ini tidak diizinkan','e');return;}
   if(allProjects.some(function(p){return p.name===name;})){toast('Project already exists','e');return;}
-  db.collection('projects').add({name:name,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
+  _supa.from('projects').insert([{name:name,created_at:new Date().toISOString()}])
     .then(function(){
       gi('new-proj').value='';
       toast('Project "'+name+'" created!','s');
@@ -3030,7 +3183,7 @@ function addProject(){
 function deleteProject(id,name){
   if(currentAdmin.role!=='owner'){toast('Only owner can delete','e');return;}
   showModal('DELETE PROJECT','Delete "'+name+"? Keys akan tetap ada.",function(){
-    db.collection('projects').doc(id).delete().then(function(){
+    _supa.from('projects').delete().eq('id',id).then(function(){
       toast('Deleted','s');
       pushActivityFS('project','Project <b>'+name+'</b> dihapus oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
       loadProjects();
@@ -3056,9 +3209,10 @@ window.setKeyFilter=setKeyFilter;window.setSessFilter=setSessFilter;
 
 /* ══ KEYS ══ */
 function loadKeys(){
-  db.collection('keys').orderBy('createdAt','desc').get().then(function(snap){
+  _supa.from('keys').select('*').order('created_at',{ascending:false}).then(function(result){
     allKeys=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
+    var data=result.data||[];
+    data.forEach(function(d){ d._id=d.id||d.key; allKeys.push(d); });
     renderKeys();renderProjects();updateOverviewStats();checkExpiredKeys();
   }).catch(function(e){toast('Error loading keys: '+e.message,'e');});
 }
@@ -3120,12 +3274,12 @@ function generateKeys(){
   var generated=[],promises=[];
   for(var i=0;i<qty;i++){
     var key=genKey();generated.push(key);
-    promises.push(db.collection('keys').add({
-      key:key,project:project,active:true,used:false,deviceId:null,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp(),usedAt:null,
-      generatedBy:currentAdmin.username,
-      expiresAt:expiresAt?firebase.firestore.Timestamp.fromDate(expiresAt):null
-    }));
+    promises.push(_supa.from('keys').insert([{
+      key:key, project:project, active:true, used:false, device_id:null,
+      created_at:new Date().toISOString(), used_at:null,
+      generated_by:currentAdmin.username,
+      expires_at:expiresAt?expiresAt.toISOString():null
+    }]));
   }
   Promise.all(promises).then(function(){
     var expStr=expiresAt?(' | exp '+expiresAt.toLocaleDateString('id-ID')):'';
@@ -3138,10 +3292,11 @@ function generateKeys(){
 function revokeKey(id){
   showModal('REVOKE KEY','Revoke this key? User loses access immediately.',function(){
     var k=allKeys.find(function(x){return x._id===id;});
-    db.collection('keys').doc(id).update({active:false}).then(function(){
+    _supa.from('keys').update({active:false}).eq('id',id).then(function(r){
+      if(r.error){toast('Error: '+r.error.message,'e');return;}
       toast('Key revoked','s');
       if(k)pushActivityFS('revoke','Key <b>'+k.key+'</b> di-revoke oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
-    }).catch(function(e){toast('Error: '+e.message,'e');});
+    });
   },true);
 }
 function copyKey(key){copyClip(key);toast('Copied: '+key,'s',1800);}
@@ -3149,9 +3304,10 @@ window.generateKeys=generateKeys;window.revokeKey=revokeKey;window.copyKey=copyK
 
 /* ══ SESSIONS ══ */
 function loadSessions(){
-  db.collection('sessions').orderBy('lastSeen','desc').get().then(function(snap){
+  _supa.from('sessions').select('*').order('last_seen',{ascending:false}).then(function(result){
     allSessions=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allSessions.push(d);});
+    var data=result.data||[];
+    data.forEach(function(d){ d._id=d.id; allSessions.push(d); });
     renderSessions();updateOverviewStats();
   }).catch(function(e){toast('Error sessions: '+e.message,'e');});
 }
@@ -3226,7 +3382,7 @@ function addAdmin(){
 function removeAdmin(id,username){
   if(currentAdmin.role!=='owner'){toast('Only owner can remove admins','e');return;}
   showModal('REMOVE ADMIN','Remove @'+username+' from the team?',function(){
-    db.collection('admins').doc(id).delete().then(function(){
+    _supa.from('admins').delete().eq('id',id).then(function(){
       toast('Admin removed','s');
       pushActivityFS('admin','Admin @'+username+' dihapus dari team oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
     }).catch(function(e){toast('Error: '+e.message,'e');});
@@ -3458,51 +3614,42 @@ function startListeners(){
   },function(){});
 
   /* Keys */
-  db.collection('keys').onSnapshot(function(snap,change){
-    allKeys=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
-    allKeys.sort(function(a,b){
-      var ta=a.createdAt?a.createdAt.toMillis?a.createdAt.toMillis():0:0;
-      var tb=b.createdAt?b.createdAt.toMillis?b.createdAt.toMillis():0:0;
-      return tb-ta;
-    });
-    renderKeys();renderProjects();updateOverviewStats();checkExpiredKeys();
-    if(change){
-      change.docChanges().forEach(function(ch){
-        var d=ch.doc.data();
-        if(ch.type==='added'&&d.key)pushActivityFS('key','Key <b>'+d.key+'</b> dibuat untuk <b>'+(d.project||'—')+'</b>',currentAdmin?currentAdmin.name:'system');
-        if(ch.type==='modified'&&d.used&&d.deviceId)pushActivityFS('login','Key <b>'+d.key+'</b> digunakan oleh perangkat baru',currentAdmin?currentAdmin.name:'system');
-        if(ch.type==='modified'&&!d.active)pushActivityFS('revoke','Key <b>'+d.key+'</b> non-aktif',currentAdmin?currentAdmin.name:'system');
-      });
-    }
-  },function(){});
+  (function pollKeys(){
+    loadKeys();
+    setTimeout(pollKeys, 10000);
+  })();
 
   /* Admins */
-  db.collection('admins').orderBy('createdAt').onSnapshot(function(snap){
-    allAdminsData=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
-    renderAdmins();
-    gi('ov-admins').textContent=allAdminsData.length;
-  },function(){
-    db.collection('admins').onSnapshot(function(snap){
+  (function pollAdmins(){
+    _supa.from('admins').select('*').order('created_at',{ascending:true}).then(function(r){
       allAdminsData=[];
-      snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
+      (r.data||[]).forEach(function(d){ d._id=d.id; allAdminsData.push(d); });
       renderAdmins();
-    },function(){});
-  });
+      gi('ov-admins').textContent=allAdminsData.length;
+    });
+    setTimeout(pollAdmins, 10000);
+  })();
 
   /* Activity log realtime */
-  db.collection('activity_log').orderBy('createdAt','desc').limit(200).onSnapshot(function(snap){
-    activityLog=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;activityLog.push(d);});
-    renderActivity();
-    /* update chart if overview active */
-    if(gi('page-overview').classList.contains('active'))renderOverviewCharts();
-  },function(){refreshActivity();});
+  (function pollActivity(){
+    refreshActivity();
+    setTimeout(pollActivity, 10000);
+  })();
 }
 
 /* ══ INIT ══ */
 autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
+
+  /* Show Supabase config panel if URL not set */
+  var savedSupaUrl = localStorage.getItem('supa_url')||'';
+  var savedSupaKey = localStorage.getItem('supa_key')||'';
+  if(savedSupaUrl && gi('supa-url-input')) gi('supa-url-input').value = savedSupaUrl;
+  if(savedSupaKey && gi('supa-key-input')) gi('supa-key-input').value = savedSupaKey;
+  if(!savedSupaUrl || savedSupaUrl.includes('XXXX')){
+    var cfgPan = gi('supa-cfg-panel');
+    if(cfgPan) cfgPan.style.display='block';
+  }
+
 
 /* ══ RESPONSIVE INIT — no class conflicts, CSS handles everything ══ */
 (function(){
@@ -4011,7 +4158,7 @@ async function sendProduct() {
     /* Mark key as used in firebase (best effort) */
     var matchKey = allKeys.find(function(k){ return k.key === licKey; });
     if(matchKey && matchKey._id){
-      db.collection('keys').doc(matchKey._id).update({ used:true, usedAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
+      _supa.from('keys').update({ used:true, used_at:new Date().toISOString() }).eq('id',matchKey._id).catch(function(){});
     }
 
     /* Activity log */
@@ -4186,6 +4333,30 @@ if(!_patched && typeof window.navTo==='function'){
   };
 }
 
+
+function saveSupa(){
+  var url=(gi('supa-url-input').value||'').trim();
+  var key=(gi('supa-key-input').value||'').trim();
+  if(!url||!key){toast('Isi URL dan Anon Key dulu','e');return;}
+  initSupabase(url,key);
+  gi('supa-cfg-status').textContent='Connecting...';
+  gi('supa-cfg-status').style.color='var(--t2)';
+  _supa.from('admins').select('id').limit(1).then(function(r){
+    if(r.error){
+      gi('supa-cfg-status').textContent='✗ Gagal: '+r.error.message;
+      gi('supa-cfg-status').style.color='#fb7185';
+    } else {
+      gi('supa-cfg-status').textContent='✓ Terhubung ke Supabase!';
+      gi('supa-cfg-status').style.color='#34d399';
+      toast('Supabase terhubung!','s',2500);
+      setTimeout(function(){gi('supa-cfg-panel').style.display='none'; loadAll(); startListeners();},800);
+    }
+  }).catch(function(e){
+    gi('supa-cfg-status').textContent='✗ Error: '+e.message;
+    gi('supa-cfg-status').style.color='#fb7185';
+  });
+}
+window.saveSupa=saveSupa;
 </script>
 </body>
 </html>
