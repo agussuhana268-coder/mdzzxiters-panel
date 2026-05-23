@@ -1208,91 +1208,48 @@ body.sb-open{overflow:hidden;}
   .mobile-nav{display:block;}
   .content{padding-bottom:78px!important;}
 }
-
-
-/* ══════════════════════════════════
-   TUTORIAL PAGE STYLES
-══════════════════════════════════ */
-.tut-step{}
-.tut-item{display:flex;gap:12px;align-items:flex-start;}
-.tut-num{
-  width:26px;height:26px;flex-shrink:0;border-radius:50%;
-  background:rgba(37,99,235,.14);border:1px solid rgba(56,189,248,.22);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--hud);font-size:9px;color:var(--sky2);
-  margin-top:2px;
-}
-.tut-body{flex:1;}
-.tut-title{
-  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;
-  color:var(--t1);margin-bottom:5px;
-}
-.tut-desc{
-  font-family:var(--mono);font-size:10px;color:var(--t2);line-height:1.7;
-}
-.tut-code{
-  margin-top:8px;padding:12px 14px;border-radius:10px;
-  background:rgba(0,0,0,.3);border:1px solid rgba(56,189,248,.1);
-  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--sky2);
-  line-height:1.7;white-space:pre-wrap;word-break:break-all;
-  transition:background .15s;
-}
-.tut-code:hover{background:rgba(56,189,248,.06);}
-.tut-tag{
-  display:inline-block;padding:2px 7px;border-radius:5px;
-  background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.18);
-  font-family:var(--mono);font-size:9.5px;color:var(--sky2);
-  white-space:nowrap;
-}
-.tut-nav-row{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-top:22px;padding-top:16px;
-  border-top:1px solid var(--bdr3);
-}
-.tut-step-pill{
-  display:flex;align-items:center;gap:5px;
-  padding:5px 12px;border-radius:20px;
-  font-family:var(--mono);font-size:8px;letter-spacing:.3px;
-  cursor:pointer;transition:all .18s;white-space:nowrap;
-  border:1px solid var(--bdr);background:rgba(56,189,248,.04);
-  color:var(--t3);
-}
-.tut-step-pill.done{
-  background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.22);
-  color:#34d399;
-}
-.tut-step-pill.active{
-  background:rgba(37,99,235,.14);border-color:rgba(56,189,248,.28);
-  color:var(--sky2);
-}
-.tut-step-pill .pill-dot{
-  width:6px;height:6px;border-radius:50%;flex-shrink:0;
-  background:currentColor;
-}
-
-/* ══════════════════════════
-   TUTORIAL JS LOGIC
-══════════════════════════ */
 </style>
-
-<style>
-/* Force hide mode select screen - bypass permanently */
-#mode-select-screen { display: none !important; }
-</style>
+<style>#mode-select-screen{display:none!important;}</style>
 </head>
 <body>
 <script>
-// Force skip mode screen immediately
 localStorage.setItem('zx_mode','mobile');
-document.addEventListener('DOMContentLoaded', function(){
-  var s = document.getElementById('mode-select-screen');
-  if(s) s.style.display = 'none';
+document.addEventListener('DOMContentLoaded',function(){
+  var s=document.getElementById('mode-select-screen');
+  if(s)s.style.cssText='display:none!important';
 });
 </script>
 
 <!-- SIDEBAR OVERLAY: positioned below topbar so topbar stays clickable -->
 <!-- MODE SELECT SCREEN -->
-
+<div id="mode-select-screen">
+  <div class="mss-logo">
+    <svg viewBox="0 0 64 64" fill="none">
+      <polygon points="32,2 60,17 60,47 32,62 4,47 4,17" fill="url(#mslg)" stroke="rgba(56,189,248,.4)" stroke-width="1.5"/>
+      <defs><radialGradient id="mslg" cx="40%" cy="28%" r="72%"><stop offset="0%" stop-color="#0f2040"/><stop offset="100%" stop-color="#060d1a"/></radialGradient></defs>
+    </svg>
+    <span class="mss-logo-M">M</span>
+  </div>
+  <div class="mss-title">PILIH MODE TAMPILAN</div>
+  <div class="mss-sub">MDZZXITERS CONTROL CENTER</div>
+  <div class="mss-cards">
+    <div class="mss-card" onclick="selectMode('mobile')" tabindex="0">
+      <div class="mss-ico">
+        <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/></svg>
+      </div>
+      <div class="mss-card-title">MOBILE</div>
+      <div class="mss-card-sub">Untuk HP / Tablet<br/>Potret · Optimized touch</div>
+    </div>
+    <div class="mss-card" onclick="selectMode('desktop')" tabindex="0">
+      <div class="mss-ico">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <div class="mss-card-title">DESKTOP</div>
+      <div class="mss-card-sub">Untuk PC / Laptop<br/>Sidebar · Landscape</div>
+    </div>
+  </div>
+  <div class="mss-note">Pilihan tersimpan otomatis<br/>Bisa diubah kapan saja lewat tombol di topbar</div>
+</div>
 
 <div class="overlay" id="overlay" onclick="closeMobileSidebar()" role="presentation"></div>
 
@@ -1300,31 +1257,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <div id="login-page">
   <div class="login-bg-grid"></div>
   <div class="login-orb"></div>
-
-  <!-- ══ SUPABASE CONFIG CARD (tampil jika belum setup) ══ -->
-  <div id="supa-login-cfg" style="position:absolute;top:18px;left:50%;transform:translateX(-50%);width:100%;max-width:420px;padding:0 20px;box-sizing:border-box;z-index:10;">
-    <div style="background:rgba(9,18,36,.98);border:1px solid rgba(245,158,11,.35);border-radius:18px;padding:20px 22px;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2px;color:#f59e0b;margin-bottom:14px;">
-        ⚙ SUPABASE CONFIG
-      </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,.35);margin-bottom:12px;line-height:1.6;">
-        Supabase → Settings → API → copy Project URL &amp; anon key
-      </div>
-      <input type="text" id="cfg-supa-url" autocomplete="off"
-        style="width:100%;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:11px 14px;color:#e2eeff;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;margin-bottom:9px;box-sizing:border-box;"
-        placeholder="https://xxxx.supabase.co"/>
-      <input id="cfg-supa-key" autocomplete="off"
-        style="width:100%;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:11px 14px;color:#e2eeff;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;margin-bottom:12px;box-sizing:border-box;"
-        placeholder="anon key: eyJhbGci..."/>
-      <button onclick="cfgSaveLogin()"
-        style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(245,158,11,.3),rgba(245,158,11,.15));border:1px solid rgba(245,158,11,.4);border-radius:11px;color:#fcd34d;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .15s;">
-        SIMPAN &amp; CONNECT
-      </button>
-      <div id="cfg-supa-status" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);text-align:center;margin-top:10px;min-height:15px;"></div>
-    </div>
-  </div>
-
-  <div class="login-card" style="margin-top:200px;">
+  <div class="login-card">
     <div class="login-logo-wrap">
       <div class="login-logo-hex">
         <svg viewBox="0 0 54 54" fill="none">
@@ -1430,11 +1363,6 @@ document.addEventListener('DOMContentLoaded', function(){
         <span class="nav-item-label">Activity Log</span>
         <span class="nav-badge" id="nb-activity" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.22);color:#34d399;display:none;">LIVE</span>
       </div>
-      <div class="nav-item" onclick="navTo('tutorial')" id="nav-tutorial">
-        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-        <span class="nav-item-label">Firebase Setup</span>
-        <span class="nav-badge" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.22);color:#f59e0b;">GUIDE</span>
-      </div>
     </div>
 
     <div class="sb-footer">
@@ -1478,23 +1406,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- ══ PAGE: OVERVIEW ══ -->
       <div class="page active" id="page-overview">
-
-        <!-- Supabase Config Panel -->
-        <div id="supa-cfg-panel" style="display:none;margin-bottom:16px;padding:14px 18px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:14px;">
-          <div style="font-family:var(--hud);font-size:8.5px;color:var(--gold);letter-spacing:1.5px;margin-bottom:12px;">⚙ SUPABASE CONFIG — WAJIB DIISI SEBELUM PAKAI</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
-            <div style="flex:2;min-width:200px;">
-              <div style="font-family:var(--hud);font-size:7.5px;letter-spacing:1.5px;color:var(--t2);margin-bottom:5px;">PROJECT URL</div>
-              <input type="text" id="supa-url-input" class="f-input" placeholder="https://xxxx.supabase.co" style="width:100%;"/>
-            </div>
-            <div style="flex:3;min-width:200px;">
-              <div style="font-family:var(--hud);font-size:7.5px;letter-spacing:1.5px;color:var(--t2);margin-bottom:5px;">ANON KEY (public)</div>
-              <input type="password" id="supa-key-input" class="f-input" placeholder="eyJhbGciOi..." style="width:100%;"/>
-            </div>
-            <button class="btn btn-primary" onclick="saveSupa()">SIMPAN &amp; CONNECT</button>
-          </div>
-          <div id="supa-cfg-status" style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-top:10px;"></div>
-        </div>
         <div class="page-header">
           <div>
             <span class="page-title">Control Center</span>
@@ -2111,11 +2022,6 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="drawer-item-text"><span class="drawer-item-name">Activity Log</span><span class="drawer-item-sub">Realtime events</span></div>
         <span class="drawer-badge live">LIVE</span>
       </div>
-      <div class="drawer-item" id="di-tutorial" onclick="drawerNav('tutorial')">
-        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-        <div class="drawer-item-text"><span class="drawer-item-name">Firebase Setup</span><span class="drawer-item-sub">Tutorial integrasi Android</span></div>
-        <span class="drawer-badge" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.22);color:#f59e0b;">GUIDE</span>
-      </div>
     </div>
     <div class="drawer-footer">
       <div class="drawer-avatar" id="drawer-avatar">M</div>
@@ -2127,614 +2033,28 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
   </div>
 
-
-      <!-- ══ PAGE: TUTORIAL FIREBASE ══ -->
-      <div class="page" id="page-tutorial">
-        <div class="page-header">
-          <div>
-            <span class="page-title">Firebase Setup Guide</span>
-            <span class="page-sub">INTEGRASI FIREBASE KE ANDROID STUDIO · ZX EXCLUSIVE</span>
-          </div>
-          <div class="page-actions">
-            <div style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);font-family:var(--mono);font-size:8px;color:var(--gold);">
-              <svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
-              STEP BY STEP
-            </div>
-          </div>
-        </div>
-
-        <!-- Project badge -->
-        <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:rgba(14,165,233,.05);border:1px solid rgba(14,165,233,.15);border-radius:14px;margin-bottom:20px;">
-          <div style="width:40px;height:40px;border-radius:10px;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.2);display:flex;align-items:center;justify-content:center;">
-            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#38bdf8;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <div>
-            <div style="font-family:var(--hud);font-size:11px;color:var(--t1);font-weight:700;letter-spacing:1px;">ZX EXCLUSIVE</div>
-            <div style="font-family:var(--mono);font-size:9px;color:var(--t2);margin-top:2px;">Package: <span style="color:var(--sky2);">com.mdzzxiters.premium</span></div>
-          </div>
-          <div style="margin-left:auto;font-family:var(--mono);font-size:8px;color:#34d399;padding:4px 10px;border-radius:20px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);">PROJECT AKTIF</div>
-        </div>
-
-        <!-- Progress steps bar -->
-        <div style="display:flex;gap:0;margin-bottom:24px;overflow-x:auto;scrollbar-width:none;">
-          <div id="tut-step-indicator" style="display:flex;gap:8px;min-width:max-content;padding:2px 0;">
-            <!-- generated by JS -->
-          </div>
-        </div>
-
-        <!-- Steps container -->
-        <div id="tut-steps-container">
-
-          <!-- ─── STEP 1: Buat Firebase Project ─── -->
-          <div class="tut-step active" id="tstep-1">
-            <div class="section">
-              <div class="section-head">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1e3a8a,#2563eb);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:11px;color:#fff;flex-shrink:0;">1</div>
-                  <span class="section-title">BUAT FIREBASE PROJECT</span>
-                </div>
-                <span class="section-badge">console.firebase.google.com</span>
-              </div>
-              <div style="padding:18px;">
-
-                <div style="display:flex;flex-direction:column;gap:12px;">
-
-                  <div class="tut-item">
-                    <div class="tut-num">A</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Buka Firebase Console</div>
-                      <div class="tut-desc">Buka browser dan pergi ke <a href="https://console.firebase.google.com" target="_blank" style="color:var(--sky2);text-decoration:none;">console.firebase.google.com</a>. Login dengan akun Google kamu.</div>
-                      <div class="tut-code">https://console.firebase.google.com</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">B</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Klik "Add Project"</div>
-                      <div class="tut-desc">Klik tombol <span class="tut-tag">+ Add project</span> lalu masukkan nama project, misalnya: <span class="tut-tag">zx-exclusive</span></div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">C</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Disable Google Analytics (opsional)</div>
-                      <div class="tut-desc">Matikan Google Analytics jika tidak diperlukan, lalu klik <span class="tut-tag">Create project</span>. Tunggu beberapa detik.</div>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="tut-nav-row">
-                  <div></div>
-                  <button class="btn btn-primary" onclick="tutNext(2)">
-                    Langkah Berikutnya
-                    <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ─── STEP 2: Tambah Android App ─── -->
-          <div class="tut-step" id="tstep-2" style="display:none;">
-            <div class="section">
-              <div class="section-head">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1e3a8a,#2563eb);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:11px;color:#fff;flex-shrink:0;">2</div>
-                  <span class="section-title">DAFTARKAN ANDROID APP</span>
-                </div>
-                <span class="section-badge">Package Registration</span>
-              </div>
-              <div style="padding:18px;">
-
-                <div style="display:flex;flex-direction:column;gap:12px;">
-
-                  <div class="tut-item">
-                    <div class="tut-num">A</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Klik ikon Android</div>
-                      <div class="tut-desc">Di halaman Project Overview, klik ikon <span class="tut-tag">&lt;/&gt; Android</span> untuk menambahkan app Android.</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">B</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Masukkan Package Name</div>
-                      <div class="tut-desc">Isi kolom <b style="color:var(--t1);">Android package name</b> dengan package berikut:</div>
-                      <div class="tut-code" style="cursor:pointer;" onclick="copyTut(this,'com.mdzzxiters.premium')">
-                        com.mdzzxiters.premium
-                        <span style="font-family:var(--mono);font-size:7px;color:var(--t3);margin-left:8px;">[ klik untuk copy ]</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">C</div>
-                    <div class="tut-body">
-                      <div class="tut-title">App nickname (opsional)</div>
-                      <div class="tut-desc">Isi nickname misalnya <span class="tut-tag">ZX EXCLUSIVE</span>, lalu klik <span class="tut-tag">Register app</span>.</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">D</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Download google-services.json</div>
-                      <div class="tut-desc">Klik <span class="tut-tag">Download google-services.json</span>. File ini akan dipakai di Android Studio. <b style="color:#f59e0b;">JANGAN share file ini ke publik!</b></div>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="tut-nav-row">
-                  <button class="btn btn-secondary" onclick="tutNext(1)">← Kembali</button>
-                  <button class="btn btn-primary" onclick="tutNext(3)">Langkah Berikutnya <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ─── STEP 3: Pasang google-services.json di Android Studio ─── -->
-          <div class="tut-step" id="tstep-3" style="display:none;">
-            <div class="section">
-              <div class="section-head">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1e3a8a,#2563eb);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:11px;color:#fff;flex-shrink:0;">3</div>
-                  <span class="section-title">PASANG google-services.json</span>
-                </div>
-                <span class="section-badge">Android Studio</span>
-              </div>
-              <div style="padding:18px;">
-
-                <div style="display:flex;flex-direction:column;gap:12px;">
-
-                  <div class="tut-item">
-                    <div class="tut-num">A</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Buka project di Android Studio</div>
-                      <div class="tut-desc">Buka <b style="color:var(--t1);">ZX_EXC_V2_UPDATE</b> di Android Studio. Pastikan view di pojok kiri atas pilih <span class="tut-tag">Android</span> (bukan Project).</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">B</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Ganti file google-services.json</div>
-                      <div class="tut-desc">Di panel kiri, buka folder <span class="tut-tag">app/</span>. Klik kanan pada file <span class="tut-tag">google-services.json</span> yang ada (placeholder) → <span class="tut-tag">Show in Explorer/Finder</span>. Hapus file lama, paste file yang baru kamu download.</div>
-                      <div class="tut-code">ZX_EXC_UPDATE/
-  app/
-    google-services.json   ← ganti file ini</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">C</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Sync Gradle</div>
-                      <div class="tut-desc">Setelah paste file, Android Studio akan muncul banner <span class="tut-tag">Sync Now</span> di bagian atas. Klik tombol itu. Tunggu proses sync selesai.</div>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="tut-nav-row">
-                  <button class="btn btn-secondary" onclick="tutNext(2)">← Kembali</button>
-                  <button class="btn btn-primary" onclick="tutNext(4)">Langkah Berikutnya <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ─── STEP 4: Setup Firestore Database ─── -->
-          <div class="tut-step" id="tstep-4" style="display:none;">
-            <div class="section">
-              <div class="section-head">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1e3a8a,#2563eb);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:11px;color:#fff;flex-shrink:0;">4</div>
-                  <span class="section-title">SETUP FIRESTORE DATABASE</span>
-                </div>
-                <span class="section-badge">Firebase Console</span>
-              </div>
-              <div style="padding:18px;">
-
-                <div style="display:flex;flex-direction:column;gap:12px;">
-
-                  <div class="tut-item">
-                    <div class="tut-num">A</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Aktifkan Firestore</div>
-                      <div class="tut-desc">Di Firebase Console → klik <span class="tut-tag">Build</span> di sidebar kiri → pilih <span class="tut-tag">Firestore Database</span> → klik <span class="tut-tag">Create database</span>.</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">B</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Pilih mode Firestore</div>
-                      <div class="tut-desc">Pilih <span class="tut-tag">Start in production mode</span> → pilih region terdekat (misal: <span class="tut-tag">asia-southeast1</span>) → klik <span class="tut-tag">Enable</span>.</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">C</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Set Rules Firestore</div>
-                      <div class="tut-desc">Pergi ke tab <span class="tut-tag">Rules</span> di Firestore. Ganti rules dengan kode berikut agar app Android bisa validasi license:</div>
-                      <div class="tut-code" style="cursor:pointer;" onclick="copyTut(this,`rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /licenses/{key} {
-      allow read: if true;
-      allow write: if false;
-    }
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}`)">rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /licenses/{key} {
-      allow read: if true;   // app bisa baca license
-      allow write: if false; // hanya admin yg bisa tulis
-    }
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-<span style="font-family:var(--mono);font-size:7px;color:var(--t3);">[ klik untuk copy semua ]</span></div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">D</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Klik Publish</div>
-                      <div class="tut-desc">Klik tombol <span class="tut-tag">Publish</span> untuk menyimpan rules. App Android sekarang bisa membaca data license.</div>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="tut-nav-row">
-                  <button class="btn btn-secondary" onclick="tutNext(3)">← Kembali</button>
-                  <button class="btn btn-primary" onclick="tutNext(5)">Langkah Berikutnya <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ─── STEP 5: Tambah License Key di Dashboard ─── -->
-          <div class="tut-step" id="tstep-5" style="display:none;">
-            <div class="section">
-              <div class="section-head">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1e3a8a,#2563eb);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:11px;color:#fff;flex-shrink:0;">5</div>
-                  <span class="section-title">GENERATE LICENSE KEY</span>
-                </div>
-                <span class="section-badge">Dashboard Ini</span>
-              </div>
-              <div style="padding:18px;">
-
-                <div style="display:flex;flex-direction:column;gap:12px;">
-
-                  <div class="tut-item">
-                    <div class="tut-num">A</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Pergi ke menu Keys</div>
-                      <div class="tut-desc">Di sidebar kiri dashboard ini, klik <span class="tut-tag">Keys</span>. Kamu akan melihat form generate key di bagian atas.</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">B</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Pilih Project "ZX EXCLUSIVE"</div>
-                      <div class="tut-desc">Di dropdown <span class="tut-tag">GENERATE</span>, pilih project <span class="tut-tag">ZX EXCLUSIVE</span>. Set jumlah key yang diinginkan lalu klik <span class="tut-tag">GENERATE KEY</span>.</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">C</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Key otomatis masuk Firestore</div>
-                      <div class="tut-desc">Setiap key yang digenerate otomatis tersimpan di Firestore dengan struktur:</div>
-                      <div class="tut-code">Firestore → Collection: keys → Document: {auto-id}
-{
-  key:         "MDZZ-XXXX-XXXX-XXXX",
-  project:     "ZX EXCLUSIVE",
-  active:      true,
-  used:        false,
-  deviceId:    null,
-  generatedBy: "owner",
-  createdAt:   timestamp,
-  expiresAt:   null
-}</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">D</div>
-                    <div class="tut-body">
-                      <div class="tut-title">User aktivasi di app Android</div>
-                      <div class="tut-desc">User input key di halaman Login app ZX EXCLUSIVE. App akan query Firestore → validasi key → bind device ID → login masuk.</div>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="tut-nav-row">
-                  <button class="btn btn-secondary" onclick="tutNext(4)">← Kembali</button>
-                  <button class="btn btn-primary" onclick="tutNext(6)">Langkah Berikutnya <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ─── STEP 6: Test di Android Studio ─── -->
-          <div class="tut-step" id="tstep-6" style="display:none;">
-            <div class="section">
-              <div class="section-head">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1e3a8a,#2563eb);display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:11px;color:#fff;flex-shrink:0;">6</div>
-                  <span class="section-title">BUILD & TEST DI ANDROID STUDIO</span>
-                </div>
-                <span class="section-badge">Final Step</span>
-              </div>
-              <div style="padding:18px;">
-
-                <div style="display:flex;flex-direction:column;gap:12px;">
-
-                  <div class="tut-item">
-                    <div class="tut-num">A</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Buka Terminal Android Studio</div>
-                      <div class="tut-desc">Di Android Studio, buka <span class="tut-tag">View → Terminal</span> atau tekan <span class="tut-tag">Alt+F12</span>. Pastikan kamu sudah di root folder project.</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">B</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Build Debug APK</div>
-                      <div class="tut-desc">Jalankan perintah berikut untuk build APK debug:</div>
-                      <div class="tut-code" style="cursor:pointer;" onclick="copyTut(this,'./gradlew assembleDebug')">./gradlew assembleDebug
-<span style="font-family:var(--mono);font-size:7px;color:var(--t3);">[ klik untuk copy ]</span></div>
-                      <div class="tut-desc" style="margin-top:8px;">APK akan ada di: <span class="tut-tag">app/build/outputs/apk/debug/app-debug.apk</span></div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">C</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Install ke perangkat</div>
-                      <div class="tut-desc">Hubungkan HP via USB dengan USB Debugging aktif, lalu jalankan:</div>
-                      <div class="tut-code" style="cursor:pointer;" onclick="copyTut(this,'./gradlew installDebug')">./gradlew installDebug
-<span style="font-family:var(--mono);font-size:7px;color:var(--t3);">[ klik untuk copy ]</span></div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item">
-                    <div class="tut-num">D</div>
-                    <div class="tut-body">
-                      <div class="tut-title">Test aktivasi key</div>
-                      <div class="tut-desc">Buka app ZX EXCLUSIVE di HP. Di halaman Login, masukkan key yang sudah kamu generate di dashboard. Jika Firebase terhubung benar, app akan masuk ke halaman utama.</div>
-                    </div>
-                  </div>
-
-                  <div class="tut-item" style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.15);border-radius:12px;padding:14px;">
-                    <div class="tut-num" style="background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.3);color:#34d399;">✓</div>
-                    <div class="tut-body">
-                      <div class="tut-title" style="color:#34d399;">Setup Selesai!</div>
-                      <div class="tut-desc">Firebase sudah terhubung ke ZX EXCLUSIVE. Kamu sekarang bisa generate key, manage users, dan monitor sessions dari dashboard ini.</div>
-                    </div>
-                  </div>
-
-                </div>
-
-                <!-- Troubleshooting -->
-                <div style="margin-top:20px;padding:14px;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.15);border-radius:12px;">
-                  <div style="font-family:var(--hud);font-size:8.5px;color:var(--gold);letter-spacing:1.5px;margin-bottom:12px;">⚠ TROUBLESHOOTING UMUM</div>
-                  <div style="display:flex;flex-direction:column;gap:10px;">
-                    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);">
-                      <span style="color:var(--t1);">Error: google-services.json not found</span><br/>
-                      → Pastikan file ada di folder <span style="color:var(--sky2);">app/</span> bukan di root project
-                    </div>
-                    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);">
-                      <span style="color:var(--t1);">Error: PERMISSION_DENIED di Firestore</span><br/>
-                      → Cek Rules Firestore, pastikan sudah di-Publish
-                    </div>
-                    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);">
-                      <span style="color:var(--t1);">Key tidak terdeteksi / invalid</span><br/>
-                      → Pastikan key diinput UPPERCASE, cek project name match di Firestore
-                    </div>
-                    <div style="font-family:var(--mono);font-size:10px;color:var(--t2);">
-                      <span style="color:var(--t1);">Build error: com.google.gms plugin</span><br/>
-                      → Pastikan google-services.json sudah valid dan sync Gradle ulang
-                    </div>
-                  </div>
-                </div>
-
-                <div class="tut-nav-row">
-                  <button class="btn btn-secondary" onclick="tutNext(5)">← Kembali</button>
-                  <button class="btn btn-success" onclick="navTo('keys')">
-                    <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/></svg>
-                    Generate Key Sekarang
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /tut-steps-container -->
-      </div><!-- /page-tutorial -->
-
 </div><!-- /app -->
 
 <!-- ══════════════════════════════════════════════════════
      FIREBASE + APP LOGIC
 ══════════════════════════════════════════════════════ -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
    FIREBASE INIT
 ══════════════════════════════════════════════════ */
-/* ══════════════════════════════════════════════════
-   SUPABASE CONFIG
-   Ganti 2 nilai ini dengan project Supabase kamu:
-   Dashboard → Settings → API
-══════════════════════════════════════════════════ */
-var SUPA_URL  = 'https://miorkkrwldqkmgugppyk.supabase.co';
-var SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0';
-var _supa     = null;
-
-function initSupabase(url, key){
-  SUPA_URL = url; SUPA_KEY = key;
-  localStorage.setItem('supa_url', url);
-  localStorage.setItem('supa_key', key);
-  _supa = supabase.createClient(url, key);
-}
-initSupabase(SUPA_URL, SUPA_KEY);
-
-/* Auto-set Supabase config */
-localStorage.setItem('supa_url', 'https://miorkkrwldqkmgugppyk.supabase.co');
-localStorage.setItem('supa_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0');
-
-
-/* ══ DB Abstraction — drop-in Firestore replacement ══ */
-var db = {
-  _col: function(name){ return name; },
-
-  collection: function(name){
-    var self = this;
-    var _name = name;
-    var _wheres = [];
-    var _order  = null;
-    var _orderDir = 'asc';
-    var _lim    = null;
-
-    var obj = {
-      where: function(field, op, val){
-        _wheres.push({field:field, op:op, val:val});
-        return obj;
-      },
-      orderBy: function(field, dir){
-        _order = field; _orderDir = dir||'asc';
-        return obj;
-      },
-      limit: function(n){ _lim = n; return obj; },
-      get: function(){
-        return new Promise(async function(resolve, reject){
-          try {
-            var q = _supa.from(_name).select('*');
-            _wheres.forEach(function(w){
-              if(w.op==='==') q = q.eq(w.field, w.val);
-            });
-            if(_order) q = q.order(_order, {ascending: _orderDir==='asc'});
-            if(_lim)   q = q.limit(_lim);
-            var {data, error} = await q;
-            if(error) throw error;
-            resolve({
-              docs: (data||[]).map(function(row){ return {id:row.id||row._id||row.key, data:function(){return row;}, exists:true}; }),
-              forEach: function(cb){ (data||[]).forEach(function(row){ cb({id:row.id||row._id||row.key, data:function(){return row;}, exists:true}); }); },
-              empty: !data || data.length===0
-            });
-          } catch(e){ reject(e); }
-        });
-      },
-      onSnapshot: function(cb, errCb){
-        // Polling fallback (Supabase realtime needs channel setup)
-        var run = async function(){
-          try {
-            var q = _supa.from(_name).select('*');
-            _wheres.forEach(function(w){ if(w.op==='==') q = q.eq(w.field, w.val); });
-            if(_order) q = q.order(_order, {ascending: _orderDir==='asc'});
-            if(_lim)   q = q.limit(_lim);
-            var {data, error} = await q;
-            if(error) throw error;
-            var snap = {
-              docs: (data||[]).map(function(row){ return {id:row.id||row.key, data:function(){return row;}, exists:true}; }),
-              forEach: function(fn){ (data||[]).forEach(function(row){ fn({id:row.id||row.key, data:function(){return row;}, exists:true}); }); },
-              empty: !data||data.length===0,
-              docChanges: function(){ return []; }
-            };
-            cb(snap);
-          } catch(e){ if(errCb) errCb(e); }
-        };
-        run();
-        var iv = setInterval(run, 8000); // poll tiap 8 detik
-        return function(){ clearInterval(iv); };
-      },
-      add: function(docData){
-        return new Promise(async function(resolve, reject){
-          try {
-            var ts = new Date().toISOString();
-            var payload = Object.assign({}, docData);
-            // Konversi FieldValue.serverTimestamp() → ISO string
-            Object.keys(payload).forEach(function(k){
-              if(payload[k] && payload[k]._methodName === 'serverTimestamp') payload[k] = ts;
-              if(payload[k] && payload[k]._methodName) payload[k] = ts;
-            });
-            var {data, error} = await _supa.from(_name).insert([payload]).select();
-            if(error) throw error;
-            var row = (data && data[0]) || {};
-            resolve({id: row.id || row.key || ts});
-          } catch(e){ reject(e); }
-        });
-      },
-      doc: function(id){
-        return {
-          get: function(){
-            return new Promise(async function(resolve, reject){
-              try {
-                var {data, error} = await _supa.from(_name).select('*').eq('id', id).limit(1);
-                if(error) throw error;
-                var row = data && data[0];
-                resolve({ exists: !!row, id: id, data: function(){ return row||{}; }});
-              } catch(e){ reject(e); }
-            });
-          },
-          update: function(updates){
-            return new Promise(async function(resolve, reject){
-              try {
-                var ts = new Date().toISOString();
-                var payload = Object.assign({}, updates);
-                Object.keys(payload).forEach(function(k){
-                  if(payload[k] && payload[k]._methodName) payload[k] = ts;
-                });
-                var {error} = await _supa.from(_name).update(payload).eq('id', id);
-                if(error) throw error;
-                resolve();
-              } catch(e){ reject(e); }
-            });
-          },
-          delete: function(){
-            return new Promise(async function(resolve, reject){
-              try {
-                var {error} = await _supa.from(_name).delete().eq('id', id);
-                if(error) throw error;
-                resolve();
-              } catch(e){ reject(e); }
-            });
-          },
-          child: function(field){ return { setValue: function(val){ return db.collection(_name).doc(id).update({[field]: val}); }}; }
-        };
-      }
-    };
-    return obj;
-  },
-
-  /* Firestore FieldValue shim */
-  _FieldValue: { serverTimestamp: function(){ return {_methodName:'serverTimestamp'}; }}
-};
-
-/* Patch firebase.firestore.FieldValue shim */
-if(typeof firebase === 'undefined'){ var firebase = {}; }
-firebase.firestore = { FieldValue: db._FieldValue };
+firebase.initializeApp({
+  apiKey:"AIzaSyB2EZgrbnslC1tuyC0WtbIkA4SfJe5m2As",
+  authDomain:"mdzzxiters-panel-30d5a.firebaseapp.com",
+  projectId:"mdzzxiters-panel-30d5a",
+  storageBucket:"mdzzxiters-panel-30d5a.firebasestorage.app",
+  messagingSenderId:"515480722704",
+  appId:"1:515480722704:web:225d9105e3fea021125995"
+});
+var db=firebase.firestore();
+firebase.auth().signInAnonymously().catch(function(){});
 
 /* ══ STATE ══ */
 var currentAdmin=null;
@@ -2800,7 +2120,7 @@ function fmtExpiry(ts){
 }
 function isExpired(k){
   if(!k.expiresAt||!k.active)return false;
-  var d=k.expires_at?new Date(k.expires_at):null; if(!d) return false; var _tmp=d;
+  var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
   return d.getTime()<Date.now();
 }
 
@@ -2850,7 +2170,7 @@ function closeMobileSidebar(){
 var pageTitles={
   overview:'Overview',analytics:'Analytics',keys:'Key Management',
   users:'User Sessions',projects:'Projects',team:'Admin Team',activity:'Activity Log',
-  products:'Products — File Manager',send:'Kirim Produk',tutorial:'Firebase Setup Guide'
+  products:'Products — File Manager',send:'Kirim Produk'
 };
 
 var mobileNavPages=['overview','analytics','keys','users'];
@@ -2947,13 +2267,13 @@ window.setActFilter=setActFilter;
 
 /* ══ AUTO SETUP ══ */
 function autoSetup(){
-  return _supa.from('admins').select('id').limit(1).then(function(r){
-    if(!r.data || r.data.length===0){
-      return _supa.from('admins').insert([{
-        username:'owner', password:simpleHash('MDZZX@2024'),
-        name:'Owner', role:'owner',
-        created_at:new Date().toISOString()
-      }]);
+  return db.collection('admins').get().then(function(snap){
+    if(snap.empty){
+      return db.collection('admins').add({
+        username:'owner',password:simpleHash('MDZZX@2024'),
+        name:'Owner',role:'owner',
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
     }
   });
 }
@@ -2965,12 +2285,12 @@ function adminLogin(){
   var err=gi('adm-err');
   err.style.display='none';
   if(!u||!p){err.textContent='Please fill all fields.';err.style.display='block';return;}
-  _supa.from('admins').select('*').eq('username',u).limit(1).then(function(r){
-    var rows=r.data||[];
-    if(!rows.length){err.textContent='Invalid credentials.';err.style.display='block';return;}
-    var data=rows[0];
-    if(data.password!==simpleHash(p)){err.textContent='Wrong password.';err.style.display='block';return;}
-    currentAdmin={id:data.id,username:data.username,name:data.name,role:data.role};
+  db.collection('admins').where('username','==',u).get()
+    .then(function(snap){
+      if(snap.empty){err.textContent='Invalid credentials.';err.style.display='block';return;}
+      var doc=snap.docs[0],data=doc.data();
+      if(data.password!==simpleHash(p)){err.textContent='Wrong password.';err.style.display='block';return;}
+      currentAdmin={id:doc.id,username:data.username,name:data.name,role:data.role};
       localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
       enterApp();
       /* Log admin login */
@@ -3013,10 +2333,10 @@ function enterApp(){
 function checkSaved(){
   var saved=JSON.parse(localStorage.getItem('_mdzz_adm')||'null');
   if(!saved||!saved.id)return;
-  _supa.from('admins').select('*').eq('id',saved.id).limit(1).then(function(r){
-    var rows=r.data||[]; if(!rows.length){localStorage.removeItem('_mdzz_adm');return;}
-    var d=rows[0];
-    currentAdmin={id:d.id,username:d.username,name:d.name,role:d.role};
+  db.collection('admins').doc(saved.id).get().then(function(snap){
+    if(snap.exists){
+      var d=snap.data();
+      currentAdmin={id:snap.id,username:d.username,name:d.name,role:d.role};
       localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
       enterApp();
     } else {localStorage.removeItem('_mdzz_adm');}
@@ -3031,17 +2351,16 @@ function loadAll(){loadProjects();loadKeys();loadSessions();}
 ══════════════════════════ */
 function pushActivityFS(type,text,admin){
   admin=admin||(currentAdmin?currentAdmin.name:'system');
-  _supa.from('activity_log').insert([{
-    type:type, text:text, admin:admin,
-    created_at:new Date().toISOString()
-  }]).catch(function(){});
+  db.collection('activity_log').add({
+    type:type,text:text,admin:admin,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(){});
 }
 
 function refreshActivity(){
-  _supa.from('activity_log').select('*').order('created_at',{ascending:false}).limit(200).then(function(result){
+  db.collection('activity_log').orderBy('createdAt','desc').limit(200).get().then(function(snap){
     activityLog=[];
-    var data=result.data||[];
-    data.forEach(function(d){d._id=d.id||d.created_at;activityLog.push(d);});
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;activityLog.push(d);});
     renderActivity();updateActStats();
   }).catch(function(){});
 }
@@ -3099,12 +2418,12 @@ function checkExpiredKeys(){
   var now=Date.now();
   var toRevoke=allKeys.filter(function(k){
     if(!k.active||!k.expiresAt)return false;
-    var d=k.expires_at?new Date(k.expires_at):null; if(!d) return false; var _tmp=d;
+    var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
     return d.getTime()<now;
   });
   if(toRevoke.length){
     toRevoke.forEach(function(k){
-      _supa.from('keys').update({active:false}).eq('id',k._id).then(function(){
+      db.collection('keys').doc(k._id).update({active:false}).then(function(){
         pushActivityFS('expire','Key <b>'+k.key+'</b> auto-expired dan di-revoke secara otomatis','system');
         toast('Key expired: '+k.key,'w',3000);
       });
@@ -3112,7 +2431,7 @@ function checkExpiredKeys(){
   }
   var exp24=allKeys.filter(function(k){
     if(!k.active||!k.expiresAt)return false;
-    var d=k.expires_at?new Date(k.expires_at):null; if(!d) return false; var _tmp=d;
+    var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
     var diff=d.getTime()-now;return diff>0&&diff<86400000;
   });
   var el=gi('ov-expiring');if(el)el.textContent=exp24.length;
@@ -3127,20 +2446,20 @@ function checkExpiredKeys(){
 
 /* ══ PROJECTS ══ */
 function loadProjects(){
-  _supa.from('projects').select('*').order('name',{ascending:true}).then(function(result){
+  db.collection('projects').orderBy('name').get().then(function(snap){
     allProjects=[];
-    (result.data||[]).forEach(function(d){allProjects.push({id:d.id,name:d.name});});
+    snap.forEach(function(d){allProjects.push({id:d.id,name:d.data().name});});
     /* remove PRIVATE EXTREME */
     allProjects.filter(function(p){return p.name==='PRIVATE EXTREME';}).forEach(function(p){
-      _supa.from('projects').delete().eq('id',p.id).catch(function(){});
+      db.collection('projects').doc(p.id).delete().catch(function(){});
     });
     allProjects=allProjects.filter(function(p){return p.name!=='PRIVATE EXTREME';});
     var defaults=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE','ZX EXCLUSIVE'];
     var existing=allProjects.map(function(p){return p.name;});
     var missing=defaults.filter(function(n){return existing.indexOf(n)<0;});
     if(missing.length){
-      var rows=missing.map(function(n){return {name:n,created_at:new Date().toISOString()};});
-      _supa.from('projects').insert(rows).then(function(){loadProjects();});
+      Promise.all(missing.map(function(n){return db.collection('projects').add({name:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}))
+        .then(function(){loadProjects();});
       if(!allProjects.length)return;
     }
     renderProjects();renderProjectSelect();renderKeyFilters();renderSessFilters();
@@ -3188,7 +2507,7 @@ function addProject(){
   if(!name){toast('Enter project name','e');return;}
   if(name==='PRIVATE EXTREME'){toast('Nama ini tidak diizinkan','e');return;}
   if(allProjects.some(function(p){return p.name===name;})){toast('Project already exists','e');return;}
-  _supa.from('projects').insert([{name:name,created_at:new Date().toISOString()}])
+  db.collection('projects').add({name:name,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
     .then(function(){
       gi('new-proj').value='';
       toast('Project "'+name+'" created!','s');
@@ -3199,7 +2518,7 @@ function addProject(){
 function deleteProject(id,name){
   if(currentAdmin.role!=='owner'){toast('Only owner can delete','e');return;}
   showModal('DELETE PROJECT','Delete "'+name+"? Keys akan tetap ada.",function(){
-    _supa.from('projects').delete().eq('id',id).then(function(){
+    db.collection('projects').doc(id).delete().then(function(){
       toast('Deleted','s');
       pushActivityFS('project','Project <b>'+name+'</b> dihapus oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
       loadProjects();
@@ -3225,10 +2544,9 @@ window.setKeyFilter=setKeyFilter;window.setSessFilter=setSessFilter;
 
 /* ══ KEYS ══ */
 function loadKeys(){
-  _supa.from('keys').select('*').order('created_at',{ascending:false}).then(function(result){
+  db.collection('keys').orderBy('createdAt','desc').get().then(function(snap){
     allKeys=[];
-    var data=result.data||[];
-    data.forEach(function(d){ d._id=d.id||d.key; allKeys.push(d); });
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
     renderKeys();renderProjects();updateOverviewStats();checkExpiredKeys();
   }).catch(function(e){toast('Error loading keys: '+e.message,'e');});
 }
@@ -3290,12 +2608,12 @@ function generateKeys(){
   var generated=[],promises=[];
   for(var i=0;i<qty;i++){
     var key=genKey();generated.push(key);
-    promises.push(_supa.from('keys').insert([{
-      key:key, project:project, active:true, used:false, device_id:null,
-      created_at:new Date().toISOString(), used_at:null,
-      generated_by:currentAdmin.username,
-      expires_at:expiresAt?expiresAt.toISOString():null
-    }]));
+    promises.push(db.collection('keys').add({
+      key:key,project:project,active:true,used:false,deviceId:null,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),usedAt:null,
+      generatedBy:currentAdmin.username,
+      expiresAt:expiresAt?firebase.firestore.Timestamp.fromDate(expiresAt):null
+    }));
   }
   Promise.all(promises).then(function(){
     var expStr=expiresAt?(' | exp '+expiresAt.toLocaleDateString('id-ID')):'';
@@ -3308,11 +2626,10 @@ function generateKeys(){
 function revokeKey(id){
   showModal('REVOKE KEY','Revoke this key? User loses access immediately.',function(){
     var k=allKeys.find(function(x){return x._id===id;});
-    _supa.from('keys').update({active:false}).eq('id',id).then(function(r){
-      if(r.error){toast('Error: '+r.error.message,'e');return;}
+    db.collection('keys').doc(id).update({active:false}).then(function(){
       toast('Key revoked','s');
       if(k)pushActivityFS('revoke','Key <b>'+k.key+'</b> di-revoke oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
-    });
+    }).catch(function(e){toast('Error: '+e.message,'e');});
   },true);
 }
 function copyKey(key){copyClip(key);toast('Copied: '+key,'s',1800);}
@@ -3320,10 +2637,9 @@ window.generateKeys=generateKeys;window.revokeKey=revokeKey;window.copyKey=copyK
 
 /* ══ SESSIONS ══ */
 function loadSessions(){
-  _supa.from('sessions').select('*').order('last_seen',{ascending:false}).then(function(result){
+  db.collection('sessions').orderBy('lastSeen','desc').get().then(function(snap){
     allSessions=[];
-    var data=result.data||[];
-    data.forEach(function(d){ d._id=d.id; allSessions.push(d); });
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allSessions.push(d);});
     renderSessions();updateOverviewStats();
   }).catch(function(e){toast('Error sessions: '+e.message,'e');});
 }
@@ -3398,7 +2714,7 @@ function addAdmin(){
 function removeAdmin(id,username){
   if(currentAdmin.role!=='owner'){toast('Only owner can remove admins','e');return;}
   showModal('REMOVE ADMIN','Remove @'+username+' from the team?',function(){
-    _supa.from('admins').delete().eq('id',id).then(function(){
+    db.collection('admins').doc(id).delete().then(function(){
       toast('Admin removed','s');
       pushActivityFS('admin','Admin @'+username+' dihapus dari team oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
     }).catch(function(e){toast('Error: '+e.message,'e');});
@@ -3630,42 +2946,51 @@ function startListeners(){
   },function(){});
 
   /* Keys */
-  (function pollKeys(){
-    loadKeys();
-    setTimeout(pollKeys, 10000);
-  })();
+  db.collection('keys').onSnapshot(function(snap,change){
+    allKeys=[];
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
+    allKeys.sort(function(a,b){
+      var ta=a.createdAt?a.createdAt.toMillis?a.createdAt.toMillis():0:0;
+      var tb=b.createdAt?b.createdAt.toMillis?b.createdAt.toMillis():0:0;
+      return tb-ta;
+    });
+    renderKeys();renderProjects();updateOverviewStats();checkExpiredKeys();
+    if(change){
+      change.docChanges().forEach(function(ch){
+        var d=ch.doc.data();
+        if(ch.type==='added'&&d.key)pushActivityFS('key','Key <b>'+d.key+'</b> dibuat untuk <b>'+(d.project||'—')+'</b>',currentAdmin?currentAdmin.name:'system');
+        if(ch.type==='modified'&&d.used&&d.deviceId)pushActivityFS('login','Key <b>'+d.key+'</b> digunakan oleh perangkat baru',currentAdmin?currentAdmin.name:'system');
+        if(ch.type==='modified'&&!d.active)pushActivityFS('revoke','Key <b>'+d.key+'</b> non-aktif',currentAdmin?currentAdmin.name:'system');
+      });
+    }
+  },function(){});
 
   /* Admins */
-  (function pollAdmins(){
-    _supa.from('admins').select('*').order('created_at',{ascending:true}).then(function(r){
+  db.collection('admins').orderBy('createdAt').onSnapshot(function(snap){
+    allAdminsData=[];
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
+    renderAdmins();
+    gi('ov-admins').textContent=allAdminsData.length;
+  },function(){
+    db.collection('admins').onSnapshot(function(snap){
       allAdminsData=[];
-      (r.data||[]).forEach(function(d){ d._id=d.id; allAdminsData.push(d); });
+      snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
       renderAdmins();
-      gi('ov-admins').textContent=allAdminsData.length;
-    });
-    setTimeout(pollAdmins, 10000);
-  })();
+    },function(){});
+  });
 
   /* Activity log realtime */
-  (function pollActivity(){
-    refreshActivity();
-    setTimeout(pollActivity, 10000);
-  })();
+  db.collection('activity_log').orderBy('createdAt','desc').limit(200).onSnapshot(function(snap){
+    activityLog=[];
+    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;activityLog.push(d);});
+    renderActivity();
+    /* update chart if overview active */
+    if(gi('page-overview').classList.contains('active'))renderOverviewCharts();
+  },function(){refreshActivity();});
 }
 
 /* ══ INIT ══ */
 autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
-
-  /* Show Supabase config panel if URL not set */
-  var savedSupaUrl = localStorage.getItem('supa_url')||'';
-  var savedSupaKey = localStorage.getItem('supa_key')||'';
-  if(savedSupaUrl && gi('supa-url-input')) gi('supa-url-input').value = savedSupaUrl;
-  if(savedSupaKey && gi('supa-key-input')) gi('supa-key-input').value = savedSupaKey;
-  if(!savedSupaUrl || savedSupaUrl.includes('XXXX')){
-    var cfgPan = gi('supa-cfg-panel');
-    if(cfgPan) cfgPan.style.display='block';
-  }
-
 
 /* ══ RESPONSIVE INIT — no class conflicts, CSS handles everything ══ */
 (function(){
@@ -3700,8 +3025,7 @@ autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
 /* ══════════════════════════════════════
    MODE SYSTEM
 ══════════════════════════════════════ */
-localStorage.setItem('zx_mode','mobile');
-var currentMode = 'mobile';
+var currentMode = localStorage.getItem('zx_mode') || '';
 
 function applyMode(mode, skipSave){
   currentMode = mode;
@@ -3733,10 +3057,18 @@ function applyMode(mode, skipSave){
   }
 }
 
-function selectMode(mode){ applyMode(mode); }
+function selectMode(mode){
+  /* Hide mode select screen */
+  var screen = gi('mode-select-screen');
+  if(screen){ screen.classList.add('hidden'); setTimeout(function(){screen.style.display='none';},400); }
+  applyMode(mode);
+}
 window.selectMode = selectMode;
 
-function showModeSelect(){ /* mode screen removed */ }
+function showModeSelect(){
+  var screen = gi('mode-select-screen');
+  if(screen){ screen.style.display='flex'; setTimeout(function(){screen.classList.remove('hidden');},10); }
+}
 window.showModeSelect = showModeSelect;
 
 /* ── DRAWER (mobile mode nav) ── */
@@ -3792,13 +3124,16 @@ enterApp = function(){
     var du = gi('drawer-uname'); if(du) du.textContent = name;
     var dr = gi('drawer-role'); if(dr) dr.textContent = currentAdmin && currentAdmin.role==='owner' ? 'OWNER' : 'ADMIN';
 
-    /* Apply saved mode or show selector */
-    applyMode('mobile', true);
+    applyMode(localStorage.getItem('zx_mode')||'mobile', true);
   }, 500);
 };
 
-/* mode fixed to mobile */
-localStorage.setItem('zx_mode','mobile');
+/* ── Init: hide mode screen until needed ── */
+(function(){
+  var saved = localStorage.getItem('zx_mode');
+  var screen = gi('mode-select-screen');
+  if(saved && screen){ screen.style.display = 'none'; }
+})();
 
 
 /* ══════════════════════════════════════════════
@@ -4156,7 +3491,7 @@ async function sendProduct() {
     /* Mark key as used in firebase (best effort) */
     var matchKey = allKeys.find(function(k){ return k.key === licKey; });
     if(matchKey && matchKey._id){
-      _supa.from('keys').update({ used:true, used_at:new Date().toISOString() }).eq('id',matchKey._id).catch(function(){});
+      db.collection('keys').doc(matchKey._id).update({ used:true, usedAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
     }
 
     /* Activity log */
@@ -4261,146 +3596,6 @@ window.drawerNav = function(page){ navToPatched(page); closeDrawer(); document.q
 function onDataReady(){
   populateProductSelect();
 }
-
-
-/* ── Tutorial steps ── */
-var tutCurrentStep = 1;
-var tutTotalSteps  = 6;
-var tutStepLabels  = ['Buat Project','Register App','google-services','Firestore DB','Generate Key','Build & Test'];
-
-function tutInitIndicator(){
-  var cont = document.getElementById('tut-step-indicator');
-  if(!cont) return;
-  var html = '';
-  for(var i=1;i<=tutTotalSteps;i++){
-    var cls = i===tutCurrentStep?'tut-step-pill active':i<tutCurrentStep?'tut-step-pill done':'tut-step-pill';
-    html += '<div class="'+cls+'" id="tpill-'+i+'" onclick="tutNext('+i+')"><span class="pill-dot"></span>'+i+'. '+tutStepLabels[i-1]+'</div>';
-  }
-  cont.innerHTML = html;
-}
-
-function tutNext(step){
-  tutCurrentStep = step;
-  for(var i=1;i<=tutTotalSteps;i++){
-    var el=document.getElementById('tstep-'+i);
-    if(el) el.style.display = (i===step)?'block':'none';
-    var pill=document.getElementById('tpill-'+i);
-    if(pill){
-      var cls='tut-step-pill';
-      if(i<step)cls+=' done';
-      else if(i===step)cls+=' active';
-      pill.className=cls;
-    }
-  }
-  /* scroll to top of tutorial page */
-  var content=document.getElementById('content');
-  if(content)content.scrollTop=0;
-}
-
-function copyTut(el, text){
-  var t = text || el.innerText.replace(/\[ klik.*\]/g,'').trim();
-  if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){tutCopyFlash(el);}).catch(function(){fbCopy(t);tutCopyFlash(el);});}
-  else{fbCopy(t);tutCopyFlash(el);}
-}
-function tutCopyFlash(el){
-  var orig = el.style.background;
-  el.style.background='rgba(16,185,129,.15)';
-  setTimeout(function(){el.style.background=orig;},600);
-  toast('Disalin!','s',1200);
-}
-function fbCopy(t){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0;';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);}
-window.tutNext=tutNext;window.copyTut=copyTut;
-
-/* Patch navTo to init tutorial indicator */
-var _baseTutNavTo = window.navTo;
-var _patched = false;
-if(!_patched && typeof window.navTo==='function'){
-  _patched=true;
-  var _prevNavTo = window.navTo;
-  window.navTo = function(page){
-    _prevNavTo(page);
-    if(page==='tutorial'){ tutCurrentStep=1; tutInitIndicator(); tutNext(1); }
-  };
-  window.drawerNav = function(page){
-    window.navTo(page);
-    var all=document.querySelectorAll('.drawer-item');
-    all.forEach(function(el){el.className=el.className.replace(' active','');});
-    var di=document.getElementById('di-'+page);
-    if(di)di.classList.add('active');
-    closeDrawer();
-  };
-}
-
-
-function saveSupa(){
-  var url=(gi('supa-url-input').value||'').trim();
-  var key=(gi('supa-key-input').value||'').trim();
-  if(!url||!key){toast('Isi URL dan Anon Key dulu','e');return;}
-  initSupabase(url,key);
-  gi('supa-cfg-status').textContent='Connecting...';
-  gi('supa-cfg-status').style.color='var(--t2)';
-  _supa.from('admins').select('id').limit(1).then(function(r){
-    if(r.error){
-      gi('supa-cfg-status').textContent='✗ Gagal: '+r.error.message;
-      gi('supa-cfg-status').style.color='#fb7185';
-    } else {
-      gi('supa-cfg-status').textContent='✓ Terhubung ke Supabase!';
-      gi('supa-cfg-status').style.color='#34d399';
-      toast('Supabase terhubung!','s',2500);
-      setTimeout(function(){gi('supa-cfg-panel').style.display='none'; loadAll(); startListeners();},800);
-    }
-  }).catch(function(e){
-    gi('supa-cfg-status').textContent='✗ Error: '+e.message;
-    gi('supa-cfg-status').style.color='#fb7185';
-  });
-}
-window.saveSupa=saveSupa;
-
-/* ── Supabase config di halaman login ── */
-function cfgSaveLogin(){
-  var url=(document.getElementById('cfg-supa-url').value||'').trim();
-  var key=(document.getElementById('cfg-supa-key').value||'').trim();
-  var st=document.getElementById('cfg-supa-status');
-  if(!url||!key){st.textContent='Isi URL dan Key dulu';st.style.color='#fb7185';return;}
-  if(!url.startsWith('https')){st.textContent='URL harus diawali https://';st.style.color='#fb7185';return;}
-  st.textContent='Mengecek koneksi...';st.style.color='rgba(255,255,255,.5)';
-  initSupabase(url,key);
-  _supa.from('admins').select('id').limit(1).then(function(r){
-    if(r.error){
-      st.textContent='✗ '+r.error.message;
-      st.style.color='#fb7185';
-    } else {
-      st.textContent='✓ Terhubung! Sekarang bisa login.';
-      st.style.color='#34d399';
-      var cfg=document.getElementById('supa-login-cfg');
-      if(cfg){ cfg.style.transition='opacity .3s'; cfg.style.opacity='0'; setTimeout(function(){cfg.style.display='none';},320); }
-      var lc=document.querySelector('.login-card');
-      if(lc) lc.style.marginTop='';
-      autoSetup().catch(function(){});
-    }
-  }).catch(function(e){
-    st.textContent='✗ Koneksi gagal — cek URL dan key';
-    st.style.color='#fb7185';
-  });
-}
-window.cfgSaveLogin=cfgSaveLogin;
-
-/* Auto-hide config panel + restore margin jika sudah ada config tersimpan */
-(function(){
-  var savedUrl=localStorage.getItem('supa_url')||'';
-  var savedKey=localStorage.getItem('supa_key')||'';
-  var cfg=document.getElementById('supa-login-cfg');
-  var lc=document.querySelector('.login-card');
-  if(savedUrl && savedUrl.startsWith('https') && !savedUrl.includes('XXXX')){
-    if(cfg) cfg.style.display='none';
-    if(lc)  lc.style.marginTop='';
-  } else {
-    var u=document.getElementById('cfg-supa-url');
-    var k=document.getElementById('cfg-supa-key');
-    if(u && savedUrl) u.value=savedUrl;
-    if(k && savedKey) k.value=savedKey;
-  }
-})();
 
 </script>
 </body>
