@@ -1599,7 +1599,13 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="section">
           <div class="section-head">
             <span class="section-title">KEY MANAGEMENT</span>
-            <span class="section-badge" id="key-count-badge">0 keys</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="section-badge" id="key-count-badge">0 keys</span>
+              <button class="btn btn-secondary btn-sm" onclick="syncAllKeysToSupabase()" title="Sync semua key aktif ke Supabase">
+                <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                SYNC → SUPABASE
+              </button>
+            </div>
           </div>
 
           <!-- Search -->
@@ -2595,6 +2601,47 @@ function renderKeys(){
   gi('keys-list').innerHTML=html;
 }
 
+/* ══ Supabase auto-sync config ══ */
+var _SUPA_URL = 'https://miorkkrwldqkmgugppyk.supabase.co';
+var _SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0';
+
+/* Kirim array keys ke Supabase licenses table */
+async function syncKeysToSupabase(keys, project, expiresAt, generatedBy){
+  try {
+    var rows = keys.map(function(k){
+      return {
+        key:          k,
+        project:      project,
+        active:       true,
+        used:         false,
+        device_id:    null,
+        generated_by: generatedBy,
+        created_at:   new Date().toISOString(),
+        expires_at:   expiresAt ? expiresAt.toISOString() : null,
+        used_at:      null
+      };
+    });
+    var res = await fetch(_SUPA_URL+'/rest/v1/licenses', {
+      method:  'POST',
+      headers: {
+        'apikey':        _SUPA_KEY,
+        'Authorization': 'Bearer '+_SUPA_KEY,
+        'Content-Type':  'application/json',
+        'Prefer':        'return=minimal'
+      },
+      body: JSON.stringify(rows)
+    });
+    if(res.ok){
+      toast('✓ '+keys.length+' key tersimpan ke Supabase','s',2000);
+    } else {
+      var err = await res.text();
+      toast('Supabase sync gagal: '+err,'w',3000);
+    }
+  } catch(e){
+    toast('Supabase offline — key tetap di Firebase','w',2500);
+  }
+}
+
 function generateKeys(){
   var qty=Math.min(50,Math.max(1,parseInt(gi('gen-qty').value)||1));
   var project=gi('gen-project').value;
@@ -2620,6 +2667,8 @@ function generateKeys(){
     toast(qty+' key generated for '+project+expStr,'s',3000);
     if(qty===1){copyClip(generated[0]);toast('Key copied to clipboard','i',1500);}
     pushActivityFS('key',qty+' key dibuat untuk <b>'+project+'</b>'+(expiresAt?' (exp '+expiresAt.toLocaleDateString('id-ID')+')':', tanpa batas')+' oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
+    /* ── Auto sync ke Supabase ── */
+    syncKeysToSupabase(generated, project, expiresAt, currentAdmin.username);
   }).catch(function(e){toast('Error: '+e.message,'e');});
 }
 
@@ -2633,7 +2682,50 @@ function revokeKey(id){
   },true);
 }
 function copyKey(key){copyClip(key);toast('Copied: '+key,'s',1800);}
-window.generateKeys=generateKeys;window.revokeKey=revokeKey;window.copyKey=copyKey;
+window.generateKeys=generateKeys;
+
+/* Sync SEMUA key aktif dari Firebase ke Supabase (untuk key lama) */
+async function syncAllKeysToSupabase(){
+  var activeKeys = allKeys.filter(function(k){ return k.active; });
+  if(!activeKeys.length){ toast('Tidak ada key aktif','w'); return; }
+  toast('Menyinkron '+activeKeys.length+' key ke Supabase...','i',2000);
+  try {
+    var rows = activeKeys.map(function(k){
+      return {
+        key:          k.key,
+        project:      k.project||'',
+        active:       k.active,
+        used:         k.used||false,
+        device_id:    k.deviceId||null,
+        generated_by: k.generatedBy||'',
+        created_at:   k.createdAt&&k.createdAt.toDate ? k.createdAt.toDate().toISOString() : new Date().toISOString(),
+        expires_at:   k.expiresAt&&k.expiresAt.toDate ? k.expiresAt.toDate().toISOString() : null,
+        used_at:      k.usedAt&&k.usedAt.toDate ? k.usedAt.toDate().toISOString() : null
+      };
+    });
+    /* Upsert — insert atau update kalau key sudah ada */
+    var res = await fetch(_SUPA_URL+'/rest/v1/licenses', {
+      method:  'POST',
+      headers: {
+        'apikey':        _SUPA_KEY,
+        'Authorization': 'Bearer '+_SUPA_KEY,
+        'Content-Type':  'application/json',
+        'Prefer':        'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify(rows)
+    });
+    if(res.ok){
+      toast('✓ '+activeKeys.length+' key berhasil disync ke Supabase!','s',3000);
+    } else {
+      var err = await res.text();
+      toast('Sync gagal: '+err.substring(0,80),'e',4000);
+    }
+  } catch(e){
+    toast('Error: '+e.message,'e',3000);
+  }
+}
+window.syncAllKeysToSupabase=syncAllKeysToSupabase;
+window.revokeKey=revokeKey;window.copyKey=copyKey;
 
 /* ══ SESSIONS ══ */
 function loadSessions(){
