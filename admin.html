@@ -2460,7 +2460,7 @@ function loadProjects(){
       db.collection('projects').doc(p.id).delete().catch(function(){});
     });
     allProjects=allProjects.filter(function(p){return p.name!=='PRIVATE EXTREME';});
-    var defaults=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE','ZX EXCLUSIVE'];
+    var defaults=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE','ZX EXCLUSIVE','ZX APEX'];
     var existing=allProjects.map(function(p){return p.name;});
     var missing=defaults.filter(function(n){return existing.indexOf(n)<0;});
     if(missing.length){
@@ -2940,7 +2940,7 @@ function renderOverviewCharts(){
   });
 
   /* Donut project distribution */
-  var projColors=['#3b82f6','#06b6d4','#10b981','#f59e0b','#818cf8','#f43f5e'];
+  var projColors=['#3b82f6','#06b6d4','#10b981','#f59e0b','#818cf8','#f43f5e','#a78bfa'];
   var projData=allProjects.map(function(p){return allKeys.filter(function(k){return k.project===p.name;}).length;});
   mkChart('chart-donut',{
     type:'doughnut',
@@ -3009,7 +3009,7 @@ function renderAnalyticsCharts(){
   });
 
   /* Project bar */
-  var projColors=['#3b82f6','#06b6d4','#10b981','#f59e0b','#818cf8','#f43f5e'];
+  var projColors=['#3b82f6','#06b6d4','#10b981','#f59e0b','#818cf8','#f43f5e','#a78bfa'];
   var pd=allProjects.map(function(p){return{name:p.name,count:allKeys.filter(function(k){return k.project===p.name;}).length};});
   mkChart('chart-proj-bar',{
     type:'bar',
