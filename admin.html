@@ -401,7 +401,7 @@ body.mobile-mode .nav-drawer{display:block;}
 .rev-card.rc-blue::before{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
 .rev-card.rc-purple::before{background:linear-gradient(90deg,#818cf8,#a78bfa);}
 .rev-card.rc-cyan::before{background:linear-gradient(90deg,#06b6d4,#22d3ee);}
-.rev-clabel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:#ffffff;font-weight:700;margin-bottom:10px;text-transform:uppercase;text-shadow:0 0 20px rgba(255,255,255,.1);}
+.rev-clabel{display:flex;align-items:center;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:var(--t1);font-weight:600;margin-bottom:14px;text-transform:uppercase;gap:7px;}.rev-clabel svg{opacity:.7;flex-shrink:0;}
 .rev-amount{font-family:var(--hud);font-size:22px;font-weight:700;color:var(--t1);line-height:1.1;letter-spacing:-.01em;}
 .rev-amount .rev-cur{font-size:11px;color:var(--t3);margin-right:2px;font-weight:400;}
 .rev-amount .rev-unit{font-size:11px;color:var(--t3);font-weight:400;}
@@ -427,7 +427,7 @@ body.mobile-mode .nav-drawer{display:block;}
 .month-rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 @media(max-width:500px){.month-rev-grid{grid-template-columns:1fr;}}
 .mrev-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;}
-.mrev-label{font-family:var(--mono);font-size:10px;color:#ffffff;font-weight:700;letter-spacing:.1em;margin-bottom:8px;text-transform:uppercase;}
+.mrev-label{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:8.5px;color:var(--t1);font-weight:600;letter-spacing:.14em;margin-bottom:12px;text-transform:uppercase;}.mrev-label svg{opacity:.6;flex-shrink:0;}
 .mrev-amount{font-family:var(--hud);font-size:20px;font-weight:700;color:var(--t1);}
 .mrev-cur{font-size:10px;color:var(--t3);font-weight:400;}
 .mrev-count{font-family:var(--mono);font-size:8.5px;color:var(--t3);margin-top:4px;}
@@ -435,7 +435,6 @@ body.mobile-mode .nav-drawer{display:block;}
 .mrev-vs.up{background:rgba(16,185,129,.12);color:#10b981;}
 .mrev-vs.down{background:rgba(244,63,94,.1);color:#f43f5e;}
 .mrev-vs.eq{background:rgba(100,116,139,.1);color:var(--t3);}
-
 
 /* ═══ DESKTOP MODE LAYOUT ═══ */
 body.desktop-mode .rev-grid{grid-template-columns:2fr 1fr 1fr;}
@@ -450,7 +449,6 @@ body.desktop-mode .topbar{padding:0 24px 0 32px;}
 body.desktop-mode .content{padding-top:58px;}
 /* Revenue section desktop: full 3 col grid */
 body.desktop-mode #rev-owner-section .rev-grid{grid-template-columns:2fr 1fr 1fr;}
-body.desktop-mode #rev-owner-section .cust-grid{grid-template-columns:repeat(4,1fr);}
 /* Wider table in desktop */
 body.desktop-mode .prod-tbl{font-size:11px;}
 body.desktop-mode .prod-tbl td{padding:11px 14px;}
@@ -462,8 +460,7 @@ body.desktop-mode .rev-amount{font-size:28px;}
 body.desktop-mode .rev-big .rev-amount{font-size:38px;}
 body.desktop-mode .mrev-amount{font-size:24px;}
 /* Mode button label */
-body.desktop-mode #mode-btn-label::before{content:'🖥 ';}
-body.mobile-mode #mode-btn-label::before{content:'📱 ';}
+
 
 </style>
 <head>
@@ -624,7 +621,6 @@ body::before{
   will-change:transform;
 }
 .sidebar.collapsed{width:var(--sb-c);}
-
 
 .sb-header{
   padding:18px 16px 14px;
@@ -1291,14 +1287,23 @@ body.sb-open{overflow:hidden;}
   .content{padding-bottom:78px!important;}
 }
 </style>
-<style>#mode-select-screen{display:none!important;}</style>
 </head>
 <body>
 <script>
-localStorage.setItem('zx_mode','mobile');
+// Mode init — show selector if no saved mode, else apply saved mode
 document.addEventListener('DOMContentLoaded',function(){
-  var s=document.getElementById('mode-select-screen');
-  if(s)s.style.cssText='display:none!important';
+  var saved=localStorage.getItem('zx_mode');
+  if(saved){
+    document.body.classList.add(saved+'-mode');
+    var lbl=document.getElementById('mode-btn-label');
+    if(lbl)lbl.textContent=saved==='desktop'?'DESKTOP':'MOBILE';
+    var im=document.getElementById('mode-icon-mobile');
+    var id2=document.getElementById('mode-icon-desktop');
+    if(im&&id2){im.style.display=saved==='desktop'?'none':'inline';id2.style.display=saved==='desktop'?'inline':'none';}
+    var ms=document.getElementById('mode-select-screen');
+    if(ms)ms.style.display='none';
+  }
+  // If no saved mode, mode-select-screen will show (not forced hidden)
 });
 </script>
 
@@ -1476,7 +1481,8 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="tb-chip time" id="tb-clock" style="font-size:10px;">--:--</div>
         <div class="tb-chip online"><span class="chip-dot"></span><span id="tb-online-count">0</span></div>
         <button class="mode-btn" id="mode-btn" onclick="showModeSelect()" type="button" title="Ganti Mode Tampilan">
-          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/></svg>
+          <svg id="mode-icon-mobile" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/></svg>
+          <svg id="mode-icon-desktop" viewBox="0 0 24 24" style="display:none;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           <span id="mode-btn-label">MOBILE</span>
         </button>
         <div class="tb-avatar-sm" id="tb-avatar" onclick="navTo('team')">M</div>
@@ -1551,41 +1557,20 @@ document.addEventListener('DOMContentLoaded',function(){
           </div>
         </div>
 
-
         <!-- ═══ REVENUE & PELANGGAN — OWNER ONLY ═══ -->
         <div id="rev-owner-section" style="display:none;">
 
           <!-- Header -->
           <div class="rev-header" style="margin-top:20px;">
             <div class="rev-title">PENDAPATAN & PELANGGAN</div>
-            <span class="rev-owner-badge">👑 OWNER ONLY</span>
-          </div>
-
-          <!-- Total Pelanggan 4 kolom -->
-          <div class="cust-grid" style="margin-bottom:14px;">
-            <div class="cust-card">
-              <div class="cust-val" id="rev-cust-total">0</div>
-              <div class="cust-lbl"><span class="cust-dot" style="background:#0ea5e9;"></span>Total Pelanggan</div>
-            </div>
-            <div class="cust-card">
-              <div class="cust-val" id="rev-cust-active" style="color:#10b981;">0</div>
-              <div class="cust-lbl"><span class="cust-dot" style="background:#10b981;"></span>Aktif</div>
-            </div>
-            <div class="cust-card">
-              <div class="cust-val" id="rev-cust-revoked" style="color:#f43f5e;">0</div>
-              <div class="cust-lbl"><span class="cust-dot" style="background:#f43f5e;"></span>Dicabut</div>
-            </div>
-            <div class="cust-card">
-              <div class="cust-val" id="rev-cust-expired" style="color:#f59e0b;">0</div>
-              <div class="cust-lbl"><span class="cust-dot" style="background:#f59e0b;"></span>Expired</div>
-            </div>
+            <span class="rev-owner-badge"><svg viewBox="0 0 24 24" style="width:12px;height:12px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-right:5px;"><path d="M2 20h20M5 20l-2-8 5 3 4-6 4 6 5-3-2 8"/></svg>OWNER ONLY</span>
           </div>
 
           <!-- Revenue cards grid -->
           <div class="rev-grid">
             <!-- TOTAL KESELURUHAN — big card -->
             <div class="rev-card rc-gold rev-big">
-              <div class="rev-clabel">💰 TOTAL PENDAPATAN KESELURUHAN</div>
+              <div class="rev-clabel"><svg viewBox="0 0 24 24" style="width:14px;height:14px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-right:6px;"><circle cx="12" cy="12" r="10"/><path d="M15 9.5a3.5 3.5 0 0 0-5 0v5a3.5 3.5 0 0 0 5 0"/></svg>TOTAL PENDAPATAN</div>
               <div class="rev-amount">
                 <span class="rev-cur">Rp</span>
                 <span id="rev-grand-total">0</span>
@@ -1595,7 +1580,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
             <!-- Bulan ini -->
             <div class="rev-card rc-green">
-              <div class="rev-clabel">📅 BULAN INI</div>
+              <div class="rev-clabel"><svg viewBox="0 0 24 24" style="width:14px;height:14px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-right:6px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>BULAN INI</div>
               <div class="rev-amount">
                 <span class="rev-cur">Rp</span>
                 <span id="rev-this-month">0</span>
@@ -1606,7 +1591,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
             <!-- Bulan lalu -->
             <div class="rev-card rc-blue">
-              <div class="rev-clabel">🗓 BULAN LALU</div>
+              <div class="rev-clabel"><svg viewBox="0 0 24 24" style="width:14px;height:14px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-right:6px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>BULAN LALU</div>
               <div class="rev-amount">
                 <span class="rev-cur">Rp</span>
                 <span id="rev-last-month">0</span>
@@ -1618,13 +1603,13 @@ document.addEventListener('DOMContentLoaded',function(){
           <!-- Per-bulan detail (ini bulan vs lalu) -->
           <div class="month-rev-grid" style="margin-bottom:14px;">
             <div class="mrev-card">
-              <div class="mrev-label">📊 Bulan Ini — Rincian</div>
+              <div class="mrev-label"><svg viewBox="0 0 24 24" style="width:14px;height:14px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-right:6px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Bulan Ini</div>
               <div class="mrev-amount"><span class="mrev-cur">Rp </span><span id="mrev-this-amt">0</span></div>
               <div class="mrev-count" id="mrev-this-count">0 key terjual</div>
               <div id="mrev-this-breakdown" style="margin-top:8px;font-family:var(--mono);font-size:8px;color:var(--t3);"></div>
             </div>
             <div class="mrev-card">
-              <div class="mrev-label">📊 Bulan Lalu — Rincian</div>
+              <div class="mrev-label"><svg viewBox="0 0 24 24" style="width:14px;height:14px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-right:6px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Bulan Lalu</div>
               <div class="mrev-amount"><span class="mrev-cur">Rp </span><span id="mrev-last-amt">0</span></div>
               <div class="mrev-count" id="mrev-last-count">0 key terjual</div>
               <div id="mrev-last-breakdown" style="margin-top:8px;font-family:var(--mono);font-size:8px;color:var(--t3);"></div>
@@ -1929,7 +1914,6 @@ document.addEventListener('DOMContentLoaded',function(){
           <div class="list-area" style="max-height:580px;" id="act-list"><div class="empty">Loading activity log...</div></div>
         </div>
       </div>
-
 
       <!-- ══ PAGE: PRODUCTS (OWNER ONLY) ══ -->
       <div class="page" id="page-products">
@@ -2795,7 +2779,6 @@ function renderKeys(){
 var _SUPA_URL = 'https://miorkkrwldqkmgugppyk.supabase.co';
 var _SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0';
 
-
 /* Format tanggal untuk Supabase — APK baca .take(19) → yyyy-MM-ddTHH:mm:ss */
 function toSupaDate(date) {
   if (!date) return null;
@@ -3034,7 +3017,6 @@ async function verifyTrialKey() {
 window.verifyTrialKey = verifyTrialKey;
 
 
-
 /* ══ SESSIONS ══ */
 function loadSessions(){
   db.collection('sessions').orderBy('lastSeen','desc').get().then(function(snap){
@@ -3197,9 +3179,6 @@ function renderRevenue() {
   if (!isOwner) return;
 
   var now = new Date();
-
-  /* ── Total Pelanggan ── */
-
 
   /* ── Revenue keseluruhan (semua key yang pernah used) ── */
   var grandTotal  = calcRevenue(allKeys);
@@ -3697,7 +3676,6 @@ enterApp = function(){
   var screen = gi('mode-select-screen');
   if(saved && screen){ screen.style.display = 'none'; }
 })();
-
 
 /* ══════════════════════════════════════════════
    PRODUCT DELIVERY — Supabase Storage + Resend
