@@ -1604,7 +1604,7 @@ document.addEventListener('DOMContentLoaded',function(){
               <button class="btn btn-secondary btn-sm" onclick="syncAllKeysToSupabase()" title="Sync semua key aktif ke Supabase">
                 <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                 SYNC → SUPABASE
-              </button> <button class="btn btn-secondary" onclick="syncStatusFromSupabase()" title="Baca status terbaru dari Supabase (used/device)">↻ STATUS</button>
+              </button> <button class="btn btn-secondary" onclick="syncStatusFromSupabase()" title="Baca status terbaru dari Supabase (used/device)">↻ STATUS</button> <button class="btn btn-secondary" onclick="verifyTrialKey()" title="Cek format trial key di Supabase">🔍 VERIFY</button>
             </div>
           </div>
 
@@ -2589,7 +2589,9 @@ function renderKeys(){
     html+='<span class="km-tag">'+(d.project||'—')+'</span>';
     html+='<span class="km-tag">'+fmtTime(d.createdAt)+'</span>';
     if(d.generatedBy)html+='<span class="km-tag">by '+d.generatedBy+'</span>';
-    if(expInfo){html+='<span class="km-tag km-exp '+expInfo.cls+'">'+expInfo.label+'</span>';}
+    if(expInfo){
+      html+='<span class="km-tag km-exp '+expInfo.cls+'" title="Exp: '+(d.expiresAt?(d.expiresAt.toDate?d.expiresAt.toDate().toLocaleDateString('id-ID'):new Date(d.expiresAt).toLocaleDateString('id-ID')):'?')+'">⏰ '+expInfo.label+'</span>';
+    }
     else if(!d.expiresAt){html+='<span class="km-tag km-exp none">no expiry</span>';}
     if(d.deviceId)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Device: '+d.deviceId+'">📱 ...'+d.deviceId.slice(-8)+'</span>';
     html+='</div></div>';
@@ -2605,6 +2607,23 @@ function renderKeys(){
 var _SUPA_URL = 'https://miorkkrwldqkmgugppyk.supabase.co';
 var _SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0';
 
+
+/* Format tanggal untuk Supabase — APK baca .take(19) → yyyy-MM-ddTHH:mm:ss */
+function toSupaDate(date) {
+  if (!date) return null;
+  var d = (date instanceof Date) ? date : new Date(date);
+  // Pad helper
+  var pad = function(n){ return n < 10 ? '0'+n : ''+n; };
+  // Format UTC: 2026-06-30T17:00:00 (tanpa milisdetik, tanpa timezone suffix)
+  // APK parse dengan take(19) → cocok persis
+  return d.getUTCFullYear()+'-'+
+         pad(d.getUTCMonth()+1)+'-'+
+         pad(d.getUTCDate())+'T'+
+         pad(d.getUTCHours())+':'+
+         pad(d.getUTCMinutes())+':'+
+         pad(d.getUTCSeconds());
+}
+
 /* Kirim array keys ke Supabase licenses table */
 async function syncKeysToSupabase(keys, project, expiresAt, generatedBy){
   try {
@@ -2617,7 +2636,7 @@ async function syncKeysToSupabase(keys, project, expiresAt, generatedBy){
         device_id:    null,
         generated_by: generatedBy,
         created_at:   new Date().toISOString(),
-        expires_at:   expiresAt ? expiresAt.toISOString() : null,
+        expires_at:   toSupaDate(expiresAt),
         used_at:      null
       };
     });
@@ -2719,7 +2738,7 @@ async function syncAllKeysToSupabase(){
         device_id:    k.deviceId||null,
         generated_by: k.generatedBy||'',
         created_at:   k.createdAt&&k.createdAt.toDate ? k.createdAt.toDate().toISOString() : new Date().toISOString(),
-        expires_at:   k.expiresAt&&k.expiresAt.toDate ? k.expiresAt.toDate().toISOString() : null,
+        expires_at:   k.expiresAt ? toSupaDate(k.expiresAt.toDate ? k.expiresAt.toDate() : new Date(k.expiresAt.seconds ? k.expiresAt.seconds*1000 : k.expiresAt)) : null,
         used_at:      k.usedAt&&k.usedAt.toDate ? k.usedAt.toDate().toISOString() : null
       };
     });
@@ -2793,6 +2812,39 @@ async function syncStatusFromSupabase(){
   }
 }
 window.syncStatusFromSupabase=syncStatusFromSupabase;
+
+/* Debug tool — verifikasi format expires_at di Supabase untuk trial key */
+async function verifyTrialKey() {
+  var keyInput = prompt('Masukkan key untuk dicek:');
+  if (!keyInput) return;
+  var k = keyInput.trim().toUpperCase();
+  try {
+    var res = await fetch(_SUPA_URL+'/rest/v1/licenses?key=eq.'+encodeURIComponent(k)+'&select=key,active,used,expires_at,device_id,status', {
+      headers: {'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
+    });
+    var data = await res.json();
+    if (!data.length) { alert('Key tidak ditemukan di Supabase!'); return; }
+    var row = data[0];
+    var exp = row.expires_at || 'NULL (permanent)';
+    var take19 = exp !== 'NULL (permanent)' ? exp.substring(0,19) : 'N/A';
+    var msg = '=== KEY INFO ===\n'+
+      'Key: '+row.key+'\n'+
+      'Active: '+row.active+'\n'+
+      'Used: '+row.used+'\n'+
+      'Status: '+(row.status||'N/A')+'\n'+
+      'Device: '+(row.device_id||'Not bound')+'\n'+
+      '\n=== EXPIRY ===\n'+
+      'expires_at raw: '+exp+'\n'+
+      'take(19) → APK parse: '+take19+'\n'+
+      'Format OK: '+(take19!=='N/A'&&take19.indexOf('T')===10?'✓ YES':'✗ FORMAT SALAH!')+
+      (take19!=='N/A'?'\nExpired: '+(new Date(take19) < new Date()?'YES — key sudah expired!':'NO — key masih valid'):'');
+    alert(msg);
+  } catch(e) {
+    alert('Error: '+e.message);
+  }
+}
+window.verifyTrialKey = verifyTrialKey;
+
 
 
 /* ══ SESSIONS ══ */
