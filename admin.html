@@ -383,6 +383,66 @@ body.mobile-mode .nav-drawer{display:block;}
   .sh-row{padding:10px 14px;}
   .sf-label{font-size:8.5px;}
 }
+
+/* ═══ REVENUE / PELANGGAN — OWNER ONLY ═══ */
+.rev-section{margin-bottom:20px;}
+.rev-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.rev-title{font-family:var(--hud);font-size:10px;letter-spacing:.18em;color:var(--accent);display:flex;align-items:center;gap:8px;}
+.rev-title::before{content:'';display:inline-block;width:3px;height:13px;background:var(--accent);border-radius:2px;}
+.rev-owner-badge{font-family:var(--mono);font-size:7.5px;letter-spacing:.15em;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.18);padding:3px 8px;border-radius:20px;}
+.rev-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+@media(max-width:700px){.rev-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:400px){.rev-grid{grid-template-columns:1fr;}}
+.rev-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative;overflow:hidden;transition:transform .18s;}
+.rev-card:hover{transform:translateY(-2px);}
+.rev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--rc,var(--accent));}
+.rev-card.rc-gold::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.rev-card.rc-green::before{background:linear-gradient(90deg,#10b981,#34d399);}
+.rev-card.rc-blue::before{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+.rev-card.rc-purple::before{background:linear-gradient(90deg,#818cf8,#a78bfa);}
+.rev-card.rc-cyan::before{background:linear-gradient(90deg,#06b6d4,#22d3ee);}
+.rev-clabel{font-family:var(--mono);font-size:7.5px;letter-spacing:.12em;color:var(--t3);margin-bottom:8px;text-transform:uppercase;}
+.rev-amount{font-family:var(--hud);font-size:22px;font-weight:700;color:var(--t1);line-height:1.1;letter-spacing:-.01em;}
+.rev-amount .rev-cur{font-size:11px;color:var(--t3);margin-right:2px;font-weight:400;}
+.rev-amount .rev-unit{font-size:11px;color:var(--t3);font-weight:400;}
+.rev-sub{font-family:var(--mono);font-size:8.5px;color:var(--t3);margin-top:5px;}
+.rev-delta{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:20px;margin-top:6px;}
+.rev-delta.up{background:rgba(16,185,129,.12);color:#10b981;}
+.rev-delta.neutral{background:rgba(100,116,139,.1);color:var(--t3);}
+.rev-big{grid-column:1/-1;background:linear-gradient(135deg,rgba(14,165,233,.06) 0%,rgba(129,140,248,.04) 100%);border:1px solid rgba(14,165,233,.18);}
+.rev-big .rev-amount{font-size:32px;}
+
+/* Pelanggan stats */
+.cust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+@media(max-width:600px){.cust-grid{grid-template-columns:repeat(2,1fr);}}
+.cust-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px;text-align:center;}
+.cust-val{font-family:var(--hud);font-size:26px;font-weight:700;color:var(--t1);}
+.cust-lbl{font-family:var(--mono);font-size:7.5px;letter-spacing:.1em;color:var(--t3);margin-top:4px;text-transform:uppercase;}
+.cust-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+
+/* Per-product revenue table */
+.prod-tbl{width:100%;border-collapse:collapse;}
+.prod-tbl th{font-family:var(--mono);font-size:7.5px;letter-spacing:.1em;color:var(--t3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);}
+.prod-tbl td{font-family:var(--mono);font-size:9.5px;color:var(--t2);padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);}
+.prod-tbl tr:last-child td{border-bottom:none;}
+.prod-tbl td.amt{color:var(--t1);font-weight:700;text-align:right;}
+.prod-tbl td.cnt{text-align:center;color:var(--accent);}
+.prod-bar{height:4px;background:rgba(14,165,233,.15);border-radius:2px;margin-top:4px;}
+.prod-bar-fill{height:4px;background:var(--accent);border-radius:2px;transition:width .6s ease;}
+
+/* Monthly revenue bars */
+.month-rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:500px){.month-rev-grid{grid-template-columns:1fr;}}
+.mrev-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.mrev-label{font-family:var(--mono);font-size:7.5px;color:var(--t3);letter-spacing:.1em;margin-bottom:6px;text-transform:uppercase;}
+.mrev-amount{font-family:var(--hud);font-size:20px;font-weight:700;color:var(--t1);}
+.mrev-cur{font-size:10px;color:var(--t3);font-weight:400;}
+.mrev-count{font-family:var(--mono);font-size:8.5px;color:var(--t3);margin-top:4px;}
+.mrev-vs{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:10px;margin-top:6px;display:inline-flex;align-items:center;gap:3px;}
+.mrev-vs.up{background:rgba(16,185,129,.12);color:#10b981;}
+.mrev-vs.down{background:rgba(244,63,94,.1);color:#f43f5e;}
+.mrev-vs.eq{background:rgba(100,116,139,.1);color:var(--t3);}
+
 </style>
 <head>
 <meta charset="UTF-8"/>
@@ -1469,6 +1529,111 @@ document.addEventListener('DOMContentLoaded',function(){
           </div>
         </div>
 
+
+        <!-- ═══ REVENUE & PELANGGAN — OWNER ONLY ═══ -->
+        <div id="rev-owner-section" style="display:none;">
+
+          <!-- Header -->
+          <div class="rev-header" style="margin-top:20px;">
+            <div class="rev-title">PENDAPATAN & PELANGGAN</div>
+            <span class="rev-owner-badge">👑 OWNER ONLY</span>
+          </div>
+
+          <!-- Total Pelanggan 4 kolom -->
+          <div class="cust-grid" style="margin-bottom:14px;">
+            <div class="cust-card">
+              <div class="cust-val" id="rev-cust-total">0</div>
+              <div class="cust-lbl"><span class="cust-dot" style="background:#0ea5e9;"></span>Total Pelanggan</div>
+            </div>
+            <div class="cust-card">
+              <div class="cust-val" id="rev-cust-active" style="color:#10b981;">0</div>
+              <div class="cust-lbl"><span class="cust-dot" style="background:#10b981;"></span>Aktif</div>
+            </div>
+            <div class="cust-card">
+              <div class="cust-val" id="rev-cust-revoked" style="color:#f43f5e;">0</div>
+              <div class="cust-lbl"><span class="cust-dot" style="background:#f43f5e;"></span>Dicabut</div>
+            </div>
+            <div class="cust-card">
+              <div class="cust-val" id="rev-cust-expired" style="color:#f59e0b;">0</div>
+              <div class="cust-lbl"><span class="cust-dot" style="background:#f59e0b;"></span>Expired</div>
+            </div>
+          </div>
+
+          <!-- Revenue cards grid -->
+          <div class="rev-grid">
+            <!-- TOTAL KESELURUHAN — big card -->
+            <div class="rev-card rc-gold rev-big">
+              <div class="rev-clabel">💰 TOTAL PENDAPATAN KESELURUHAN</div>
+              <div class="rev-amount">
+                <span class="rev-cur">Rp</span>
+                <span id="rev-grand-total">0</span>
+              </div>
+              <div class="rev-sub">Akumulasi dari seluruh key yang pernah digunakan</div>
+            </div>
+
+            <!-- Bulan ini -->
+            <div class="rev-card rc-green">
+              <div class="rev-clabel">📅 BULAN INI</div>
+              <div class="rev-amount">
+                <span class="rev-cur">Rp</span>
+                <span id="rev-this-month">0</span>
+              </div>
+              <div class="rev-sub" id="rev-this-month-label">— pelanggan baru</div>
+              <div class="rev-delta neutral" id="rev-this-month-vs">vs bulan lalu</div>
+            </div>
+
+            <!-- Bulan lalu -->
+            <div class="rev-card rc-blue">
+              <div class="rev-clabel">🗓 BULAN LALU</div>
+              <div class="rev-amount">
+                <span class="rev-cur">Rp</span>
+                <span id="rev-last-month">0</span>
+              </div>
+              <div class="rev-sub" id="rev-last-month-label">— pelanggan</div>
+            </div>
+          </div>
+
+          <!-- Per-bulan detail (ini bulan vs lalu) -->
+          <div class="month-rev-grid" style="margin-bottom:14px;">
+            <div class="mrev-card">
+              <div class="mrev-label">📊 Bulan Ini — Rincian</div>
+              <div class="mrev-amount"><span class="mrev-cur">Rp </span><span id="mrev-this-amt">0</span></div>
+              <div class="mrev-count" id="mrev-this-count">0 key terjual</div>
+              <div id="mrev-this-breakdown" style="margin-top:8px;font-family:var(--mono);font-size:8px;color:var(--t3);"></div>
+            </div>
+            <div class="mrev-card">
+              <div class="mrev-label">📊 Bulan Lalu — Rincian</div>
+              <div class="mrev-amount"><span class="mrev-cur">Rp </span><span id="mrev-last-amt">0</span></div>
+              <div class="mrev-count" id="mrev-last-count">0 key terjual</div>
+              <div id="mrev-last-breakdown" style="margin-top:8px;font-family:var(--mono);font-size:8px;color:var(--t3);"></div>
+            </div>
+          </div>
+
+          <!-- Per-product revenue table -->
+          <div class="chart-card" style="margin-bottom:20px;">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Pendapatan Per Produk</div>
+                <div class="chart-sub">Hanya key yang sudah digunakan (used=true)</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="renderRevenue()" style="font-size:8px;">↻ REFRESH</button>
+            </div>
+            <div style="padding:0 16px 16px;">
+              <table class="prod-tbl" id="rev-prod-table">
+                <thead>
+                  <tr>
+                    <th>PRODUK</th>
+                    <th>HARGA</th>
+                    <th style="text-align:center;">KEY TERJUAL</th>
+                    <th style="text-align:right;">TOTAL</th>
+                  </tr>
+                </thead>
+                <tbody id="rev-prod-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div><!-- /rev-owner-section -->
         <!-- Charts row -->
         <div class="chart-grid">
           <div class="chart-card">
@@ -2301,6 +2466,7 @@ function adminLogin(){
       enterApp();
       /* Log admin login */
       pushActivityFS('login','Admin <b>'+(data.name||data.username)+'</b> login ke dashboard',currentAdmin.name||currentAdmin.username);
+      renderRevenue();
     }).catch(function(e){err.textContent='Connection error: '+e.message;err.style.display='block';});
 }
 gi('adm-pass').addEventListener('keydown',function(e){if(e.key==='Enter')adminLogin();});
@@ -2935,6 +3101,176 @@ function removeAdmin(id,username){
 window.addAdmin=addAdmin;window.removeAdmin=removeAdmin;
 
 /* ══ OVERVIEW STATS ══ */
+
+/* ═══════════════════════════════════════════════════════════════
+   REVENUE & PELANGGAN SYSTEM — OWNER ONLY
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Harga produk (Rp) */
+var PRODUCT_PRICES = {
+  'ATOMIC PRO':   50000,
+  'APOCALYPSE':   150000,
+  'BLAZE':        200000,
+  'ZX PRIVATE':   220000,
+  'ZX CORE':      65000,
+  'ZX APEX':      155000,
+  'ZX EXCLUSIVE': 215000,
+  'CYBER PRO':    100000,
+  'INSANITY MAX': 175000
+};
+
+/* Format Rupiah: 1500000 → "1.500.000" */
+function fmtRp(n) {
+  return Math.round(n).toLocaleString('id-ID');
+}
+
+/* Hitung revenue dari array keys (hanya yang used=true) */
+function calcRevenue(keys) {
+  return keys.reduce(function(sum, k) {
+    if (!k.used) return sum;
+    var proj = (k.project || '').toUpperCase().trim();
+    return sum + (PRODUCT_PRICES[proj] || 0);
+  }, 0);
+}
+
+/* Keys bulan ini (berdasarkan createdAt) */
+function getMonthKeys(monthOffset) {
+  var now = new Date();
+  var target = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  return allKeys.filter(function(k) {
+    if (!k.createdAt) return false;
+    var d = k.createdAt.toDate ? k.createdAt.toDate()
+          : new Date(k.createdAt.seconds ? k.createdAt.seconds * 1000 : 0);
+    return d.getFullYear() === target.getFullYear() &&
+           d.getMonth()    === target.getMonth();
+  });
+}
+
+/* Breakdown per produk untuk periode tertentu */
+function getBreakdown(keys) {
+  var map = {};
+  keys.filter(function(k){ return k.used; }).forEach(function(k) {
+    var p = (k.project || 'Unknown').trim();
+    map[p] = (map[p] || 0) + 1;
+  });
+  return map;
+}
+
+/* Render breakdown string singkat */
+function renderBreakdownStr(keys) {
+  var bk = getBreakdown(keys);
+  if (!Object.keys(bk).length) return '—';
+  return Object.keys(bk).map(function(p) {
+    return bk[p] + '× ' + p;
+  }).join(' · ');
+}
+
+/* Render revenue section — dipanggil tiap update */
+function renderRevenue() {
+  /* Hanya tampil untuk owner */
+  var sec = gi('rev-owner-section');
+  if (!sec) return;
+  var isOwner = currentAdmin && currentAdmin.role === 'owner';
+  sec.style.display = isOwner ? '' : 'none';
+  if (!isOwner) return;
+
+  var now = new Date();
+
+  /* ── Total Pelanggan ── */
+  var totalCust  = allKeys.length;
+  var activeCust = allKeys.filter(function(k){ return k.active && !isExpired(k); }).length;
+  var revokedCust= allKeys.filter(function(k){ return !k.active; }).length;
+  var expiredCust= allKeys.filter(function(k){ return k.active && isExpired(k); }).length;
+
+  si('rev-cust-total',   totalCust);
+  si('rev-cust-active',  activeCust);
+  si('rev-cust-revoked', revokedCust);
+  si('rev-cust-expired', expiredCust);
+
+  /* ── Revenue keseluruhan (semua key yang pernah used) ── */
+  var grandTotal  = calcRevenue(allKeys);
+  si('rev-grand-total', fmtRp(grandTotal));
+
+  /* ── Bulan ini ── */
+  var thisMonthKeys = getMonthKeys(0);
+  var thisMonthRev  = calcRevenue(thisMonthKeys);
+  var thisMonthUsed = thisMonthKeys.filter(function(k){ return k.used; }).length;
+  si('rev-this-month', fmtRp(thisMonthRev));
+  si('rev-this-month-label', thisMonthUsed + ' pelanggan baru bulan ini');
+  si('mrev-this-amt',   fmtRp(thisMonthRev));
+  si('mrev-this-count', thisMonthUsed + ' key terjual');
+  si('mrev-this-breakdown', renderBreakdownStr(thisMonthKeys));
+
+  /* ── Bulan lalu ── */
+  var lastMonthKeys = getMonthKeys(-1);
+  var lastMonthRev  = calcRevenue(lastMonthKeys);
+  var lastMonthUsed = lastMonthKeys.filter(function(k){ return k.used; }).length;
+  si('rev-last-month', fmtRp(lastMonthRev));
+  si('rev-last-month-label', lastMonthUsed + ' pelanggan');
+  si('mrev-last-amt',   fmtRp(lastMonthRev));
+  si('mrev-last-count', lastMonthUsed + ' key terjual');
+  si('mrev-last-breakdown', renderBreakdownStr(lastMonthKeys));
+
+  /* ── vs label bulan ini vs bulan lalu ── */
+  var vsEl = gi('rev-this-month-vs');
+  if (vsEl) {
+    if (lastMonthRev === 0 && thisMonthRev > 0) {
+      vsEl.className = 'rev-delta up';
+      vsEl.textContent = '▲ Baru mulai';
+    } else if (lastMonthRev === 0) {
+      vsEl.className = 'rev-delta neutral';
+      vsEl.textContent = '— belum ada data';
+    } else {
+      var diff = thisMonthRev - lastMonthRev;
+      var pct  = Math.round(Math.abs(diff) / lastMonthRev * 100);
+      if (diff > 0) {
+        vsEl.className = 'rev-delta up';
+        vsEl.textContent = '▲ +' + pct + '% vs bulan lalu';
+      } else if (diff < 0) {
+        vsEl.className = 'rev-delta neutral';
+        vsEl.textContent = '▼ -' + pct + '% vs bulan lalu';
+      } else {
+        vsEl.className = 'rev-delta neutral';
+        vsEl.textContent = '→ Sama dengan bulan lalu';
+      }
+    }
+  }
+
+  /* ── Per-product table ── */
+  var tbody = gi('rev-prod-body');
+  if (!tbody) return;
+  var products = Object.keys(PRODUCT_PRICES).sort();
+  var maxRev   = 0;
+  var rows     = products.map(function(p) {
+    var price    = PRODUCT_PRICES[p];
+    var projKeys = allKeys.filter(function(k){ return (k.project||'').toUpperCase().trim() === p; });
+    var soldKeys = projKeys.filter(function(k){ return k.used; });
+    var revenue  = soldKeys.length * price;
+    if (revenue > maxRev) maxRev = revenue;
+    return { proj: p, price: price, sold: soldKeys.length, total: projKeys.length, revenue: revenue };
+  }).filter(function(r){ return r.total > 0; })
+    .sort(function(a,b){ return b.revenue - a.revenue; });
+
+  var html = '';
+  rows.forEach(function(r) {
+    var barPct = maxRev > 0 ? Math.round(r.revenue / maxRev * 100) : 0;
+    html += '<tr>';
+    html += '<td><div>' + r.proj + '</div>' +
+            '<div class="prod-bar"><div class="prod-bar-fill" style="width:' + barPct + '%;"></div></div></td>';
+    html += '<td style="color:var(--t3);">Rp ' + fmtRp(r.price) + '</td>';
+    html += '<td class="cnt">' + r.sold + ' <span style="color:var(--t3);font-size:8px;">/ ' + r.total + '</span></td>';
+    html += '<td class="amt">Rp ' + fmtRp(r.revenue) + '</td>';
+    html += '</tr>';
+  });
+  if (!rows.length) {
+    html = '<tr><td colspan="4" style="text-align:center;color:var(--t3);padding:20px;">Belum ada data penjualan</td></tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+/* Helper set innerHTML */
+function si(id, val) { var el = gi(id); if (el) el.textContent = val; }
+
 function updateOverviewStats(){
   var total=allKeys.length;
   var active=allKeys.filter(function(k){return k.active;}).length;
@@ -2953,6 +3289,7 @@ function updateOverviewStats(){
   var ovp=gi('ov-projects');if(ovp)ovp.textContent=allProjects.length;
   var nb=gi('nb-keys');if(nb)nb.textContent=total;
   if(typeof updateDrawerBadges==='function')updateDrawerBadges();
+  renderRevenue();
   var pct=total>0?Math.round(active/total*100)+'%':'—';
   var ap=gi('ov-active-pct');if(ap){ap.textContent=pct+' active';ap.className='stat-delta neutral';}
   var upct=total>0?Math.round(used/total*100)+'%':'—';
