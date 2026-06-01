@@ -401,7 +401,7 @@ body.mobile-mode .nav-drawer{display:block;}
 .rev-card.rc-blue::before{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
 .rev-card.rc-purple::before{background:linear-gradient(90deg,#818cf8,#a78bfa);}
 .rev-card.rc-cyan::before{background:linear-gradient(90deg,#06b6d4,#22d3ee);}
-.rev-clabel{font-family:var(--mono);font-size:7.5px;letter-spacing:.12em;color:var(--t3);margin-bottom:8px;text-transform:uppercase;}
+.rev-clabel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:#ffffff;font-weight:700;margin-bottom:10px;text-transform:uppercase;text-shadow:0 0 20px rgba(255,255,255,.1);}
 .rev-amount{font-family:var(--hud);font-size:22px;font-weight:700;color:var(--t1);line-height:1.1;letter-spacing:-.01em;}
 .rev-amount .rev-cur{font-size:11px;color:var(--t3);margin-right:2px;font-weight:400;}
 .rev-amount .rev-unit{font-size:11px;color:var(--t3);font-weight:400;}
@@ -413,16 +413,9 @@ body.mobile-mode .nav-drawer{display:block;}
 .rev-big .rev-amount{font-size:32px;}
 
 /* Pelanggan stats */
-.cust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
-@media(max-width:600px){.cust-grid{grid-template-columns:repeat(2,1fr);}}
-.cust-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px;text-align:center;}
-.cust-val{font-family:var(--hud);font-size:26px;font-weight:700;color:var(--t1);}
-.cust-lbl{font-family:var(--mono);font-size:7.5px;letter-spacing:.1em;color:var(--t3);margin-top:4px;text-transform:uppercase;}
-.cust-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:middle;}
-
 /* Per-product revenue table */
 .prod-tbl{width:100%;border-collapse:collapse;}
-.prod-tbl th{font-family:var(--mono);font-size:7.5px;letter-spacing:.1em;color:var(--t3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);}
+.prod-tbl th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:#e2eeff;font-weight:700;padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);}
 .prod-tbl td{font-family:var(--mono);font-size:9.5px;color:var(--t2);padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);}
 .prod-tbl tr:last-child td{border-bottom:none;}
 .prod-tbl td.amt{color:var(--t1);font-weight:700;text-align:right;}
@@ -434,7 +427,7 @@ body.mobile-mode .nav-drawer{display:block;}
 .month-rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 @media(max-width:500px){.month-rev-grid{grid-template-columns:1fr;}}
 .mrev-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;}
-.mrev-label{font-family:var(--mono);font-size:7.5px;color:var(--t3);letter-spacing:.1em;margin-bottom:6px;text-transform:uppercase;}
+.mrev-label{font-family:var(--mono);font-size:10px;color:#ffffff;font-weight:700;letter-spacing:.1em;margin-bottom:8px;text-transform:uppercase;}
 .mrev-amount{font-family:var(--hud);font-size:20px;font-weight:700;color:var(--t1);}
 .mrev-cur{font-size:10px;color:var(--t3);font-weight:400;}
 .mrev-count{font-family:var(--mono);font-size:8.5px;color:var(--t3);margin-top:4px;}
@@ -442,6 +435,35 @@ body.mobile-mode .nav-drawer{display:block;}
 .mrev-vs.up{background:rgba(16,185,129,.12);color:#10b981;}
 .mrev-vs.down{background:rgba(244,63,94,.1);color:#f43f5e;}
 .mrev-vs.eq{background:rgba(100,116,139,.1);color:var(--t3);}
+
+
+/* ═══ DESKTOP MODE LAYOUT ═══ */
+body.desktop-mode .rev-grid{grid-template-columns:2fr 1fr 1fr;}
+body.desktop-mode .month-rev-grid{grid-template-columns:1fr 1fr;}
+body.desktop-mode .chart-grid{grid-template-columns:1.6fr 1fr;}
+body.desktop-mode .chart-grid-2{grid-template-columns:1fr 1fr;}
+body.desktop-mode .rg4{grid-template-columns:repeat(4,1fr);}
+body.desktop-mode .rg4-14{grid-template-columns:repeat(4,1fr);}
+body.desktop-mode .overview-grad-grid{grid-template-columns:repeat(3,1fr);}
+body.desktop-mode .page{padding:24px 32px;}
+body.desktop-mode .topbar{padding:0 24px 0 32px;}
+body.desktop-mode .content{padding-top:58px;}
+/* Revenue section desktop: full 3 col grid */
+body.desktop-mode #rev-owner-section .rev-grid{grid-template-columns:2fr 1fr 1fr;}
+body.desktop-mode #rev-owner-section .cust-grid{grid-template-columns:repeat(4,1fr);}
+/* Wider table in desktop */
+body.desktop-mode .prod-tbl{font-size:11px;}
+body.desktop-mode .prod-tbl td{padding:11px 14px;}
+body.desktop-mode .prod-tbl th{padding:10px 14px;font-size:10px;}
+/* Card padding bigger in desktop */
+body.desktop-mode .rev-card{padding:22px;}
+body.desktop-mode .mrev-card{padding:18px;}
+body.desktop-mode .rev-amount{font-size:28px;}
+body.desktop-mode .rev-big .rev-amount{font-size:38px;}
+body.desktop-mode .mrev-amount{font-size:24px;}
+/* Mode button label */
+body.desktop-mode #mode-btn-label::before{content:'🖥 ';}
+body.mobile-mode #mode-btn-label::before{content:'📱 ';}
 
 </style>
 <head>
@@ -3177,15 +3199,7 @@ function renderRevenue() {
   var now = new Date();
 
   /* ── Total Pelanggan ── */
-  var totalCust  = allKeys.length;
-  var activeCust = allKeys.filter(function(k){ return k.active && !isExpired(k); }).length;
-  var revokedCust= allKeys.filter(function(k){ return !k.active; }).length;
-  var expiredCust= allKeys.filter(function(k){ return k.active && isExpired(k); }).length;
 
-  si('rev-cust-total',   totalCust);
-  si('rev-cust-active',  activeCust);
-  si('rev-cust-revoked', revokedCust);
-  si('rev-cust-expired', expiredCust);
 
   /* ── Revenue keseluruhan (semua key yang pernah used) ── */
   var grandTotal  = calcRevenue(allKeys);
