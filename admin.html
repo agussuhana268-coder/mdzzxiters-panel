@@ -1604,7 +1604,7 @@ document.addEventListener('DOMContentLoaded',function(){
               <button class="btn btn-secondary btn-sm" onclick="syncAllKeysToSupabase()" title="Sync semua key aktif ke Supabase">
                 <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                 SYNC → SUPABASE
-              </button>
+              </button> <button class="btn btn-secondary" onclick="syncStatusFromSupabase()" title="Baca status terbaru dari Supabase (used/device)">↻ STATUS</button>
             </div>
           </div>
 
@@ -2591,7 +2591,7 @@ function renderKeys(){
     if(d.generatedBy)html+='<span class="km-tag">by '+d.generatedBy+'</span>';
     if(expInfo){html+='<span class="km-tag km-exp '+expInfo.cls+'">'+expInfo.label+'</span>';}
     else if(!d.expiresAt){html+='<span class="km-tag km-exp none">no expiry</span>';}
-    if(d.deviceId)html+='<span class="km-tag" style="font-size:6.5px;opacity:.5;" title="'+d.deviceId+'">DEV:...'+d.deviceId.slice(-6)+'</span>';
+    if(d.deviceId)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Device: '+d.deviceId+'">📱 ...'+d.deviceId.slice(-8)+'</span>';
     html+='</div></div>';
     html+='<span class="key-status '+sc+'">'+sl+'</span>';
     html+='<button class="btn btn-secondary btn-sm" onclick="copyKey(\''+d.key+'\')">COPY</button>';
@@ -2672,13 +2672,33 @@ function generateKeys(){
   }).catch(function(e){toast('Error: '+e.message,'e');});
 }
 
-function revokeKey(id){
-  showModal('REVOKE KEY','Revoke this key? User loses access immediately.',function(){
+async function revokeKey(id){
+  showModal('REVOKE KEY','Revoke this key? User loses access immediately.',async function(){
     var k=allKeys.find(function(x){return x._id===id;});
-    db.collection('keys').doc(id).update({active:false}).then(function(){
-      toast('Key revoked','s');
+    if(!k){toast('Key not found','e');return;}
+    try{
+      /* 1. Update Firebase → admin UI update */
+      await db.collection('keys').doc(id).update({active:false});
+
+      /* 2. Update Supabase → APK LicenseWatchService akan detect active=false → force logout */
+      var sbRes = await fetch(_SUPA_URL+'/rest/v1/licenses?key=eq.'+encodeURIComponent(k.key),{
+        method:'PATCH',
+        headers:{
+          'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,
+          'Content-Type':'application/json','Prefer':'return=minimal'
+        },
+        body:JSON.stringify({active:false,status:'revoked'})
+      });
+
+      if(sbRes.ok){
+        toast('✓ Key revoked — user akan logout otomatis dalam <60 detik','s',3500);
+      } else {
+        toast('Firebase revoked, Supabase sync gagal — user mungkin tidak logout otomatis','w',4000);
+      }
       if(k)pushActivityFS('revoke','Key <b>'+k.key+'</b> di-revoke oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
-    }).catch(function(e){toast('Error: '+e.message,'e');});
+    }catch(e){
+      toast('Error: '+e.message,'e');
+    }
   },true);
 }
 function copyKey(key){copyClip(key);toast('Copied: '+key,'s',1800);}
@@ -2726,6 +2746,54 @@ async function syncAllKeysToSupabase(){
 }
 window.syncAllKeysToSupabase=syncAllKeysToSupabase;
 window.revokeKey=revokeKey;window.copyKey=copyKey;
+
+/* ══ Sync status FROM Supabase → update tampilan admin ══ */
+async function syncStatusFromSupabase(){
+  if(!allKeys.length){toast('Load keys dulu','w');return;}
+  toast('Mengambil status terbaru dari Supabase...','i',2000);
+  try{
+    var keyList=allKeys.map(function(k){return k.key;}).filter(Boolean);
+    if(!keyList.length){toast('Tidak ada key','w');return;}
+
+    /* Fetch all keys from Supabase in one call */
+    var res=await fetch(_SUPA_URL+'/rest/v1/licenses?select=key,active,used,device_id,status&limit=1000',{
+      headers:{'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
+    });
+    if(!res.ok){toast('Supabase tidak bisa diakses: '+res.status,'e');return;}
+    var supaData=await res.json();
+
+    /* Build lookup map key → supabase row */
+    var supaMap={};
+    supaData.forEach(function(r){if(r.key)supaMap[r.key.toUpperCase()]=r;});
+
+    /* Update allKeys in memory with Supabase truth */
+    var updated=0;
+    allKeys.forEach(function(k){
+      var sb=supaMap[k.key?k.key.toUpperCase():''];
+      if(!sb)return;
+      /* If Supabase says revoked/inactive → update Firebase doc too */
+      var wasActive=k.active;
+      k.used=sb.used||false;
+      k.active=(sb.active!==false);
+      k.deviceId=sb.device_id||k.deviceId||null;
+      updated++;
+      /* Sync back to Firebase if status changed */
+      if(wasActive&&!k.active){
+        db.collection('keys').doc(k._id).update({active:false}).catch(function(){});
+      }
+      if(sb.used&&!k.used){
+        db.collection('keys').doc(k._id).update({used:true,deviceId:sb.device_id||null}).catch(function(){});
+      }
+    });
+
+    renderKeys();renderProjects();updateOverviewStats();
+    toast('✓ Status diupdate dari Supabase ('+updated+' key)','s',3000);
+  }catch(e){
+    toast('Error: '+e.message,'e');
+  }
+}
+window.syncStatusFromSupabase=syncStatusFromSupabase;
+
 
 /* ══ SESSIONS ══ */
 function loadSessions(){
