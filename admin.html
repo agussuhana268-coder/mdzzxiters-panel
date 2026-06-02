@@ -1290,20 +1290,18 @@ body.sb-open{overflow:hidden;}
 </head>
 <body>
 <script>
-// Mode init — show selector if no saved mode, else apply saved mode
+// Mode init — default mobile if no preference saved
 document.addEventListener('DOMContentLoaded',function(){
-  var saved=localStorage.getItem('zx_mode');
-  if(saved){
-    document.body.classList.add(saved+'-mode');
-    var lbl=document.getElementById('mode-btn-label');
-    if(lbl)lbl.textContent=saved==='desktop'?'DESKTOP':'MOBILE';
-    var im=document.getElementById('mode-icon-mobile');
-    var id2=document.getElementById('mode-icon-desktop');
-    if(im&&id2){im.style.display=saved==='desktop'?'none':'inline';id2.style.display=saved==='desktop'?'inline':'none';}
-    var ms=document.getElementById('mode-select-screen');
-    if(ms)ms.style.display='none';
-  }
-  // If no saved mode, mode-select-screen will show (not forced hidden)
+  var saved=localStorage.getItem('zx_mode')||'mobile';
+  document.body.classList.add(saved+'-mode');
+  var lbl=document.getElementById('mode-btn-label');
+  if(lbl)lbl.textContent=saved==='desktop'?'DESKTOP':'MOBILE';
+  var im=document.getElementById('mode-icon-mobile');
+  var id2=document.getElementById('mode-icon-desktop');
+  if(im&&id2){im.style.display=saved==='desktop'?'none':'inline';id2.style.display=saved==='desktop'?'inline':'none';}
+  // Always hide mode-select-screen on load (accessible via topbar button)
+  var ms=document.getElementById('mode-select-screen');
+  if(ms)ms.style.display='none';
 });
 </script>
 
