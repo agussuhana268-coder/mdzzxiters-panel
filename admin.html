@@ -1290,18 +1290,20 @@ body.sb-open{overflow:hidden;}
 </head>
 <body>
 <script>
-// Mode init — default mobile if no preference saved
+// Mode init — show selector if no saved mode, else apply saved mode
 document.addEventListener('DOMContentLoaded',function(){
-  var saved=localStorage.getItem('zx_mode')||'mobile';
-  document.body.classList.add(saved+'-mode');
-  var lbl=document.getElementById('mode-btn-label');
-  if(lbl)lbl.textContent=saved==='desktop'?'DESKTOP':'MOBILE';
-  var im=document.getElementById('mode-icon-mobile');
-  var id2=document.getElementById('mode-icon-desktop');
-  if(im&&id2){im.style.display=saved==='desktop'?'none':'inline';id2.style.display=saved==='desktop'?'inline':'none';}
-  // Always hide mode-select-screen on load (accessible via topbar button)
-  var ms=document.getElementById('mode-select-screen');
-  if(ms)ms.style.display='none';
+  var saved=localStorage.getItem('zx_mode');
+  if(saved){
+    document.body.classList.add(saved+'-mode');
+    var lbl=document.getElementById('mode-btn-label');
+    if(lbl)lbl.textContent=saved==='desktop'?'DESKTOP':'MOBILE';
+    var im=document.getElementById('mode-icon-mobile');
+    var id2=document.getElementById('mode-icon-desktop');
+    if(im&&id2){im.style.display=saved==='desktop'?'none':'inline';id2.style.display=saved==='desktop'?'inline':'none';}
+    var ms=document.getElementById('mode-select-screen');
+    if(ms)ms.style.display='none';
+  }
+  // If no saved mode, mode-select-screen will show (not forced hidden)
 });
 </script>
 
@@ -1438,13 +1440,6 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="nav-item-ico"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
         <span class="nav-item-label">Kirim Produk</span>
         <span class="nav-badge" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.22);color:#34d399;" id="nb-send-count">0</span>
-      </div>
-      <div class="nav-item" onclick="navTo('resellers');if(!_rsLoaded){_rsLoaded=true;loadResellers();}" id="nav-resellers">
-        <div class="nav-item-ico">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <span class="nav-item-label">Resellers</span>
-        <span class="nav-badge" id="nav-reseller-count" style="display:none;">0</span>
       </div>
       <div class="nav-item" onclick="navTo('team')" id="nav-team">
         <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
@@ -2111,110 +2106,6 @@ document.addEventListener('DOMContentLoaded',function(){
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-
-      <!-- ══ PAGE: RESELLER MANAGEMENT ══ -->
-      <div class="page" id="page-resellers">
-        <div class="page-header">
-          <div>
-            <span class="page-title">Reseller Management</span>
-            <span class="page-sub">MDZZXITERS · RESELLER CONTROL</span>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-sm" onclick="showCreateReseller()" style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.2);color:#10b981;font-family:var(--mono);font-size:8px;padding:7px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
-              <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M12 5v14M5 12h14"/></svg>
-              BUAT RESELLER
-            </button>
-          </div>
-        </div>
-
-        <!-- Stats row -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;" id="rs-stats-grid">
-          <div class="stat-card c-blue">
-            <div class="stat-top"><span class="stat-label">Total Reseller</span><div class="stat-ico blue"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div></div>
-            <span class="stat-val" id="rs-total">0</span><span class="stat-sub">Terdaftar</span>
-          </div>
-          <div class="stat-card c-cyan">
-            <div class="stat-top"><span class="stat-label">Aktif</span><div class="stat-ico cyan"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;"><polyline points="20 6 9 17 4 12"/></svg></div></div>
-            <span class="stat-val" id="rs-active">0</span><span class="stat-sub">Status aktif</span>
-          </div>
-          <div class="stat-card c-rose" style="--rc:var(--rose);">
-            <div class="stat-top"><span class="stat-label">Suspended</span><div class="stat-ico" style="background:rgba(244,63,94,.1);color:var(--rose);width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div></div>
-            <span class="stat-val" id="rs-suspended">0</span><span class="stat-sub">Disuspend</span>
-          </div>
-          <div class="stat-card c-grn">
-            <div class="stat-top"><span class="stat-label">Total Slot</span><div class="stat-ico grn"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div></div>
-            <span class="stat-val" id="rs-slots">0</span><span class="stat-sub">Slot dialokasikan</span>
-          </div>
-        </div>
-
-        <!-- Reseller list -->
-        <div class="chart-card">
-          <div class="chart-head">
-            <div><div class="chart-title">Daftar Reseller</div><div class="chart-sub">Kelola akun reseller</div></div>
-            <div style="display:flex;gap:8px;">
-              <input id="rs-search" placeholder="Cari reseller..." style="background:rgba(14,165,233,.04);border:1px solid var(--bdr);border-radius:7px;padding:6px 12px;color:var(--t1);font-family:var(--mono);font-size:9px;width:160px;" oninput="filterResellers()"/>
-              <button class="btn btn-secondary btn-sm" onclick="loadResellers()">↻</button>
-            </div>
-          </div>
-          <div style="padding:0 16px 16px;">
-            <div style="overflow-x:auto;">
-              <table style="width:100%;border-collapse:collapse;">
-                <thead><tr>
-                  <th style="font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--t2);font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;">Username</th>
-                  <th style="font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--t2);font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;">Email</th>
-                  <th style="font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--t2);font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;">Status</th>
-                  <th style="font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--t2);font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;">Slot Pakai/Total</th>
-                  <th style="font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--t2);font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;">Transaksi</th>
-                  <th style="font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--t2);font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;">Aksi</th>
-                </tr></thead>
-                <tbody id="rs-tbody"><tr><td colspan="6" style="text-align:center;color:var(--t3);padding:24px;font-family:var(--mono);font-size:9px;">Memuat...</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MODAL: Create Reseller -->
-      <div id="modal-create-reseller" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:600;align-items:center;justify-content:center;padding:20px;">
-        <div style="background:var(--glass);border:1px solid var(--bdr);border-radius:18px;padding:28px;width:100%;max-width:440px;">
-          <div style="font-family:var(--hud);font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px;">Buat Reseller Baru</div>
-          <div style="font-size:8.5px;color:var(--t2);margin-bottom:22px;">Akun reseller baru akan dibuat dan bisa langsung login</div>
-          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px;">
-            <div><label style="font-size:8px;letter-spacing:.14em;color:var(--t2);display:block;margin-bottom:5px;text-transform:uppercase;">Username</label>
-            <input id="cr-username" style="width:100%;background:rgba(14,165,233,.04);border:1px solid var(--bdr);border-radius:8px;padding:10px 13px;color:var(--t1);font-family:var(--mono);font-size:11px;" placeholder="reseller_username"/></div>
-            <div><label style="font-size:8px;letter-spacing:.14em;color:var(--t2);display:block;margin-bottom:5px;text-transform:uppercase;">Email</label>
-            <input id="cr-email" type="email" style="width:100%;background:rgba(14,165,233,.04);border:1px solid var(--bdr);border-radius:8px;padding:10px 13px;color:var(--t1);font-family:var(--mono);font-size:11px;" placeholder="email@reseller.com"/></div>
-            <div><label style="font-size:8px;letter-spacing:.14em;color:var(--t2);display:block;margin-bottom:5px;text-transform:uppercase;">Password</label>
-            <input id="cr-pass" type="password" style="width:100%;background:rgba(14,165,233,.04);border:1px solid var(--bdr);border-radius:8px;padding:10px 13px;color:var(--t1);font-family:var(--mono);font-size:11px;" placeholder="min 8 karakter"/></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <div><label style="font-size:8px;letter-spacing:.14em;color:var(--t2);display:block;margin-bottom:5px;text-transform:uppercase;">Slot Awal / Produk</label>
-              <input id="cr-slot" type="number" value="2" min="0" style="width:100%;background:rgba(14,165,233,.04);border:1px solid var(--bdr);border-radius:8px;padding:10px 13px;color:var(--t1);font-family:var(--mono);font-size:11px;"/></div>
-              <div><label style="font-size:8px;letter-spacing:.14em;color:var(--t2);display:block;margin-bottom:5px;text-transform:uppercase;">Status</label>
-              <select id="cr-status" style="width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:10px 13px;color:var(--t1);font-family:var(--mono);font-size:11px;">
-                <option value="active">Active</option><option value="suspended">Suspended</option>
-              </select></div>
-            </div>
-          </div>
-          <div id="cr-msg" style="font-size:9px;color:var(--rose);min-height:16px;margin-bottom:10px;"></div>
-          <div style="display:flex;gap:10px;justify-content:flex-end;">
-            <button onclick="closeRsModal()" style="padding:8px 16px;background:rgba(56,189,248,.07);border:1px solid var(--bdr);border-radius:8px;font-family:var(--mono);font-size:8.5px;color:var(--t2);cursor:pointer;">Batal</button>
-            <button onclick="submitCreateReseller()" style="padding:8px 18px;background:linear-gradient(135deg,#1d4ed8,#0ea5e9);border-radius:8px;font-family:var(--mono);font-size:8.5px;color:#fff;font-weight:700;cursor:pointer;letter-spacing:.08em;" id="cr-btn">BUAT RESELLER</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- MODAL: Slot Management -->
-      <div id="modal-slot-mgmt" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:600;align-items:center;justify-content:center;padding:20px;">
-        <div style="background:var(--glass);border:1px solid var(--bdr);border-radius:18px;padding:28px;width:100%;max-width:480px;">
-          <div style="font-family:var(--hud);font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px;">Kelola Slot</div>
-          <div style="font-size:8.5px;color:var(--t2);margin-bottom:18px;" id="slot-modal-sub">Atur slot produk untuk reseller ini</div>
-          <div id="slot-product-list" style="display:flex;flex-direction:column;gap:10px;max-height:320px;overflow-y:auto;"></div>
-          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
-            <button onclick="closeSlotModal()" style="padding:8px 16px;background:rgba(56,189,248,.07);border:1px solid var(--bdr);border-radius:8px;font-family:var(--mono);font-size:8.5px;color:var(--t2);cursor:pointer;">Tutup</button>
           </div>
         </div>
       </div>
@@ -3092,241 +2983,6 @@ async function syncStatusFromSupabase(){
   }
 }
 window.syncStatusFromSupabase=syncStatusFromSupabase;
-
-/* ═══════════════════════════════════════════════════════════════
-   RESELLER MANAGEMENT — ADMIN PANEL
-   Uses Supabase directly (same backend as reseller panel)
-═══════════════════════════════════════════════════════════════ */
-
-var allResellers  = [];
-var allRsInventory= {};
-var editingRsId   = null;
-
-var RS_PRODUCTS = [
-  {id:'zx_core',      name:'ZX CORE',      defaultSlot:2},
-  {id:'zx_apex',      name:'ZX APEX',      defaultSlot:2},
-  {id:'zx_exclusive', name:'ZX EXCLUSIVE', defaultSlot:4},
-  {id:'cyber_pro',    name:'CYBER PRO',    defaultSlot:2},
-  {id:'insanity_max', name:'INSANITY MAX', defaultSlot:2},
-];
-
-async function sbFetch(endpoint, opts){
-  var headers = Object.assign({
-    'apikey': _SUPA_KEY,
-    'Authorization': 'Bearer ' + _SUPA_KEY,
-    'Content-Type':  'application/json',
-    'Accept':        'application/json',
-    'Prefer':        opts&&opts.prefer ? opts.prefer : 'return=representation'
-  }, opts&&opts.extraHeaders||{});
-  return fetch(_SUPA_URL + endpoint, {
-    method:  (opts&&opts.method)||'GET',
-    headers: headers,
-    body:    opts&&opts.body ? JSON.stringify(opts.body) : undefined
-  });
-}
-
-async function loadResellers(){
-  var res = await sbFetch('/rest/v1/resellers?select=*&order=created_at.desc');
-  if(!res.ok){ toast('Gagal load resellers','e'); return; }
-  allResellers = await res.json();
-
-  // Load inventory totals
-  var inv = await sbFetch('/rest/v1/reseller_inventory?select=*');
-  var invData = inv.ok ? await inv.json() : [];
-  allRsInventory = {};
-  invData.forEach(function(r){
-    if(!allRsInventory[r.reseller_id]) allRsInventory[r.reseller_id]={alloc:0,used:0};
-    allRsInventory[r.reseller_id].alloc += (r.allocated||0);
-    allRsInventory[r.reseller_id].used  += (r.used||0);
-  });
-
-  // Load transaction counts
-  var trx = await sbFetch('/rest/v1/reseller_transactions?select=reseller_id');
-  var trxData = trx.ok ? await trx.json() : [];
-  var trxCount = {};
-  trxData.forEach(function(t){ trxCount[t.reseller_id] = (trxCount[t.reseller_id]||0)+1; });
-
-  allResellers.forEach(function(r){ r._trxCount = trxCount[r.id]||0; });
-
-  renderResellers();
-  renderRsStats();
-}
-
-function renderRsStats(){
-  var total = allResellers.length;
-  var active = allResellers.filter(function(r){return r.status==='active';}).length;
-  var suspended = allResellers.filter(function(r){return r.status==='suspended';}).length;
-  var totalSlot = Object.values(allRsInventory).reduce(function(s,v){return s+(v.alloc||0);},0);
-  si('rs-total', total); si('rs-active', active);
-  si('rs-suspended', suspended); si('rs-slots', totalSlot);
-  var badge = gi('nav-reseller-count');
-  if(badge){badge.style.display=total?'inline':'none';badge.textContent=total;}
-}
-
-function renderResellers(){
-  var search = (gi('rs-search')||{}).value||'';
-  var filtered = allResellers.filter(function(r){
-    return !search || (r.username||'').toLowerCase().includes(search.toLowerCase())
-                   || (r.email||'').toLowerCase().includes(search.toLowerCase());
-  });
-  var tbody = gi('rs-tbody');
-  if(!tbody) return;
-  tbody.innerHTML = filtered.length ? filtered.map(function(r){
-    var inv = allRsInventory[r.id]||{alloc:0,used:0};
-    var rem = inv.alloc - inv.used;
-    var stBadge = r.status==='active'
-      ? '<span style="background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2);font-size:7px;letter-spacing:.1em;padding:2px 8px;border-radius:4px;">ACTIVE</span>'
-      : '<span style="background:rgba(244,63,94,.08);color:#f43f5e;border:1px solid rgba(244,63,94,.15);font-size:7px;letter-spacing:.1em;padding:2px 8px;border-radius:4px;">SUSPENDED</span>';
-    return '<tr>' +
-      '<td style="font-size:10px;font-weight:600;color:var(--t1);">' + (r.username||'-') + '</td>' +
-      '<td style="font-size:8.5px;color:var(--t2);">' + (r.email||'-') + '</td>' +
-      '<td>' + stBadge + '</td>' +
-      '<td style="font-family:var(--mono);font-size:9px;">' +
-        '<span style="color:var(--sky2);">' + inv.used + '</span>' +
-        '<span style="color:var(--t3);"> / ' + inv.alloc + '</span>' +
-        '<span style="color:'+(rem>0?'var(--grn)':'var(--rose)')+';" title="Sisa"> ('+rem+')</span>' +
-      '</td>' +
-      '<td style="color:var(--t4);font-size:9px;">' + r._trxCount + '</td>' +
-      '<td><div style="display:flex;gap:5px;flex-wrap:wrap;">' +
-        '<button onclick="openSlotModal(''+r.id+'',''+escAttr(r.username)+'')" style="padding:4px 9px;background:rgba(14,165,233,.09);border:1px solid rgba(14,165,233,.2);border-radius:5px;font-size:7.5px;color:var(--sky);cursor:pointer;font-family:var(--mono);">SLOT</button>' +
-        (r.status==='active'
-          ? '<button onclick="suspendReseller(''+r.id+'')" style="padding:4px 9px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:5px;font-size:7.5px;color:var(--gold);cursor:pointer;font-family:var(--mono);">SUSPEND</button>'
-          : '<button onclick="reactivateReseller(''+r.id+'')" style="padding:4px 9px;background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.2);border-radius:5px;font-size:7.5px;color:var(--grn);cursor:pointer;font-family:var(--mono);">AKTIFKAN</button>') +
-        '<button onclick="deleteReseller(''+r.id+'',''+escAttr(r.username)+'')" style="padding:4px 9px;background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.15);border-radius:5px;font-size:7.5px;color:var(--rose);cursor:pointer;font-family:var(--mono);">HAPUS</button>' +
-      '</div></td>' +
-    '</tr>';
-  }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:24px;font-size:9px;">Tidak ada reseller ditemukan</td></tr>';
-}
-
-function escAttr(s){ return (s||'').replace(/'/g,"\'"); }
-function filterResellers(){ renderResellers(); }
-
-/* Create Reseller */
-function showCreateReseller(){
-  var m = gi('modal-create-reseller'); if(m){m.style.display='flex';}
-}
-function closeRsModal(){
-  var m = gi('modal-create-reseller'); if(m){m.style.display='none';}
-  ['cr-username','cr-email','cr-pass'].forEach(function(id){var el=gi(id);if(el)el.value='';});
-}
-
-async function submitCreateReseller(){
-  var username = gi('cr-username').value.trim();
-  var email    = gi('cr-email').value.trim();
-  var pass     = gi('cr-pass').value;
-  var slot     = parseInt(gi('cr-slot').value)||2;
-  var status   = gi('cr-status').value;
-  var msg      = gi('cr-msg'); if(msg) msg.textContent = '';
-  if(!username||!email||!pass){ if(msg)msg.textContent='Semua field wajib diisi.'; return; }
-  if(pass.length<8){ if(msg)msg.textContent='Password minimal 8 karakter.'; return; }
-  gi('cr-btn').textContent='Memproses...';
-
-  // Create Supabase Auth user via admin API would require service key
-  // Instead: insert to resellers table with hashed email for now
-  // Full solution needs service_role key on server side
-  var res = await sbFetch('/rest/v1/resellers', {
-    method:'POST',
-    prefer:'return=representation',
-    body:{ username:username, email:email, status:status, created_at: new Date().toISOString() }
-  });
-
-  if(!res.ok){
-    var err = await res.json();
-    if(msg) msg.textContent = (err.message||err.hint||'Gagal membuat reseller');
-    gi('cr-btn').textContent='BUAT RESELLER'; return;
-  }
-  var newReseller = await res.json();
-  var rsId = Array.isArray(newReseller)?newReseller[0].id:newReseller.id;
-
-  // Init inventory for all products
-  var invInserts = RS_PRODUCTS.map(function(p){
-    return {reseller_id:rsId, product_id:p.id, allocated:slot, used:0};
-  });
-  await sbFetch('/rest/v1/reseller_inventory',{method:'POST',prefer:'return=minimal',body:invInserts});
-
-  gi('cr-btn').textContent='BUAT RESELLER';
-  closeRsModal();
-  toast('Reseller "'+username+'" berhasil dibuat','s');
-  loadResellers();
-}
-
-/* Suspend / Reactivate */
-async function suspendReseller(id){
-  showModal('SUSPEND RESELLER','Reseller tidak dapat login setelah disuspend.', async function(){
-    await sbFetch('/rest/v1/resellers?id=eq.'+id,{method:'PATCH',prefer:'return=minimal',body:{status:'suspended'}});
-    toast('Reseller disuspend','s'); loadResellers();
-  }, true);
-}
-async function reactivateReseller(id){
-  await sbFetch('/rest/v1/resellers?id=eq.'+id,{method:'PATCH',prefer:'return=minimal',body:{status:'active'}});
-  toast('Reseller diaktifkan','s'); loadResellers();
-}
-
-/* Delete */
-async function deleteReseller(id, name){
-  showModal('HAPUS RESELLER','Hapus reseller "'+name+'"? Aksi ini tidak dapat diurungkan.', async function(){
-    await sbFetch('/rest/v1/reseller_inventory?reseller_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
-    await sbFetch('/rest/v1/resellers?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
-    toast('Reseller "'+name+'" dihapus','s'); loadResellers();
-  }, true);
-}
-
-/* Slot Management */
-var slotRsId = null;
-async function openSlotModal(rsId, rsName){
-  slotRsId = rsId;
-  gi('slot-modal-sub').textContent = 'Slot untuk: ' + rsName;
-  var inv = await sbFetch('/rest/v1/reseller_inventory?reseller_id=eq.'+rsId+'&select=*');
-  var invData = inv.ok ? await inv.json() : [];
-  var invMap = {};
-  invData.forEach(function(r){ invMap[r.product_id] = r; });
-
-  var html = RS_PRODUCTS.map(function(p){
-    var row = invMap[p.id] || {allocated:0,used:0,product_id:p.id};
-    return '<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;">' +
-      '<div style="flex:1;"><div style="font-family:var(--hud);font-size:9px;font-weight:700;color:var(--t1);letter-spacing:.5px;">'+p.name+'</div>' +
-      '<div style="font-size:8px;color:var(--t3);margin-top:3px;">Terpakai: '+(row.used||0)+'</div></div>' +
-      '<div style="display:flex;align-items:center;gap:6px;">' +
-      '<button onclick="adjustSlot(''+rsId+'',''+p.id+'','+(-1)+')" style="width:28px;height:28px;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.2);border-radius:6px;color:var(--rose);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;">−</button>' +
-      '<input id="slot-'+p.id+'" type="number" value="'+(row.allocated||0)+'" min="'+(row.used||0)+'" style="width:52px;text-align:center;background:rgba(14,165,233,.04);border:1px solid var(--bdr);border-radius:6px;padding:5px;color:var(--t1);font-family:var(--mono);font-size:11px;"/>' +
-      '<button onclick="adjustSlot(''+rsId+'',''+p.id+'',1)" style="width:28px;height:28px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:6px;color:var(--grn);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;">+</button>' +
-      '<button onclick="setSlot(''+rsId+'',''+p.id+'')" style="padding:5px 10px;background:rgba(14,165,233,.1);border:1px solid var(--bdr);border-radius:6px;font-size:7.5px;color:var(--sky);cursor:pointer;font-family:var(--mono);">SET</button>' +
-      '</div></div>';
-  }).join('');
-
-  gi('slot-product-list').innerHTML = html;
-  gi('modal-slot-mgmt').style.display = 'flex';
-}
-
-function closeSlotModal(){ gi('modal-slot-mgmt').style.display='none'; slotRsId=null; }
-
-async function adjustSlot(rsId, prodId, delta){
-  var inp = gi('slot-'+prodId);
-  if(!inp) return;
-  var newVal = Math.max(0, parseInt(inp.value||0) + delta);
-  inp.value = newVal;
-}
-
-async function setSlot(rsId, prodId){
-  var inp = gi('slot-'+prodId);
-  if(!inp) return;
-  var newVal = parseInt(inp.value||0);
-  var res = await sbFetch('/rest/v1/reseller_inventory?reseller_id=eq.'+rsId+'&product_id=eq.'+prodId,
-    {method:'PATCH',prefer:'return=minimal',body:{allocated:newVal}});
-  if(!res.ok){ toast('Gagal update slot','e'); return; }
-  toast('Slot diupdate','s'); loadResellers();
-}
-
-/* Auto-load resellers when page activated */
-var _rsLoaded = false;
-var _origNavTo = typeof navTo === 'function' ? navTo : null;
-
-/* Hook into existing navTo */
-document.addEventListener('click', function(e){
-  var ni = e.target.closest('.nav-item[id="nav-resellers"]');
-  if(ni && !_rsLoaded){ _rsLoaded=true; loadResellers(); }
-});
-
 
 /* Debug tool — verifikasi format expires_at di Supabase untuk trial key */
 async function verifyTrialKey() {
