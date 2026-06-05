@@ -4819,5 +4819,19 @@ function patchTeamList(){
   drawOrbit();
 })();
 </script>
+   <script>
+  // Menggunakan nama 'supabaseClient' agar tidak merusak/bentrok dengan SDK global
+  const supabaseClient = supabase.createClient(
+    "https://miorkkrwldqkmgugppyk.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0"
+  );
+
+  // Mendaftarkannya secara global agar file 'avatar-upload.js' Anda bisa mengaksesnya dengan mudah
+  window.supabaseClient = supabaseClient;
+  window.supabase = supabaseClient; 
+</script>
+
+<script src="avatar-upload.js"></script>
+   
 </body>
 </html>
