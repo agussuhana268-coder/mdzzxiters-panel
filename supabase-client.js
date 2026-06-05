@@ -1,5 +1,3 @@
-// avatar-upload.js
-
 async function uploadAvatar() {
   const fileInput = document.getElementById("avatarInput")
   const file = fileInput.files[0]
@@ -9,12 +7,11 @@ async function uploadAvatar() {
     return
   }
 
-  const adminId = 1 // nanti bisa diganti session login
-
+  const adminId = 1
   const filePath = `admins/${adminId}.png`
 
-  // 1. UPLOAD KE SUPABASE STORAGE
-  const { error: uploadError } = await supabase.storage
+  // UPLOAD
+  const { error: uploadError } = await supabaseClient.storage
     .from("avatars")
     .upload(filePath, file, {
       upsert: true
@@ -26,15 +23,15 @@ async function uploadAvatar() {
     return
   }
 
-  // 2. AMBIL PUBLIC URL
-  const { data } = supabase.storage
+  // GET URL
+  const { data } = supabaseClient.storage
     .from("avatars")
     .getPublicUrl(filePath)
 
   const publicUrl = data.publicUrl
 
-  // 3. SIMPAN KE DATABASE (admins)
-  const { error: dbError } = await supabase
+  // SAVE DB
+  const { error: dbError } = await supabaseClient
     .from("admins")
     .update({ avatar_url: publicUrl })
     .eq("id", adminId)
@@ -45,7 +42,7 @@ async function uploadAvatar() {
     return
   }
 
-  // 4. TAMPILKAN DI UI
+  // SHOW IMAGE
   document.getElementById("previewAvatar").src = publicUrl
 
   alert("Upload berhasil!")
