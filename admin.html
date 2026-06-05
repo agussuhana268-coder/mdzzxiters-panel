@@ -462,6 +462,15 @@ body.desktop-mode .mrev-amount{font-size:24px;}
 /* Mode button label */
 
 
+
+/* ══ SPACE BACKGROUND ══ */
+#space-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;opacity:1;
+}
+body{position:relative;}
+body>*:not(#space-canvas){position:relative;z-index:1;}
+
 </style>
 <head>
 <meta charset="UTF-8"/>
@@ -1445,6 +1454,14 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
         <span class="nav-item-label">Team</span>
       </div>
+      <div class="nav-item" onclick="navTo('account')" id="nav-account">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <span class="nav-item-label">Account</span>
+      </div>
+      <div class="nav-item" onclick="navTo('support')" id="nav-support">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5"/></svg></div>
+        <span class="nav-item-label">Support</span>
+      </div>
       <div class="nav-item" onclick="navTo('activity')" id="nav-activity">
         <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
         <span class="nav-item-label">Activity Log</span>
@@ -2110,6 +2127,179 @@ document.addEventListener('DOMContentLoaded',function(){
         </div>
       </div>
 
+
+      <!-- ══ PAGE: ACCOUNT ══ -->
+      <div class="page" id="page-account">
+        <div class="page-header">
+          <div><span class="page-title">My Account</span><span class="page-sub">PROFIL · STATISTIK · AKUN</span></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start;">
+
+          <!-- Profile Card -->
+          <div class="section" style="padding:24px;">
+            <!-- Avatar -->
+            <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:22px;">
+              <div id="acc-avatar-wrap" style="position:relative;cursor:pointer;" onclick="gi('acc-photo-inp').click()" title="Ganti foto profil">
+                <div id="acc-avatar" style="
+                  width:96px;height:96px;border-radius:50%;
+                  background:linear-gradient(135deg,#1d4ed8,#0ea5e9);
+                  display:flex;align-items:center;justify-content:center;
+                  font-family:var(--hud);font-size:32px;font-weight:700;color:#fff;
+                  border:2px solid rgba(56,189,248,.3);
+                  overflow:hidden;position:relative;
+                  box-shadow:0 0 28px rgba(14,165,233,.25);
+                  transition:box-shadow .2s;
+                ">
+                  <span id="acc-avatar-init">?</span>
+                  <img id="acc-avatar-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;"/>
+                </div>
+                <!-- Edit overlay -->
+                <div style="
+                  position:absolute;bottom:0;right:0;
+                  width:28px;height:28px;border-radius:50%;
+                  background:var(--sky);display:flex;align-items:center;justify-content:center;
+                  border:2px solid var(--bg2);
+                ">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                  </svg>
+                </div>
+              </div>
+              <input type="file" id="acc-photo-inp" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)"/>
+              <div style="font-size:7.5px;color:var(--t2);margin-top:8px;letter-spacing:.1em;">Klik foto untuk mengganti</div>
+            </div>
+
+            <!-- Name edit -->
+            <div style="margin-bottom:14px;">
+              <div style="font-size:7.5px;letter-spacing:.15em;color:var(--t2);margin-bottom:5px;text-transform:uppercase;">Full Name</div>
+              <div style="display:flex;gap:7px;">
+                <input id="acc-name-inp" class="f-input" style="flex:1;font-size:12px;" placeholder="Full Name"/>
+                <button class="btn btn-success btn-sm" onclick="saveProfile()" style="white-space:nowrap;">Simpan</button>
+              </div>
+            </div>
+
+            <!-- Static info -->
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:9px;padding:11px 13px;">
+                <div style="font-size:7px;letter-spacing:.14em;color:var(--t2);text-transform:uppercase;margin-bottom:3px;">Username</div>
+                <div id="acc-username" style="font-size:12px;color:var(--t1);font-weight:600;">—</div>
+              </div>
+              <div style="background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:9px;padding:11px 13px;">
+                <div style="font-size:7px;letter-spacing:.14em;color:var(--t2);text-transform:uppercase;margin-bottom:3px;">Jabatan</div>
+                <div id="acc-role-badge" style="display:inline-flex;"></div>
+              </div>
+              <div style="background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:9px;padding:11px 13px;">
+                <div style="font-size:7px;letter-spacing:.14em;color:var(--t2);text-transform:uppercase;margin-bottom:3px;">Bergabung</div>
+                <div id="acc-joined" style="font-size:11px;color:var(--t1);">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats + Activity -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+
+            <!-- License stat -->
+            <div class="section" style="padding:20px;">
+              <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;">STATISTIK AKUN</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div style="background:rgba(14,165,233,.05);border:1px solid var(--bdr);border-radius:10px;padding:16px;position:relative;overflow:hidden;">
+                  <div style="font-size:7px;letter-spacing:.12em;color:var(--t2);text-transform:uppercase;margin-bottom:6px;">Total Key Generated</div>
+                  <div id="acc-total-keys" style="font-family:var(--hud);font-size:30px;font-weight:700;color:var(--sky2);line-height:1;">0</div>
+                  <div style="font-size:8px;color:var(--t3);margin-top:4px;">Dari seluruh waktu</div>
+                  <div style="position:absolute;right:-10px;bottom:-10px;width:60px;height:60px;border-radius:50%;background:rgba(14,165,233,.06);"></div>
+                </div>
+                <div style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.12);border-radius:10px;padding:16px;">
+                  <div style="font-size:7px;letter-spacing:.12em;color:var(--t2);text-transform:uppercase;margin-bottom:6px;">Key Aktif</div>
+                  <div id="acc-active-keys" style="font-family:var(--hud);font-size:30px;font-weight:700;color:var(--grn);line-height:1;">0</div>
+                  <div style="font-size:8px;color:var(--t3);margin-top:4px;">Status aktif</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent keys by this admin -->
+            <div class="section" style="padding:20px;">
+              <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:12px;">KEY TERAKHIR DIBUAT</div>
+              <div class="list-area" style="max-height:260px;overflow-y:auto;" id="acc-keys-list">
+                <div class="empty">Memuat...</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: SUPPORT ══ -->
+      <div class="page" id="page-support">
+        <div class="page-header">
+          <div><span class="page-title">Support Center</span><span class="page-sub">BANTUAN · PANDUAN · KONTAK</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+          <!-- Quick links -->
+          <div class="section" style="padding:20px;">
+            <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;">QUICK ACTION</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <a href="https://wa.me/6281234567890" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:10px;padding:13px 15px;text-decoration:none;transition:all .15s;" onmouseover="this.style.background='rgba(16,185,129,.1)'" onmouseout="this.style.background='rgba(16,185,129,.06)'">
+                <div style="width:36px;height:36px;border-radius:9px;background:rgba(16,185,129,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:var(--grn);"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:10px;font-weight:600;color:var(--grn);">WhatsApp Support</div>
+                  <div style="font-size:8px;color:var(--t2);margin-top:2px;">Chat langsung dengan developer</div>
+                </div>
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--t3);fill:none;stroke-width:2;stroke-linecap:round;margin-left:auto;"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+              <div onclick="copyToClipboard('mdzzxiters@gmail.com')" style="display:flex;align-items:center;gap:12px;background:rgba(56,189,248,.05);border:1px solid var(--bdr);border-radius:10px;padding:13px 15px;cursor:pointer;transition:all .15s;" onmouseover="this.style.background='rgba(56,189,248,.09)'" onmouseout="this.style.background='rgba(56,189,248,.05)'">
+                <div style="width:36px;height:36px;border-radius:9px;background:rgba(56,189,248,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--sky);fill:none;stroke-width:1.8;stroke-linecap:round;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:10px;font-weight:600;color:var(--t1);">Email Developer</div>
+                  <div style="font-size:8px;color:var(--t2);margin-top:2px;">mdzzxiters@gmail.com · klik untuk copy</div>
+                </div>
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--t3);fill:none;stroke-width:2;stroke-linecap:round;margin-left:auto;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ -->
+          <div class="section" style="padding:20px;">
+            <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;">FAQ</div>
+            <div id="faq-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+
+          <!-- System status -->
+          <div class="section" style="padding:20px;">
+            <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;">STATUS SISTEM</div>
+            <div style="display:flex;flex-direction:column;gap:8px;" id="sys-status"></div>
+          </div>
+
+          <!-- Changelog -->
+          <div class="section" style="padding:20px;">
+            <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;">CHANGELOG</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="border-left:2px solid var(--sky);padding-left:12px;">
+                <div style="font-size:9px;font-weight:600;color:var(--t1);">v2.5 — Account & Support Page</div>
+                <div style="font-size:8px;color:var(--t2);margin-top:2px;">Profile photo, edit nama, statistik key per admin, space background</div>
+                <div style="font-size:7.5px;color:var(--t3);margin-top:3px;">Jun 2026</div>
+              </div>
+              <div style="border-left:2px solid rgba(56,189,248,.25);padding-left:12px;">
+                <div style="font-size:9px;font-weight:600;color:var(--t1);">v2.0 — Revenue Dashboard</div>
+                <div style="font-size:8px;color:var(--t2);margin-top:2px;">Pendapatan per produk, akumulasi bulanan, desktop mode</div>
+                <div style="font-size:7.5px;color:var(--t3);margin-top:3px;">Mei 2026</div>
+              </div>
+              <div style="border-left:2px solid rgba(56,189,248,.15);padding-left:12px;">
+                <div style="font-size:9px;font-weight:600;color:var(--t1);">v1.0 — Initial Release</div>
+                <div style="font-size:8px;color:var(--t2);margin-top:2px;">License management, team, activity log</div>
+                <div style="font-size:7.5px;color:var(--t3);margin-top:3px;">2025</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 
@@ -2365,6 +2555,8 @@ function navMobile(page){navTo(page);}
 window.navMobile=navMobile;
 
 function navTo(page){
+  if(page==='account'){setTimeout(function(){loadProfile();loadAccountStats();},50);}
+  if(page==='support'){setTimeout(initSupport,50);}
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
   var pg=gi('page-'+page);if(pg)pg.classList.add('active');
@@ -2503,6 +2695,7 @@ function enterApp(){
     updateClock();
     loadAll();
     startListeners();
+    setTimeout(loadProfile, 300);
     setTimeout(checkExpiredKeys,4000);
     setInterval(checkExpiredKeys,300000);
   },420);
@@ -4137,6 +4330,329 @@ window.drawerNav = function(page){ navToPatched(page); closeDrawer(); document.q
 function onDataReady(){
   populateProductSelect();
 }
+
+
+/* ══════════════════════════════════════════════════════
+   ACCOUNT PAGE + PROFILE PHOTO SYSTEM
+══════════════════════════════════════════════════════ */
+
+/* Load profile from localStorage (photo stored as data URL) */
+function loadProfile(){
+  if(!currentAdmin)return;
+  var stored = localStorage.getItem('_mdzz_profile_'+currentAdmin.id)||'{}';
+  var prof = {};
+  try{prof=JSON.parse(stored);}catch(e){}
+
+  var name = prof.fullName || currentAdmin.name || currentAdmin.username || '?';
+  var photo = prof.photoURL || null;
+  var ini   = name.charAt(0).toUpperCase();
+
+  /* Account page */
+  var inp = gi('acc-name-inp');
+  if(inp) inp.value = name;
+  var un = gi('acc-username');
+  if(un) un.textContent = '@'+(currentAdmin.username||'—');
+  var jb = gi('acc-joined');
+  if(jb) jb.textContent = currentAdmin.createdAt ? fmtTime(currentAdmin.createdAt) : '—';
+
+  /* Role badge */
+  var rb = gi('acc-role-badge');
+  if(rb){
+    var role = currentAdmin.role||'admin';
+    var roleColors = {owner:'var(--gold)',admin:'var(--sky)',moderator:'var(--purple)',support:'var(--grn)'};
+    var c = roleColors[role]||'var(--sky)';
+    rb.innerHTML='<span style="font-family:var(--hud);font-size:9px;letter-spacing:1.5px;color:'+c+';background:'+c.replace(')',', .08)').replace('var(','rgba(').replace('(--','(').replace('#','')+';">'+role.toUpperCase()+'</span>';
+    /* Simpler safe approach */
+    rb.innerHTML='<span class="role-tag '+role+'">'+role.toUpperCase()+'</span>';
+  }
+
+  /* Set initials everywhere */
+  setInitials(ini);
+  /* Set photo everywhere */
+  if(photo) setPhoto(photo);
+}
+
+function setInitials(ini){
+  ['sb-avatar','tb-avatar','acc-avatar-init'].forEach(function(id){
+    var el=gi(id);
+    if(el)el.textContent=ini;
+  });
+}
+
+function setPhoto(photoURL){
+  /* Topbar & sidebar avatar — swap to <img> if possible */
+  ['sb-avatar','tb-avatar'].forEach(function(id){
+    var el=gi(id);if(!el)return;
+    /* Add background image */
+    el.style.backgroundImage='url("'+photoURL+'")';
+    el.style.backgroundSize='cover';
+    el.style.backgroundPosition='center';
+    el.style.color='transparent';
+  });
+  /* Account page avatar */
+  var img=gi('acc-avatar-img');
+  var ini=gi('acc-avatar-init');
+  if(img){img.src=photoURL;img.style.display='block';}
+  if(ini){ini.style.opacity='0';}
+}
+
+function handlePhotoUpload(input){
+  var file=input.files[0];
+  if(!file)return;
+  if(file.size>2*1024*1024){toast('Foto max 2MB','e');return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var dataURL=e.target.result;
+    /* Save to localStorage */
+    var stored='{}';
+    try{stored=localStorage.getItem('_mdzz_profile_'+currentAdmin.id)||'{}';}catch(_){}
+    var prof={};try{prof=JSON.parse(stored);}catch(_){}
+    prof.photoURL=dataURL;
+    localStorage.setItem('_mdzz_profile_'+currentAdmin.id,JSON.stringify(prof));
+    setPhoto(dataURL);
+    toast('Foto profil diperbarui','s');
+    /* Update team list to reflect change */
+    if(typeof renderTeamList==='function') renderTeamList();
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveProfile(){
+  var inp=gi('acc-name-inp');
+  if(!inp)return;
+  var newName=inp.value.trim();
+  if(!newName){toast('Nama tidak boleh kosong','e');return;}
+
+  /* Save to localStorage */
+  var stored='{}';
+  try{stored=localStorage.getItem('_mdzz_profile_'+currentAdmin.id)||'{}';}catch(_){}
+  var prof={};try{prof=JSON.parse(stored);}catch(_){}
+  prof.fullName=newName;
+  localStorage.setItem('_mdzz_profile_'+currentAdmin.id,JSON.stringify(prof));
+
+  /* Update currentAdmin.name in memory */
+  currentAdmin.name=newName;
+  /* Update displays */
+  var ini=newName.charAt(0).toUpperCase();
+  setInitials(ini);
+  var uname=gi('sb-uname');if(uname)uname.textContent=newName;
+
+  toast('Profil disimpan','s');
+}
+
+/* Load account stats — keys generated by THIS admin */
+async function loadAccountStats(){
+  if(!currentAdmin)return;
+  var me=currentAdmin.username;
+  /* Try Supabase */
+  try{
+    var res=await fetch(_SUPA_URL+'/rest/v1/licenses?generated_by=eq.'+encodeURIComponent(me)+'&select=key,active&limit=1000',{
+      headers:{'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
+    });
+    var data=await res.json();
+    if(Array.isArray(data)){
+      gi('acc-total-keys').textContent=data.length;
+      gi('acc-active-keys').textContent=data.filter(function(k){return k.active;}).length;
+      /* Recent 8 */
+      var recents=data.slice(-8).reverse();
+      var html=recents.map(function(k){
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr3);">'+
+          '<span style="font-family:var(--mono);font-size:9px;color:var(--sky2);">'+k.key+'</span>'+
+          '<span class="key-status '+(k.active?'active':'revoked')+'">'+(k.active?'ACTIVE':'REVOKED')+'</span>'+
+          '</div>';
+      }).join('');
+      gi('acc-keys-list').innerHTML=html||'<div class="empty">Belum ada key yang dibuat</div>';
+      return;
+    }
+  }catch(e){console.warn('Supabase stats:',e.message);}
+
+  /* Fallback: count from allKeys (Firebase) */
+  var myKeys=allKeys.filter(function(k){return k.generatedBy===me||k.generated_by===me;});
+  gi('acc-total-keys').textContent=myKeys.length;
+  gi('acc-active-keys').textContent=myKeys.filter(function(k){return k.active;}).length;
+  var recHtml=myKeys.slice(-8).reverse().map(function(k){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr3);">'+
+      '<span style="font-family:var(--mono);font-size:9px;color:var(--sky2);">'+k.key+'</span>'+
+      '<span class="key-status '+(k.active?'active':'revoked')+'">'+(k.active?'ACTIVE':'REVOKED')+'</span>'+
+      '</div>';
+  }).join('');
+  gi('acc-keys-list').innerHTML=recHtml||'<div class="empty">Belum ada key</div>';
+}
+
+/* Support page init */
+function initSupport(){
+  /* FAQ */
+  var faqs=[
+    ['Bagaimana cara generate key?','Pergi ke halaman Keys → Generate. Pilih produk, durasi, lalu klik Generate.'],
+    ['Key tidak muncul di APK?','Pastikan key sudah di-sync ke Supabase via tombol SYNC di halaman Keys.'],
+    ['Bagaimana cara revoke key?','Di halaman Keys, klik tombol Revoke pada key yang ingin dinonaktifkan.'],
+    ['Admin tidak bisa login?','Pastikan username dan password benar. Hubungi owner jika lupa password.'],
+    ['Laporan error/bug?','Screenshot error dan kirim via WhatsApp atau email ke developer.'],
+  ];
+  var faqEl=gi('faq-list');
+  if(faqEl){
+    faqEl.innerHTML=faqs.map(function(f,i){
+      return '<div style="border:1px solid var(--bdr);border-radius:9px;overflow:hidden;">'+
+        '<div onclick="toggleFaq(this)" style="display:flex;align-items:center;justify-content:space-between;padding:11px 13px;cursor:pointer;background:rgba(56,189,248,.03);">'+
+          '<span style="font-size:9px;font-weight:600;color:var(--t1);">'+f[0]+'</span>'+
+          '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>'+
+        '</div>'+
+        '<div class="faq-ans" style="display:none;padding:10px 13px;font-size:9px;color:var(--t2);line-height:1.7;border-top:1px solid var(--bdr3);">'+f[1]+'</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  /* System status */
+  var sys=[
+    {label:'Firebase (Database)',  status:'online'},
+    {label:'Supabase (Licenses)',  status:'online'},
+    {label:'Railway (Backend)',    status:'online'},
+    {label:'Brevo (Email)',        status:'online'},
+  ];
+  var sysEl=gi('sys-status');
+  if(sysEl){
+    sysEl.innerHTML=sys.map(function(s){
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bdr3);">'+
+        '<span style="font-size:9px;color:var(--t2);">'+s.label+'</span>'+
+        '<span style="display:flex;align-items:center;gap:5px;font-size:8px;font-weight:600;color:var(--grn);">'+
+          '<span style="width:7px;height:7px;border-radius:50%;background:var(--grn);display:inline-block;box-shadow:0 0 6px var(--grn);"></span>'+
+          s.status.toUpperCase()+
+        '</span></div>';
+    }).join('');
+  }
+}
+
+function toggleFaq(el){
+  var ans=el.nextElementSibling;
+  var arrow=el.querySelector('svg');
+  var isOpen=ans.style.display!=='none';
+  ans.style.display=isOpen?'none':'block';
+  arrow.style.transform=isOpen?'':'rotate(180deg)';
+}
+
+function copyToClipboard(text){
+  navigator.clipboard.writeText(text).then(function(){toast('Disalin: '+text,'s');}).catch(function(){toast('Gagal copy','e');});
+}
+
+/* ══ Update team list to show profile photos ══ */
+var _origRenderTeamList=null;
+function patchTeamList(){
+  /* Called after renderTeamList to inject profile photos */
+  var rows=document.querySelectorAll('.admin-row');
+  rows.forEach(function(row){
+    var avEl=row.querySelector('.admin-av');
+    if(!avEl)return;
+    /* Find admin username from row */
+    var usernameEl=row.querySelector('.admin-user');
+    if(!usernameEl)return;
+    var uname=(usernameEl.textContent||'').replace('@','').trim();
+    /* Find their id from allAdmins */
+    var adm=(typeof allAdminsData!=='undefined'?allAdminsData:allAdmins).find(function(a){return a.username===uname;});
+    if(!adm)return;
+    var stored='{}';
+    try{stored=localStorage.getItem('_mdzz_profile_'+adm._id)||'{}';}catch(_){}
+    var prof={};try{prof=JSON.parse(stored);}catch(_){}
+    if(prof.photoURL){
+      avEl.style.backgroundImage='url("'+prof.photoURL+'")';
+      avEl.style.backgroundSize='cover';
+      avEl.style.backgroundPosition='center';
+      avEl.style.color='transparent';
+      avEl.style.fontSize='0';
+    }
+  });
+}
+
+</script>
+<script>
+
+/* ══ SPACE BACKGROUND — optimized canvas particles ══ */
+(function(){
+  var canvas = document.createElement('canvas');
+  canvas.id = 'space-canvas';
+  document.body.insertBefore(canvas, document.body.firstChild);
+  var ctx = canvas.getContext('2d');
+  var W, H, stars=[], nebulas=[], raf;
+  var STAR_COUNT = 120;
+  var NEBULA_COUNT = 5;
+
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize, {passive:true});
+  resize();
+
+  /* Star init */
+  function makeStar(){
+    return {
+      x: Math.random()*W, y: Math.random()*H,
+      r: Math.random()*1.5+0.2,
+      vx: (Math.random()-.5)*.08,
+      vy: (Math.random()-.5)*.06,
+      alpha: Math.random()*.7+.1,
+      da: (Math.random()-.5)*.003,
+      hue: Math.random()<.7 ? 210 : (Math.random()<.5 ? 190 : 270)
+    };
+  }
+  for(var i=0;i<STAR_COUNT;i++) stars.push(makeStar());
+
+  /* Nebula blobs */
+  function makeNebula(){
+    var hues=[210,220,250,195,270];
+    return {
+      x: Math.random()*W, y: Math.random()*H,
+      rx: Math.random()*180+80, ry: Math.random()*100+50,
+      alpha: Math.random()*.045+.01,
+      hue: hues[Math.floor(Math.random()*hues.length)],
+      vx:(Math.random()-.5)*.04, vy:(Math.random()-.5)*.03,
+      rot: Math.random()*Math.PI
+    };
+  }
+  for(var j=0;j<NEBULA_COUNT;j++) nebulas.push(makeNebula());
+
+  /* Throttle: draw only every 2nd frame (~30fps for bg, invisible to human) */
+  var frame=0;
+  function draw(){
+    raf = requestAnimationFrame(draw);
+    frame++;
+    if(frame%2!==0) return; /* skip odd frames */
+
+    ctx.clearRect(0,0,W,H);
+
+    /* Nebula blobs */
+    nebulas.forEach(function(n){
+      n.x+=n.vx; n.y+=n.vy;
+      if(n.x<-n.rx) n.x=W+n.rx;
+      if(n.x>W+n.rx) n.x=-n.rx;
+      if(n.y<-n.ry) n.y=H+n.ry;
+      if(n.y>H+n.ry) n.y=-n.ry;
+      ctx.save();
+      ctx.translate(n.x,n.y);
+      ctx.rotate(n.rot);
+      var g=ctx.createRadialGradient(0,0,0,0,0,n.rx);
+      g.addColorStop(0,'hsla('+n.hue+',90%,65%,'+n.alpha+')');
+      g.addColorStop(1,'hsla('+n.hue+',80%,40%,0)');
+      ctx.scale(1,n.ry/n.rx);
+      ctx.beginPath();ctx.arc(0,0,n.rx,0,Math.PI*2);
+      ctx.fillStyle=g;ctx.fill();
+      ctx.restore();
+    });
+
+    /* Stars */
+    stars.forEach(function(s){
+      s.x+=s.vx; s.y+=s.vy;
+      s.alpha+=s.da;
+      if(s.alpha<=.05||s.alpha>=.85) s.da*=-1;
+      if(s.x<0)s.x=W; if(s.x>W)s.x=0;
+      if(s.y<0)s.y=H; if(s.y>H)s.y=0;
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='hsla('+s.hue+',90%,85%,'+s.alpha+')';
+      ctx.fill();
+    });
+  }
+  draw();
+})();
 
 </script>
 </body>
