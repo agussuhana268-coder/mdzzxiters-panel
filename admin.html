@@ -797,7 +797,7 @@ body.sb-open{overflow:hidden;}
 /* ── CONTENT ── */
 .content{
   flex:1;overflow-y:auto;overflow-x:hidden;
-  background:var(--bg);
+  background:transparent;
   scrollbar-width:thin;
   padding:22px 22px 40px;
   position:relative;
@@ -1485,6 +1485,9 @@ document.addEventListener('DOMContentLoaded',function(){
 
   <!-- MAIN -->
   <div class="main" id="main">
+    <!-- Background effects like login page (dark theme grids + blue orb) -->
+    <div class="login-bg-grid" style="position: absolute; z-index: 0; pointer-events: none;"></div>
+    <div class="login-orb" style="position: absolute; z-index: 0; pointer-events: none; width: 600px; height: 600px; opacity: 0.8;"></div>
     <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-left">
@@ -2141,6 +2144,8 @@ document.addEventListener('DOMContentLoaded',function(){
             <!-- Avatar -->
             <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:22px;">
               <div id="acc-avatar-wrap" style="position:relative;cursor:pointer;" onclick="gi('acc-photo-inp').click()" title="Ganti foto profil">
+                <!-- Glowing orbiting canvas -->
+                <canvas id="avatar-orbit-canvas" width="232" height="232" style="position:absolute;top:-10px;left:-10px;width:116px;height:116px;pointer-events:none;z-index:2;"></canvas>
                 <div id="acc-avatar" style="
                   width:96px;height:96px;border-radius:50%;
                   background:linear-gradient(135deg,#1d4ed8,#0ea5e9);
@@ -2240,7 +2245,7 @@ document.addEventListener('DOMContentLoaded',function(){
           <div class="section" style="padding:20px;">
             <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;">QUICK ACTION</div>
             <div style="display:flex;flex-direction:column;gap:8px;">
-              <a href="https://wa.me/6281234567890" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:10px;padding:13px 15px;text-decoration:none;transition:all .15s;" onmouseover="this.style.background='rgba(16,185,129,.1)'" onmouseout="this.style.background='rgba(16,185,129,.06)'">
+              <a href="https://wa.me/6287833947151" target="_blank" style="display:flex;align-items:center;gap:12px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:10px;padding:13px 15px;text-decoration:none;transition:all .15s;" onmouseover="this.style.background='rgba(16,185,129,.1)'" onmouseout="this.style.background='rgba(16,185,129,.06)'">
                 <div style="width:36px;height:36px;border-radius:9px;background:rgba(16,185,129,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:var(--grn);"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 </div>
@@ -2269,9 +2274,9 @@ document.addEventListener('DOMContentLoaded',function(){
             <div id="faq-list" style="display:flex;flex-direction:column;gap:8px;"></div>
           </div>
 
-          <!-- System status -->
+          <!-- Service Info (Replacer of System Status) -->
           <div class="section" style="padding:20px;">
-            <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;">STATUS SISTEM</div>
+            <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;">INFORMASI LAYANAN</div>
             <div style="display:flex;flex-direction:column;gap:8px;" id="sys-status"></div>
           </div>
 
@@ -2383,6 +2388,14 @@ document.addEventListener('DOMContentLoaded',function(){
       <div class="drawer-item" id="di-team" onclick="drawerNav('team')">
         <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
         <div class="drawer-item-text"><span class="drawer-item-name">Team</span><span class="drawer-item-sub">Admin management</span></div>
+      </div>
+      <div class="drawer-item" id="di-account" onclick="drawerNav('account')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Account</span><span class="drawer-item-sub">Manage profile & stats</span></div>
+      </div>
+      <div class="drawer-item" id="di-support" onclick="drawerNav('support')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">Support</span><span class="drawer-item-sub">FAQ & contact dev</span></div>
       </div>
       <div class="drawer-item" id="di-activity" onclick="drawerNav('activity')">
         <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
@@ -2537,7 +2550,8 @@ function closeMobileSidebar(){
 var pageTitles={
   overview:'Overview',analytics:'Analytics',keys:'Key Management',
   users:'User Sessions',projects:'Projects',team:'Admin Team',activity:'Activity Log',
-  products:'Products — File Manager',send:'Kirim Produk'
+  products:'Products — File Manager',send:'Kirim Produk',
+  account:'Account',support:'Support'
 };
 
 var mobileNavPages=['overview','analytics','keys','users'];
@@ -4502,21 +4516,24 @@ function initSupport(){
     }).join('');
   }
 
-  /* System status */
+  /* Service information */
   var sys=[
-    {label:'Firebase (Database)',  status:'online'},
-    {label:'Supabase (Licenses)',  status:'online'},
-    {label:'Railway (Backend)',    status:'online'},
-    {label:'Brevo (Email)',        status:'online'},
+    {label:'Status Layanan',  value:'Online (Optimal)'},
+    {label:'Jam Kerja Support',  value:'09:00 - 22:00 WIB'},
+    {label:'Rata-rata Respon',    value:'< 15 Menit'},
+    {label:'Keamanan Lisensi',        value:'Secured (SSL/AES)'},
   ];
   var sysEl=gi('sys-status');
   if(sysEl){
     sysEl.innerHTML=sys.map(function(s){
+      var isOnline = s.label === 'Status Layanan';
+      var valueColor = isOnline ? 'var(--grn)' : 'var(--sky2)';
+      var dotHtml = isOnline ? '<span style="width:7px;height:7px;border-radius:50%;background:var(--grn);display:inline-block;box-shadow:0 0 6px var(--grn);"></span>' : '';
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bdr3);">'+
         '<span style="font-size:9px;color:var(--t2);">'+s.label+'</span>'+
-        '<span style="display:flex;align-items:center;gap:5px;font-size:8px;font-weight:600;color:var(--grn);">'+
-          '<span style="width:7px;height:7px;border-radius:50%;background:var(--grn);display:inline-block;box-shadow:0 0 6px var(--grn);"></span>'+
-          s.status.toUpperCase()+
+        '<span style="display:flex;align-items:center;gap:5px;font-size:8px;font-weight:600;color:'+valueColor+';">'+
+          dotHtml+
+          s.value.toUpperCase()+
         '</span></div>';
     }).join('');
   }
@@ -4654,6 +4671,80 @@ function patchTeamList(){
   draw();
 })();
 
+</script>
+<script>
+/* ══ AVATAR ORBIT GLOW ANIMATION ══ */
+(function() {
+  var canvas = document.getElementById('avatar-orbit-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var angle = 0;
+  
+  function drawOrbit() {
+    var page = document.getElementById('page-account');
+    if (!page || page.style.display === 'none' || !page.classList.contains('active')) {
+      requestAnimationFrame(drawOrbit);
+      return;
+    }
+    
+    var w = canvas.width;
+    var h = canvas.height;
+    var cx = w / 2;
+    var cy = h / 2;
+    var r = 106; // radius of orbit on a 232x232 canvas (stretches outside 96px diameter avatar)
+    
+    ctx.clearRect(0, 0, w, h);
+    
+    // Draw background faint glow ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    
+    // Draw glowing orbit path (comet tail)
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, angle - Math.PI * 0.4, angle);
+    var grad = ctx.createLinearGradient(
+      cx + r * Math.cos(angle - Math.PI * 0.4), cy + r * Math.sin(angle - Math.PI * 0.4),
+      cx + r * Math.cos(angle), cy + r * Math.sin(angle)
+    );
+    grad.addColorStop(0, 'rgba(56, 189, 248, 0)');
+    grad.addColorStop(1, 'rgba(56, 189, 248, 0.6)');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    
+    // Draw the main orbiting glowing head (comet/star)
+    var px = cx + r * Math.cos(angle);
+    var py = cy + r * Math.sin(angle);
+    
+    ctx.beginPath();
+    ctx.arc(px, py, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#38bdf8';
+    ctx.shadowBlur = 16;
+    ctx.shadowColor = '#00bcff';
+    ctx.fill();
+    
+    // Reset shadow
+    ctx.shadowBlur = 0;
+    
+    // Secondary opposite particle
+    var px2 = cx + r * Math.cos(angle + Math.PI);
+    var py2 = cy + r * Math.sin(angle + Math.PI);
+    ctx.beginPath();
+    ctx.arc(px2, py2, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#60a5fa';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#2563eb';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    
+    angle += 0.02;
+    requestAnimationFrame(drawOrbit);
+  }
+  drawOrbit();
+})();
 </script>
 </body>
 </html>
