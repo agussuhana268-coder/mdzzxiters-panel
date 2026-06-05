@@ -478,6 +478,7 @@ body>*:not(#space-canvas){position:relative;z-index:1;}
 <title>MDZZXITERS — CONTROL CENTER</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ══════════════════════════════════════════════════════
    RESET + VARIABLES
@@ -3279,6 +3280,7 @@ function renderAdmins(){
     html+='</div>';
   });
   gi('team-list').innerHTML=html;
+  if(typeof patchTeamList==='function') patchTeamList();
 }
 function addAdmin(){
   if(currentAdmin.role!=='owner'){toast('Only owner can add admins','e');return;}
@@ -4410,25 +4412,96 @@ function setPhoto(photoURL){
   if(ini){ini.style.opacity='0';}
 }
 
-function handlePhotoUpload(input){
+async function handlePhotoUpload(input){
   var file=input.files[0];
   if(!file)return;
   if(file.size>2*1024*1024){toast('Foto max 2MB','e');return;}
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var dataURL=e.target.result;
-    /* Save to localStorage */
-    var stored='{}';
-    try{stored=localStorage.getItem('_mdzz_profile_'+currentAdmin.id)||'{}';}catch(_){}
-    var prof={};try{prof=JSON.parse(stored);}catch(_){}
-    prof.photoURL=dataURL;
-    localStorage.setItem('_mdzz_profile_'+currentAdmin.id,JSON.stringify(prof));
-    setPhoto(dataURL);
-    toast('Foto profil diperbarui','s');
-    /* Update team list to reflect change */
-    if(typeof renderTeamList==='function') renderTeamList();
-  };
-  reader.readAsDataURL(file);
+
+  // Get adminId (use adminId = 1 if no login system)
+  var adminId = 1;
+  if(typeof currentAdmin !== 'undefined' && currentAdmin) {
+    if(currentAdmin.adminId) {
+      adminId = currentAdmin.adminId;
+    } else if(currentAdmin.id) {
+      var parsed = parseInt(currentAdmin.id, 10);
+      if(!isNaN(parsed)) {
+        adminId = parsed;
+      }
+    }
+  }
+
+  // Construct unique filename using adminId
+  var ext = file.name.split('.').pop() || 'png';
+  var filePath = 'avatar_' + adminId + '.' + ext;
+
+  try {
+    toast('Mengunggah avatar...','i', 1500);
+
+    // Initialize Supabase Client if not already done
+    if (!window.supabaseClient) {
+      if (typeof supabase === 'undefined') {
+        throw new Error('Supabase SDK tidak termuat. Periksa koneksi internet Anda.');
+      }
+      window.supabaseClient = supabase.createClient(_SUPA_URL, _SUPA_KEY);
+    }
+
+    // Upload to Supabase Storage with upsert: true (overwrite existing file)
+    var { data: uploadData, error: uploadError } = await window.supabaseClient.storage
+      .from('avatars')
+      .upload(filePath, file, {
+        upsert: true,
+        contentType: file.type
+      });
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    // Get public URL from the "avatars" bucket
+    var { data: urlData } = window.supabaseClient.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    var publicUrl = urlData ? urlData.publicUrl : null;
+    if (!publicUrl) {
+      throw new Error('Gagal mendapatkan public URL avatar.');
+    }
+
+    // Save URL to Supabase Table "admins" in column "avatar_url"
+    var { error: dbError } = await window.supabaseClient
+      .from('admins')
+      .update({ avatar_url: publicUrl })
+      .eq('id', adminId);
+
+    var displayUrl = publicUrl + '?t=' + Date.now();
+
+    if (dbError) {
+      console.warn('Gagal memperbarui tabel admins di Supabase:', dbError.message);
+      toast('Terunggah ke storage, database error: ' + dbError.message, 'w', 4000);
+    } else {
+      toast('Foto profil berhasil diperbarui','s');
+    }
+
+    // Update UI immediately (Ensure preview changes directly)
+    setPhoto(displayUrl);
+
+    // Save to localStorage to persist on page refresh
+    if(typeof currentAdmin !== 'undefined' && currentAdmin && currentAdmin.id) {
+      var stored='{}';
+      try{stored=localStorage.getItem('_mdzz_profile_'+currentAdmin.id)||'{}';}catch(_){}
+      var prof={};try{prof=JSON.parse(stored);}catch(_){}
+      prof.photoURL=displayUrl;
+      localStorage.setItem('_mdzz_profile_'+currentAdmin.id,JSON.stringify(prof));
+    }
+
+    // Update team list
+    if(typeof renderAdmins === 'function') renderAdmins();
+    else if(typeof renderTeamList === 'function') renderTeamList();
+
+  } catch(err) {
+    console.error('Photo upload error:', err);
+    toast('Gagal: ' + err.message, 'e', 4000);
+  }
 }
 
 function saveProfile(){
