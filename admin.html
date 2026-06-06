@@ -4430,7 +4430,7 @@ function setPhoto(photoURL){
   if(ini){ini.style.opacity='0';}
 }
 
-async async function handlePhotoUpload(input){
+async function handlePhotoUpload(input){
   var file = input.files[0];
   if(!file) return;
   if(file.size > 3*1024*1024){ toast('Foto max 3MB','e'); return; }
@@ -4809,7 +4809,7 @@ function patchTeamList(){
   window.supabase = supabaseClient; 
 </script>
 
-<script src="avatar-upload.js"></script>
+</script>
    
 </body>
 </html>
