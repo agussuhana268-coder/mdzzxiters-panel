@@ -4420,7 +4420,10 @@ async function handlePhotoUpload(input){
 
   toast('Mengunggah foto...','i', 2000);
   try{
-    var uploadRes = await fetch(_SUPA_URL + '/storage/v1/object/avatar/' + filePath, {
+    /* Nama bucket Supabase Storage — sesuaikan dengan nama bucket kamu */
+    var AVATAR_BUCKET = 'avatar';
+
+    var uploadRes = await fetch(_SUPA_URL + '/storage/v1/object/' + AVATAR_BUCKET + '/' + filePath, {
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + _SUPA_KEY,
@@ -4432,9 +4435,16 @@ async function handlePhotoUpload(input){
     });
     if(!uploadRes.ok){
       var errText = await uploadRes.text();
-      throw new Error('Upload gagal (' + uploadRes.status + '): ' + errText);
+      var parsed = {}; try{parsed=JSON.parse(errText);}catch(_){}
+      if(uploadRes.status===404){
+        throw new Error('Bucket "'+AVATAR_BUCKET+'" tidak ditemukan di Supabase Storage. Pastikan nama bucket benar dan bucket sudah dibuat.');
+      }
+      if(uploadRes.status===403||uploadRes.status===400){
+        throw new Error('Akses ditolak. Jalankan SQL policy di Supabase SQL Editor (lihat instruksi di console).');
+      }
+      throw new Error('Upload gagal (' + uploadRes.status + '): ' + (parsed.message||errText));
     }
-    var publicUrl  = _SUPA_URL + '/storage/v1/object/public/avatar/' + filePath;
+    var publicUrl  = _SUPA_URL + '/storage/v1/object/public/' + AVATAR_BUCKET + '/' + filePath;
     var displayUrl = publicUrl + '?t=' + Date.now();
     await db.collection('admins').doc(currentAdmin.id).update({ avatarUrl: publicUrl });
     currentAdmin.avatarUrl = publicUrl;
