@@ -471,6 +471,94 @@ body.desktop-mode .mrev-amount{font-size:24px;}
 body{position:relative;}
 body>*:not(#space-canvas){position:relative;z-index:1;}
 
+
+/* ══ ACCOUNT PAGE ══ */
+#acc-layout{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:16px;
+  align-items:start;
+}
+.acc-profile-card{padding:24px;}
+
+/* Avatar */
+.acc-av-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  margin-bottom:22px;
+}
+#acc-avatar-wrap{
+  position:relative;cursor:pointer;
+  width:96px;height:96px;
+  display:flex;align-items:center;justify-content:center;
+}
+#acc-avatar{
+  width:96px;height:96px;border-radius:50%;
+  background:linear-gradient(135deg,#1d4ed8,#0ea5e9);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--hud);font-size:32px;font-weight:700;color:#fff;
+  border:2px solid rgba(56,189,248,.3);
+  overflow:hidden;position:relative;
+  box-shadow:0 0 28px rgba(14,165,233,.25);
+  transition:box-shadow .2s;
+}
+.acc-edit-btn{
+  position:absolute;bottom:0;right:0;
+  width:28px;height:28px;border-radius:50%;
+  background:var(--sky);display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--bg2);z-index:3;
+}
+.acc-av-hint{font-size:7.5px;color:var(--t2);margin-top:10px;letter-spacing:.1em;}
+
+/* Fields */
+.acc-field-group{margin-bottom:14px;}
+.acc-field-label{font-size:7.5px;letter-spacing:.15em;color:var(--t2);margin-bottom:5px;text-transform:uppercase;}
+.acc-field-row{display:flex;gap:7px;}
+.acc-name-inp{flex:1;font-size:12px;}
+.acc-save-btn{white-space:nowrap;flex-shrink:0;}
+
+/* Info list */
+.acc-info-list{display:flex;flex-direction:column;gap:0;}
+.acc-info-item{
+  background:rgba(56,189,248,.04);border:1px solid var(--bdr);
+  border-radius:9px;padding:11px 13px;margin-bottom:8px;
+}
+.acc-info-label{font-size:7px;letter-spacing:.14em;color:var(--t2);text-transform:uppercase;margin-bottom:3px;}
+.acc-info-val{font-size:12px;color:var(--t1);font-weight:600;}
+
+/* Right column */
+.acc-right-col{display:flex;flex-direction:column;gap:14px;}
+.acc-stats-section{padding:20px;}
+.acc-section-title{font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;}
+.acc-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.acc-stat-card{border-radius:10px;padding:16px;position:relative;overflow:hidden;}
+.acc-stat-blue{background:rgba(14,165,233,.05);border:1px solid var(--bdr);}
+.acc-stat-green{background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.12);}
+.acc-stat-label{font-size:7px;letter-spacing:.12em;color:var(--t2);text-transform:uppercase;margin-bottom:6px;}
+.acc-stat-val{font-family:var(--hud);font-size:30px;font-weight:700;color:var(--sky2);line-height:1;}
+.acc-stat-sub{font-size:8px;color:var(--t3);margin-top:4px;}
+.acc-keys-section{padding:20px;}
+.acc-keys-list{max-height:240px;overflow-y:auto;}
+
+/* ══ MOBILE ACCOUNT ══ */
+@media(max-width:768px){
+  #acc-layout{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .acc-profile-card{
+    padding:20px 16px;
+  }
+  .acc-av-wrap{margin-bottom:18px;}
+  .acc-stats-grid{grid-template-columns:1fr 1fr;}
+  .acc-stat-val{font-size:26px;}
+  .acc-keys-list{max-height:180px;}
+}
+@media(max-width:400px){
+  .acc-stats-grid{grid-template-columns:1fr 1fr;}
+  .acc-field-row{flex-wrap:wrap;}
+  .acc-save-btn{width:100%;}
+}
+
 </style>
 <head>
 <meta charset="UTF-8"/>
@@ -2140,95 +2228,77 @@ document.addEventListener('DOMContentLoaded',function(){
           <div><span class="page-title">My Account</span><span class="page-sub">PROFIL · STATISTIK · AKUN</span></div>
         </div>
 
-        <div style="display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start;">
+        <div id="acc-layout">
 
-          <!-- Profile Card -->
-          <div class="section" style="padding:24px;">
-            <!-- Avatar -->
-            <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:22px;">
-              <div id="acc-avatar-wrap" style="position:relative;cursor:pointer;" onclick="gi('acc-photo-inp').click()" title="Ganti foto profil">
-                <!-- Glowing orbiting canvas -->
-                <canvas id="avatar-orbit-canvas" width="232" height="232" style="position:absolute;top:-10px;left:-10px;width:116px;height:116px;pointer-events:none;z-index:2;"></canvas>
-                <div id="acc-avatar" style="
-                  width:96px;height:96px;border-radius:50%;
-                  background:linear-gradient(135deg,#1d4ed8,#0ea5e9);
-                  display:flex;align-items:center;justify-content:center;
-                  font-family:var(--hud);font-size:32px;font-weight:700;color:#fff;
-                  border:2px solid rgba(56,189,248,.3);
-                  overflow:hidden;position:relative;
-                  box-shadow:0 0 28px rgba(14,165,233,.25);
-                  transition:box-shadow .2s;
-                ">
+          <!-- ── Profile Card ── -->
+          <div class="acc-profile-card section">
+
+            <!-- Avatar centered -->
+            <div class="acc-av-wrap">
+              <div id="acc-avatar-wrap" onclick="gi('acc-photo-inp').click()" title="Ganti foto profil">
+                <canvas id="avatar-orbit-canvas" width="232" height="232" style="position:absolute;top:-18px;left:-18px;width:132px;height:132px;pointer-events:none;z-index:2;"></canvas>
+                <div id="acc-avatar">
                   <span id="acc-avatar-init">?</span>
                   <img id="acc-avatar-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;"/>
                 </div>
-                <!-- Edit overlay -->
-                <div style="
-                  position:absolute;bottom:0;right:0;
-                  width:28px;height:28px;border-radius:50%;
-                  background:var(--sky);display:flex;align-items:center;justify-content:center;
-                  border:2px solid var(--bg2);
-                ">
-                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;">
-                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
-                  </svg>
+                <div class="acc-edit-btn">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
                 </div>
               </div>
               <input type="file" id="acc-photo-inp" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)"/>
-              <div style="font-size:7.5px;color:var(--t2);margin-top:8px;letter-spacing:.1em;">Klik foto untuk mengganti</div>
+              <div class="acc-av-hint">Klik foto untuk mengganti</div>
             </div>
 
             <!-- Name edit -->
-            <div style="margin-bottom:14px;">
-              <div style="font-size:7.5px;letter-spacing:.15em;color:var(--t2);margin-bottom:5px;text-transform:uppercase;">Full Name</div>
-              <div style="display:flex;gap:7px;">
-                <input id="acc-name-inp" class="f-input" style="flex:1;font-size:12px;" placeholder="Full Name"/>
-                <button class="btn btn-success btn-sm" onclick="saveProfile()" style="white-space:nowrap;">Simpan</button>
+            <div class="acc-field-group">
+              <div class="acc-field-label">Full Name</div>
+              <div class="acc-field-row">
+                <input id="acc-name-inp" class="f-input acc-name-inp" placeholder="Full Name"/>
+                <button class="btn btn-success acc-save-btn" onclick="saveProfile()">Simpan</button>
               </div>
             </div>
 
             <!-- Static info -->
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <div style="background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:9px;padding:11px 13px;">
-                <div style="font-size:7px;letter-spacing:.14em;color:var(--t2);text-transform:uppercase;margin-bottom:3px;">Username</div>
-                <div id="acc-username" style="font-size:12px;color:var(--t1);font-weight:600;">—</div>
+            <div class="acc-info-list">
+              <div class="acc-info-item">
+                <div class="acc-info-label">Username</div>
+                <div id="acc-username" class="acc-info-val">—</div>
               </div>
-              <div style="background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:9px;padding:11px 13px;">
-                <div style="font-size:7px;letter-spacing:.14em;color:var(--t2);text-transform:uppercase;margin-bottom:3px;">Jabatan</div>
-                <div id="acc-role-badge" style="display:inline-flex;"></div>
+              <div class="acc-info-item">
+                <div class="acc-info-label">Jabatan</div>
+                <div id="acc-role-badge"></div>
               </div>
-              <div style="background:rgba(56,189,248,.04);border:1px solid var(--bdr);border-radius:9px;padding:11px 13px;">
-                <div style="font-size:7px;letter-spacing:.14em;color:var(--t2);text-transform:uppercase;margin-bottom:3px;">Bergabung</div>
-                <div id="acc-joined" style="font-size:11px;color:var(--t1);">—</div>
+              <div class="acc-info-item">
+                <div class="acc-info-label">Bergabung</div>
+                <div id="acc-joined" class="acc-info-val">—</div>
               </div>
             </div>
           </div>
 
-          <!-- Stats + Activity -->
-          <div style="display:flex;flex-direction:column;gap:14px;">
+          <!-- ── Stats + Keys ── -->
+          <div class="acc-right-col">
 
-            <!-- License stat -->
-            <div class="section" style="padding:20px;">
-              <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:14px;">STATISTIK AKUN</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div style="background:rgba(14,165,233,.05);border:1px solid var(--bdr);border-radius:10px;padding:16px;position:relative;overflow:hidden;">
-                  <div style="font-size:7px;letter-spacing:.12em;color:var(--t2);text-transform:uppercase;margin-bottom:6px;">Total Key Generated</div>
-                  <div id="acc-total-keys" style="font-family:var(--hud);font-size:30px;font-weight:700;color:var(--sky2);line-height:1;">0</div>
-                  <div style="font-size:8px;color:var(--t3);margin-top:4px;">Dari seluruh waktu</div>
-                  <div style="position:absolute;right:-10px;bottom:-10px;width:60px;height:60px;border-radius:50%;background:rgba(14,165,233,.06);"></div>
+            <!-- Stats -->
+            <div class="section acc-stats-section">
+              <div class="acc-section-title">STATISTIK AKUN</div>
+              <div class="acc-stats-grid">
+                <div class="acc-stat-card acc-stat-blue">
+                  <div class="acc-stat-label">Total Key Generated</div>
+                  <div id="acc-total-keys" class="acc-stat-val">0</div>
+                  <div class="acc-stat-sub">Dari seluruh waktu</div>
                 </div>
-                <div style="background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.12);border-radius:10px;padding:16px;">
-                  <div style="font-size:7px;letter-spacing:.12em;color:var(--t2);text-transform:uppercase;margin-bottom:6px;">Key Aktif</div>
-                  <div id="acc-active-keys" style="font-family:var(--hud);font-size:30px;font-weight:700;color:var(--grn);line-height:1;">0</div>
-                  <div style="font-size:8px;color:var(--t3);margin-top:4px;">Status aktif</div>
+                <div class="acc-stat-card acc-stat-green">
+                  <div class="acc-stat-label">Key Aktif</div>
+                  <div id="acc-active-keys" class="acc-stat-val" style="color:var(--grn);">0</div>
+                  <div class="acc-stat-sub">Status aktif</div>
                 </div>
               </div>
             </div>
 
-            <!-- Recent keys by this admin -->
-            <div class="section" style="padding:20px;">
-              <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:12px;">KEY TERAKHIR DIBUAT</div>
-              <div class="list-area" style="max-height:260px;overflow-y:auto;" id="acc-keys-list">
+            <!-- Recent keys -->
+            <div class="section acc-keys-section">
+              <div class="acc-section-title">KEY TERAKHIR DIBUAT</div>
+              <div class="list-area acc-keys-list" id="acc-keys-list">
                 <div class="empty">Memuat...</div>
               </div>
             </div>
