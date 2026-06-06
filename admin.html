@@ -2710,7 +2710,14 @@ function enterApp(){
     updateClock();
     loadAll();
     startListeners();
-    setTimeout(loadProfile, 300);
+    /* Load avatarUrl dari Firebase lalu panggil loadProfile */
+    db.collection('admins').doc(currentAdmin.id).get().then(function(doc){
+      if(doc.exists){
+        var d=doc.data();
+        if(d.avatarUrl) currentAdmin.avatarUrl=d.avatarUrl;
+        if(d.avatar_url) currentAdmin.avatarUrl=d.avatar_url;
+      }
+    }).catch(function(){}).finally(function(){ loadProfile(); });
     setTimeout(checkExpiredKeys,4000);
     setInterval(checkExpiredKeys,300000);
   },420);
@@ -4354,38 +4361,49 @@ function onDataReady(){
 
 /* Load profile from localStorage (photo stored as data URL) */
 function loadProfile(){
-  if(!currentAdmin)return;
-  var stored = localStorage.getItem('_mdzz_profile_'+currentAdmin.id)||'{}';
-  var prof = {};
-  try{prof=JSON.parse(stored);}catch(e){}
+  if(!currentAdmin) return;
+
+  /* ── Nama dari localStorage atau currentAdmin ── */
+  var stored = '{}';
+  try{ stored = localStorage.getItem('_mdzz_profile_name_'+currentAdmin.id)||'{}'; }catch(_){}
+  var prof = {}; try{prof=JSON.parse(stored);}catch(_){}
 
   var name = prof.fullName || currentAdmin.name || currentAdmin.username || '?';
-  var photo = prof.photoURL || null;
-  var ini   = name.charAt(0).toUpperCase();
+  var ini  = name.charAt(0).toUpperCase();
 
-  /* Account page */
-  var inp = gi('acc-name-inp');
-  if(inp) inp.value = name;
-  var un = gi('acc-username');
-  if(un) un.textContent = '@'+(currentAdmin.username||'—');
-  var jb = gi('acc-joined');
-  if(jb) jb.textContent = currentAdmin.createdAt ? fmtTime(currentAdmin.createdAt) : '—';
+  /* Account page inputs */
+  var inp = gi('acc-name-inp'); if(inp) inp.value = name;
+  var un  = gi('acc-username'); if(un)  un.textContent = '@'+(currentAdmin.username||'—');
+  var jb  = gi('acc-joined');
+  if(jb)  jb.textContent = currentAdmin.createdAt ? fmtTime(currentAdmin.createdAt) : '—';
 
   /* Role badge */
   var rb = gi('acc-role-badge');
   if(rb){
     var role = currentAdmin.role||'admin';
-    var roleColors = {owner:'var(--gold)',admin:'var(--sky)',moderator:'var(--purple)',support:'var(--grn)'};
-    var c = roleColors[role]||'var(--sky)';
-    rb.innerHTML='<span style="font-family:var(--hud);font-size:9px;letter-spacing:1.5px;color:'+c+';background:'+c.replace(')',', .08)').replace('var(','rgba(').replace('(--','(').replace('#','')+';">'+role.toUpperCase()+'</span>';
-    /* Simpler safe approach */
-    rb.innerHTML='<span class="role-tag '+role+'">'+role.toUpperCase()+'</span>';
+    rb.innerHTML = '<span class="role-tag '+role+'">'+role.toUpperCase()+'</span>';
   }
 
-  /* Set initials everywhere */
+  /* ── Inisial ── */
   setInitials(ini);
-  /* Set photo everywhere */
-  if(photo) setPhoto(photo);
+
+  /* ── Avatar: cek dari currentAdmin.avatarUrl (sudah di-load saat login/enterApp) ── */
+  var avatarUrl = currentAdmin.avatarUrl || null;
+  if(avatarUrl){
+    setPhoto(avatarUrl + '?t=' + Date.now());
+    return;
+  }
+
+  /* ── Fallback: fetch dari Firestore jika belum ada ── */
+  db.collection('admins').doc(currentAdmin.id).get().then(function(doc){
+    if(!doc.exists) return;
+    var data = doc.data();
+    var url  = data.avatarUrl || data.avatar_url || null;
+    if(url){
+      currentAdmin.avatarUrl = url;
+      setPhoto(url + '?t=' + Date.now());
+    }
+  }).catch(function(e){ console.warn('loadProfile fetch:', e.message); });
 }
 
 function setInitials(ini){
@@ -4412,119 +4430,79 @@ function setPhoto(photoURL){
   if(ini){ini.style.opacity='0';}
 }
 
-async function handlePhotoUpload(input){
-  var file=input.files[0];
-  if(!file)return;
-  if(file.size>2*1024*1024){toast('Foto max 2MB','e');return;}
+async async function handlePhotoUpload(input){
+  var file = input.files[0];
+  if(!file) return;
+  if(file.size > 3*1024*1024){ toast('Foto max 3MB','e'); return; }
+  if(!currentAdmin){ toast('Login terlebih dahulu','e'); return; }
 
-  // Get adminId (use adminId = 1 if no login system)
-  var adminId = 1;
-  if(typeof currentAdmin !== 'undefined' && currentAdmin) {
-    if(currentAdmin.adminId) {
-      adminId = currentAdmin.adminId;
-    } else if(currentAdmin.id) {
-      var parsed = parseInt(currentAdmin.id, 10);
-      if(!isNaN(parsed)) {
-        adminId = parsed;
-      }
-    }
-  }
+  /* File path: pakai Firebase doc ID (string) sebagai nama unik */
+  var ext      = (file.name.split('.').pop()||'jpg').toLowerCase();
+  var filePath = 'avatar_' + currentAdmin.id + '.' + ext;
 
-  // Construct unique filename using adminId
-  var ext = file.name.split('.').pop() || 'png';
-  var filePath = 'avatar_' + adminId + '.' + ext;
+  toast('Mengunggah foto...','i', 2000);
 
-  try {
-    toast('Mengunggah avatar...','i', 1500);
-
-    // Initialize Supabase Client if not already done
-    if (!window.supabaseClient) {
-      if (typeof supabase === 'undefined') {
-        throw new Error('Supabase SDK tidak termuat. Periksa koneksi internet Anda.');
-      }
-      window.supabaseClient = supabase.createClient(_SUPA_URL, _SUPA_KEY);
+  try{
+    /* ── Inisialisasi Supabase client ── */
+    if(!window._sbClient){
+      if(typeof supabase === 'undefined') throw new Error('Supabase SDK belum termuat');
+      window._sbClient = supabase.createClient(_SUPA_URL, _SUPA_KEY);
     }
 
-    // Upload to Supabase Storage with upsert: true (overwrite existing file)
-    var { data: uploadData, error: uploadError } = await window.supabaseClient.storage
-      .from('avatars')
-      .upload(filePath, file, {
-        upsert: true,
-        contentType: file.type
-      });
+    /* ── Upload ke Supabase Storage bucket "avatar" ── */
+    var upRes = await window._sbClient.storage
+      .from('avatar')
+      .upload(filePath, file, { upsert: true, contentType: file.type });
 
-    if (uploadError) {
-      throw uploadError;
-    }
+    if(upRes.error) throw upRes.error;
 
-    // Get public URL from the "avatars" bucket
-    var { data: urlData } = window.supabaseClient.storage
-      .from('avatars')
-      .getPublicUrl(filePath);
+    /* ── Ambil public URL ── */
+    var urlRes = window._sbClient.storage.from('avatar').getPublicUrl(filePath);
+    var publicUrl = urlRes.data ? urlRes.data.publicUrl : null;
+    if(!publicUrl) throw new Error('Gagal ambil public URL');
 
-    var publicUrl = urlData ? urlData.publicUrl : null;
-    if (!publicUrl) {
-      throw new Error('Gagal mendapatkan public URL avatar.');
-    }
-
-    // Save URL to Supabase Table "admins" in column "avatar_url"
-    var { error: dbError } = await window.supabaseClient
-      .from('admins')
-      .update({ avatar_url: publicUrl })
-      .eq('id', adminId);
-
+    /* Tambah cache-buster agar browser load ulang foto */
     var displayUrl = publicUrl + '?t=' + Date.now();
 
-    if (dbError) {
-      console.warn('Gagal memperbarui tabel admins di Supabase:', dbError.message);
-      toast('Terunggah ke storage, database error: ' + dbError.message, 'w', 4000);
-    } else {
-      toast('Foto profil berhasil diperbarui','s');
-    }
+    /* ── Simpan avatarUrl ke Firebase admins collection ── */
+    await db.collection('admins').doc(currentAdmin.id).update({ avatarUrl: publicUrl });
 
-    // Update UI immediately (Ensure preview changes directly)
+    /* ── Update currentAdmin di memory ── */
+    currentAdmin.avatarUrl = publicUrl;
+
+    /* ── Update UI ── */
     setPhoto(displayUrl);
+    toast('Foto profil berhasil diperbarui ✓','s');
 
-    // Save to localStorage to persist on page refresh
-    if(typeof currentAdmin !== 'undefined' && currentAdmin && currentAdmin.id) {
-      var stored='{}';
-      try{stored=localStorage.getItem('_mdzz_profile_'+currentAdmin.id)||'{}';}catch(_){}
-      var prof={};try{prof=JSON.parse(stored);}catch(_){}
-      prof.photoURL=displayUrl;
-      localStorage.setItem('_mdzz_profile_'+currentAdmin.id,JSON.stringify(prof));
-    }
+    /* ── Refresh team list ── */
+    if(typeof renderTeamList === 'function') renderTeamList();
 
-    // Update team list
-    if(typeof renderAdmins === 'function') renderAdmins();
-    else if(typeof renderTeamList === 'function') renderTeamList();
-
-  } catch(err) {
-    console.error('Photo upload error:', err);
-    toast('Gagal: ' + err.message, 'e', 4000);
+  }catch(err){
+    console.error('handlePhotoUpload:', err);
+    toast('Gagal: ' + (err.message||err), 'e', 4000);
   }
 }
 
 function saveProfile(){
-  var inp=gi('acc-name-inp');
-  if(!inp)return;
-  var newName=inp.value.trim();
-  if(!newName){toast('Nama tidak boleh kosong','e');return;}
+  var inp = gi('acc-name-inp');
+  if(!inp) return;
+  var newName = inp.value.trim();
+  if(!newName){ toast('Nama tidak boleh kosong','e'); return; }
 
-  /* Save to localStorage */
-  var stored='{}';
-  try{stored=localStorage.getItem('_mdzz_profile_'+currentAdmin.id)||'{}';}catch(_){}
-  var prof={};try{prof=JSON.parse(stored);}catch(_){}
-  prof.fullName=newName;
-  localStorage.setItem('_mdzz_profile_'+currentAdmin.id,JSON.stringify(prof));
+  /* Simpan nama ke localStorage (private, per device) */
+  var key = '_mdzz_profile_name_' + currentAdmin.id;
+  localStorage.setItem(key, JSON.stringify({fullName: newName}));
 
-  /* Update currentAdmin.name in memory */
-  currentAdmin.name=newName;
-  /* Update displays */
-  var ini=newName.charAt(0).toUpperCase();
+  /* Update Firebase name field agar admin lain bisa lihat */
+  db.collection('admins').doc(currentAdmin.id).update({ name: newName })
+    .catch(function(e){ console.warn('saveProfile Firebase:', e.message); });
+
+  /* Update in-memory & UI */
+  currentAdmin.name = newName;
+  var ini = newName.charAt(0).toUpperCase();
   setInitials(ini);
-  var uname=gi('sb-uname');if(uname)uname.textContent=newName;
-
-  toast('Profil disimpan','s');
+  var uname = gi('sb-uname'); if(uname) uname.textContent = newName;
+  toast('Nama berhasil disimpan ✓','s');
 }
 
 /* Load account stats — keys generated by THIS admin */
@@ -4627,27 +4605,27 @@ function copyToClipboard(text){
 /* ══ Update team list to show profile photos ══ */
 var _origRenderTeamList=null;
 function patchTeamList(){
-  /* Called after renderTeamList to inject profile photos */
-  var rows=document.querySelectorAll('.admin-row');
+  /* Inject avatar photos dari Firebase data (avatarUrl field) */
+  var admins = (typeof allAdminsData!=='undefined' ? allAdminsData : allAdmins)||[];
+  var rows = document.querySelectorAll('.admin-row');
   rows.forEach(function(row){
-    var avEl=row.querySelector('.admin-av');
-    if(!avEl)return;
-    /* Find admin username from row */
-    var usernameEl=row.querySelector('.admin-user');
-    if(!usernameEl)return;
-    var uname=(usernameEl.textContent||'').replace('@','').trim();
-    /* Find their id from allAdmins */
-    var adm=(typeof allAdminsData!=='undefined'?allAdminsData:allAdmins).find(function(a){return a.username===uname;});
-    if(!adm)return;
-    var stored='{}';
-    try{stored=localStorage.getItem('_mdzz_profile_'+adm._id)||'{}';}catch(_){}
-    var prof={};try{prof=JSON.parse(stored);}catch(_){}
-    if(prof.photoURL){
-      avEl.style.backgroundImage='url("'+prof.photoURL+'")';
-      avEl.style.backgroundSize='cover';
-      avEl.style.backgroundPosition='center';
-      avEl.style.color='transparent';
-      avEl.style.fontSize='0';
+    var avEl = row.querySelector('.admin-av');
+    if(!avEl) return;
+    var usernameEl = row.querySelector('.admin-user');
+    if(!usernameEl) return;
+    var uname = (usernameEl.textContent||'').replace('@','').trim();
+    /* Match dengan Firebase data */
+    var adm = admins.find(function(a){
+      return (a.username||'') === uname || (a.user||'') === uname;
+    });
+    if(!adm) return;
+    var url = adm.avatarUrl || adm.avatar_url || null;
+    if(url){
+      avEl.style.backgroundImage = 'url("'+url+'?t='+Date.now()+'")';
+      avEl.style.backgroundSize  = 'cover';
+      avEl.style.backgroundPosition = 'center';
+      avEl.style.color    = 'transparent';
+      avEl.style.fontSize = '0';
     }
   });
 }
