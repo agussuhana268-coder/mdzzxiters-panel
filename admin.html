@@ -4443,26 +4443,30 @@ async function handlePhotoUpload(input){
   toast('Mengunggah foto...','i', 2000);
 
   try{
-    /* ── Inisialisasi Supabase client ── */
-    if(!window._sbClient){
-      if(typeof supabase === 'undefined') throw new Error('Supabase SDK belum termuat');
-      window._sbClient = supabase.createClient(_SUPA_URL, _SUPA_KEY);
+    /* ── Upload ke Supabase Storage via REST API (langsung, no client needed) ── */
+    var uploadUrl = _SUPA_URL + '/storage/v1/object/avatar/' + filePath;
+    var uploadRes = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + _SUPA_KEY,
+        'apikey': _SUPA_KEY,
+        'x-upsert': 'true',
+        'Content-Type': file.type
+      },
+      body: file
+    });
+
+    if(!uploadRes.ok){
+      var errBody = await uploadRes.text();
+      throw new Error('Upload gagal (' + uploadRes.status + '): ' + errBody);
     }
 
-    /* ── Upload ke Supabase Storage bucket "avatar" ── */
-    var upRes = await window._sbClient.storage
-      .from('avatar')
-      .upload(filePath, file, { upsert: true, contentType: file.type });
-
-    if(upRes.error) throw upRes.error;
-
-    /* ── Ambil public URL ── */
-    var urlRes = window._sbClient.storage.from('avatar').getPublicUrl(filePath);
-    var publicUrl = urlRes.data ? urlRes.data.publicUrl : null;
-    if(!publicUrl) throw new Error('Gagal ambil public URL');
+    /* ── Bangun public URL ── */
+    var publicUrl = _SUPA_URL + '/storage/v1/object/public/avatar/' + filePath;
+    console.log('[Avatar] Upload berhasil, publicUrl:', publicUrl);
 
     /* Tambah cache-buster agar browser load ulang foto */
-    var displayUrl = publicUrl + '?t=' + Date.now();
+    var displayUrl = publicUrl + '?t=' + Date.now(); /* cache buster */
 
     /* ── Simpan avatarUrl ke Firebase admins collection ── */
     await db.collection('admins').doc(currentAdmin.id).update({ avatarUrl: publicUrl });
@@ -4797,17 +4801,7 @@ function patchTeamList(){
   drawOrbit();
 })();
 </script>
-   <script>
-  // Menggunakan nama 'supabaseClient' agar tidak merusak/bentrok dengan SDK global
-  const supabaseClient = supabase.createClient(
-    "https://miorkkrwldqkmgugppyk.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0"
-  );
-
-  // Mendaftarkannya secara global agar file 'avatar-upload.js' Anda bisa mengaksesnya dengan mudah
-  window.supabaseClient = supabaseClient;
-  window.supabase = supabaseClient; 
-</script>
+   
 
 </script>
    
