@@ -2711,13 +2711,15 @@ function enterApp(){
     loadAll();
     startListeners();
     /* Load avatarUrl dari Firebase lalu panggil loadProfile */
-    db.collection('admins').doc(currentAdmin.id).get().then(function(doc){
-      if(doc.exists){
-        var d=doc.data();
-        if(d.avatarUrl) currentAdmin.avatarUrl=d.avatarUrl;
-        if(d.avatar_url) currentAdmin.avatarUrl=d.avatar_url;
-      }
-    }).catch(function(){}).finally(function(){ loadProfile(); });
+    db.collection('admins').doc(currentAdmin.id).get()
+      .then(function(doc){
+        if(doc.exists){
+          var d=doc.data();
+          currentAdmin.avatarUrl=d.avatarUrl||d.avatar_url||null;
+        }
+        loadProfile();
+      })
+      .catch(function(){ loadProfile(); });
     setTimeout(checkExpiredKeys,4000);
     setInterval(checkExpiredKeys,300000);
   },420);
