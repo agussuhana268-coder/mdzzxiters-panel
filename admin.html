@@ -1300,18 +1300,22 @@ body.sb-open{overflow:hidden;}
 </head>
 <body>
 <script>
-// Mode init — default mobile, always hide mode-select-screen on load
+// Mode init — show selector if no saved mode, else apply saved mode
 document.addEventListener('DOMContentLoaded',function(){
   var saved=localStorage.getItem('zx_mode')||'mobile';
-  document.body.classList.add(saved+'-mode');
-  var lbl=document.getElementById('mode-btn-label');
-  if(lbl)lbl.textContent=saved==='desktop'?'DESKTOP':'MOBILE';
-  var im=document.getElementById('mode-icon-mobile');
-  var id2=document.getElementById('mode-icon-desktop');
-  if(im&&id2){im.style.display=saved==='desktop'?'none':'inline';id2.style.display=saved==='desktop'?'inline':'none';}
-  // Always hide mode-select-screen — bisa diakses via tombol topbar
-  var ms=document.getElementById('mode-select-screen');
-  if(ms)ms.style.display='none';
+  if(saved){
+    document.body.classList.add(saved+'-mode');
+    var lbl=document.getElementById('mode-btn-label');
+    if(lbl)lbl.textContent=saved==='desktop'?'DESKTOP':'MOBILE';
+    var im=document.getElementById('mode-icon-mobile');
+    var id2=document.getElementById('mode-icon-desktop');
+    if(im&&id2){im.style.display=saved==='desktop'?'none':'inline';id2.style.display=saved==='desktop'?'inline':'none';}
+    var ms=document.getElementById('mode-select-screen');
+    if(ms)ms.style.display='none';
+  }
+  // Always hide mode select on load
+  var _mss=document.getElementById('mode-select-screen');
+  if(_mss)_mss.style.display='none';
 });
 </script>
 
@@ -2708,16 +2712,11 @@ function enterApp(){
     updateClock();
     loadAll();
     startListeners();
-    /* Load avatarUrl dari Firebase lalu panggil loadProfile */
     db.collection('admins').doc(currentAdmin.id).get()
       .then(function(doc){
-        if(doc.exists){
-          var d=doc.data();
-          currentAdmin.avatarUrl=d.avatarUrl||d.avatar_url||null;
-        }
+        if(doc.exists){var d=doc.data();currentAdmin.avatarUrl=d.avatarUrl||d.avatar_url||null;}
         loadProfile();
-      })
-      .catch(function(){ loadProfile(); });
+      }).catch(function(){loadProfile();});
     setTimeout(checkExpiredKeys,4000);
     setInterval(checkExpiredKeys,300000);
   },420);
@@ -4362,48 +4361,28 @@ function onDataReady(){
 /* Load profile from localStorage (photo stored as data URL) */
 function loadProfile(){
   if(!currentAdmin) return;
-
-  /* ── Nama dari localStorage atau currentAdmin ── */
-  var stored = '{}';
-  try{ stored = localStorage.getItem('_mdzz_profile_name_'+currentAdmin.id)||'{}'; }catch(_){}
-  var prof = {}; try{prof=JSON.parse(stored);}catch(_){}
-
-  var name = prof.fullName || currentAdmin.name || currentAdmin.username || '?';
-  var ini  = name.charAt(0).toUpperCase();
-
-  /* Account page inputs */
-  var inp = gi('acc-name-inp'); if(inp) inp.value = name;
-  var un  = gi('acc-username'); if(un)  un.textContent = '@'+(currentAdmin.username||'—');
-  var jb  = gi('acc-joined');
-  if(jb)  jb.textContent = currentAdmin.createdAt ? fmtTime(currentAdmin.createdAt) : '—';
-
-  /* Role badge */
-  var rb = gi('acc-role-badge');
-  if(rb){
-    var role = currentAdmin.role||'admin';
-    rb.innerHTML = '<span class="role-tag '+role+'">'+role.toUpperCase()+'</span>';
-  }
-
-  /* ── Inisial ── */
+  var stored='{}';
+  try{stored=localStorage.getItem('_mdzz_profile_name_'+currentAdmin.id)||'{}';}catch(_){}
+  var prof={};try{prof=JSON.parse(stored);}catch(_){}
+  var name=prof.fullName||currentAdmin.name||currentAdmin.username||'?';
+  var ini=name.charAt(0).toUpperCase();
+  var inp=gi('acc-name-inp');if(inp)inp.value=name;
+  var un=gi('acc-username');if(un)un.textContent='@'+(currentAdmin.username||'—');
+  var jb=gi('acc-joined');if(jb)jb.textContent=currentAdmin.createdAt?fmtTime(currentAdmin.createdAt):'—';
+  var rb=gi('acc-role-badge');
+  if(rb){var role=currentAdmin.role||'admin';rb.innerHTML='<span class="role-tag '+role+'">'+role.toUpperCase()+'</span>';}
   setInitials(ini);
-
-  /* ── Avatar: cek dari currentAdmin.avatarUrl (sudah di-load saat login/enterApp) ── */
-  var avatarUrl = currentAdmin.avatarUrl || null;
-  if(avatarUrl){
-    setPhoto(avatarUrl + '?t=' + Date.now());
-    return;
+  if(currentAdmin.avatarUrl){
+    setPhoto(currentAdmin.avatarUrl+'?t='+Date.now());
+  } else {
+    db.collection('admins').doc(currentAdmin.id).get()
+      .then(function(doc){
+        if(!doc.exists)return;
+        var d=doc.data();
+        var url=d.avatarUrl||d.avatar_url||null;
+        if(url){currentAdmin.avatarUrl=url;setPhoto(url+'?t='+Date.now());}
+      }).catch(function(){});
   }
-
-  /* ── Fallback: fetch dari Firestore jika belum ada ── */
-  db.collection('admins').doc(currentAdmin.id).get().then(function(doc){
-    if(!doc.exists) return;
-    var data = doc.data();
-    var url  = data.avatarUrl || data.avatar_url || null;
-    if(url){
-      currentAdmin.avatarUrl = url;
-      setPhoto(url + '?t=' + Date.now());
-    }
-  }).catch(function(e){ console.warn('loadProfile fetch:', e.message); });
 }
 
 function setInitials(ini){
@@ -4436,16 +4415,12 @@ async function handlePhotoUpload(input){
   if(file.size > 3*1024*1024){ toast('Foto max 3MB','e'); return; }
   if(!currentAdmin){ toast('Login terlebih dahulu','e'); return; }
 
-  /* File path: pakai Firebase doc ID (string) sebagai nama unik */
   var ext      = (file.name.split('.').pop()||'jpg').toLowerCase();
   var filePath = 'avatar_' + currentAdmin.id + '.' + ext;
 
   toast('Mengunggah foto...','i', 2000);
-
   try{
-    /* ── Upload ke Supabase Storage via REST API (langsung, no client needed) ── */
-    var uploadUrl = _SUPA_URL + '/storage/v1/object/avatar/' + filePath;
-    var uploadRes = await fetch(uploadUrl, {
+    var uploadRes = await fetch(_SUPA_URL + '/storage/v1/object/avatar/' + filePath, {
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + _SUPA_KEY,
@@ -4455,58 +4430,44 @@ async function handlePhotoUpload(input){
       },
       body: file
     });
-
     if(!uploadRes.ok){
-      var errBody = await uploadRes.text();
-      throw new Error('Upload gagal (' + uploadRes.status + '): ' + errBody);
+      var errText = await uploadRes.text();
+      throw new Error('Upload gagal (' + uploadRes.status + '): ' + errText);
     }
-
-    /* ── Bangun public URL ── */
-    var publicUrl = _SUPA_URL + '/storage/v1/object/public/avatar/' + filePath;
-    console.log('[Avatar] Upload berhasil, publicUrl:', publicUrl);
-
-    /* Tambah cache-buster agar browser load ulang foto */
-    var displayUrl = publicUrl + '?t=' + Date.now(); /* cache buster */
-
-    /* ── Simpan avatarUrl ke Firebase admins collection ── */
+    var publicUrl  = _SUPA_URL + '/storage/v1/object/public/avatar/' + filePath;
+    var displayUrl = publicUrl + '?t=' + Date.now();
     await db.collection('admins').doc(currentAdmin.id).update({ avatarUrl: publicUrl });
-
-    /* ── Update currentAdmin di memory ── */
     currentAdmin.avatarUrl = publicUrl;
-
-    /* ── Update UI ── */
     setPhoto(displayUrl);
     toast('Foto profil berhasil diperbarui ✓','s');
-
-    /* ── Refresh team list ── */
     if(typeof renderTeamList === 'function') renderTeamList();
-
   }catch(err){
-    console.error('handlePhotoUpload:', err);
+    console.error('[Avatar]', err);
     toast('Gagal: ' + (err.message||err), 'e', 4000);
   }
 }
 
 function saveProfile(){
-  var inp = gi('acc-name-inp');
-  if(!inp) return;
-  var newName = inp.value.trim();
-  if(!newName){ toast('Nama tidak boleh kosong','e'); return; }
+  var inp=gi('acc-name-inp');
+  if(!inp)return;
+  var newName=inp.value.trim();
+  if(!newName){toast('Nama tidak boleh kosong','e');return;}
 
-  /* Simpan nama ke localStorage (private, per device) */
-  var key = '_mdzz_profile_name_' + currentAdmin.id;
-  localStorage.setItem(key, JSON.stringify({fullName: newName}));
+  /* Save to localStorage */
+  var stored='{}';
+  try{stored=localStorage.getItem('_mdzz_profile_'+currentAdmin.id)||'{}';}catch(_){}
+  var prof={};try{prof=JSON.parse(stored);}catch(_){}
+  prof.fullName=newName;
+  localStorage.setItem('_mdzz_profile_'+currentAdmin.id,JSON.stringify(prof));
 
-  /* Update Firebase name field agar admin lain bisa lihat */
-  db.collection('admins').doc(currentAdmin.id).update({ name: newName })
-    .catch(function(e){ console.warn('saveProfile Firebase:', e.message); });
-
-  /* Update in-memory & UI */
-  currentAdmin.name = newName;
-  var ini = newName.charAt(0).toUpperCase();
+  /* Update currentAdmin.name in memory */
+  currentAdmin.name=newName;
+  /* Update displays */
+  var ini=newName.charAt(0).toUpperCase();
   setInitials(ini);
-  var uname = gi('sb-uname'); if(uname) uname.textContent = newName;
-  toast('Nama berhasil disimpan ✓','s');
+  var uname=gi('sb-uname');if(uname)uname.textContent=newName;
+
+  toast('Profil disimpan','s');
 }
 
 /* Load account stats — keys generated by THIS admin */
@@ -4609,26 +4570,19 @@ function copyToClipboard(text){
 /* ══ Update team list to show profile photos ══ */
 var _origRenderTeamList=null;
 function patchTeamList(){
-  /* Inject avatar photos dari Firebase data (avatarUrl field) */
   var admins = (typeof allAdminsData!=='undefined' ? allAdminsData : allAdmins)||[];
-  var rows = document.querySelectorAll('.admin-row');
-  rows.forEach(function(row){
-    var avEl = row.querySelector('.admin-av');
-    if(!avEl) return;
-    var usernameEl = row.querySelector('.admin-user');
-    if(!usernameEl) return;
-    var uname = (usernameEl.textContent||'').replace('@','').trim();
-    /* Match dengan Firebase data */
-    var adm = admins.find(function(a){
-      return (a.username||'') === uname || (a.user||'') === uname;
-    });
+  document.querySelectorAll('.admin-row').forEach(function(row){
+    var avEl = row.querySelector('.admin-av'); if(!avEl) return;
+    var unEl = row.querySelector('.admin-user'); if(!unEl) return;
+    var uname = (unEl.textContent||'').replace('@','').trim();
+    var adm = admins.find(function(a){ return (a.username||'')=== uname || (a.user||'')=== uname; });
     if(!adm) return;
     var url = adm.avatarUrl || adm.avatar_url || null;
     if(url){
       avEl.style.backgroundImage = 'url("'+url+'?t='+Date.now()+'")';
       avEl.style.backgroundSize  = 'cover';
       avEl.style.backgroundPosition = 'center';
-      avEl.style.color    = 'transparent';
+      avEl.style.color = 'transparent';
       avEl.style.fontSize = '0';
     }
   });
@@ -4803,7 +4757,7 @@ function patchTeamList(){
 </script>
    
 
-</script>
+
    
 </body>
 </html>
