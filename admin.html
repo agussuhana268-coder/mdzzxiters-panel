@@ -469,7 +469,6 @@ body.desktop-mode .mrev-amount{font-size:24px;}
   z-index:0;pointer-events:none;opacity:1;
 }
 body{position:relative;}
-body>*:not(#space-canvas){position:relative;z-index:1;}
 
 
 /* ══ ACCOUNT PAGE ══ */
@@ -1250,6 +1249,7 @@ body.sb-open{overflow:hidden;}
   font-family:var(--mono);font-size:10.5px;
   backdrop-filter:blur(20px);animation:tin .28s ease;
   box-shadow:0 8px 32px rgba(0,0,0,.55);
+  pointer-events:auto;
 }
 .toast.out{animation:tout .22s ease forwards}
 .toast.ts{background:rgba(6,22,14,.97);border:1px solid rgba(16,185,129,.22);color:#34d399}
