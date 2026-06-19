@@ -1128,6 +1128,40 @@ body.sb-open{overflow:hidden;}
 .ks-revoked{background:rgba(56,189,248,.04);border:1px solid var(--bdr3);color:var(--t3)}
 .ks-expired{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);color:var(--gold)}
 
+/* ══ IP MONITORING ══ */
+.ip-badge{
+  font-family:var(--mono);font-size:7px;letter-spacing:.3px;
+  color:var(--sky2);background:rgba(56,189,248,.06);
+  border:1px solid rgba(56,189,248,.18);
+  padding:1px 6px;border-radius:3px;
+  display:inline-flex;align-items:center;gap:3px;
+  cursor:pointer;transition:background .15s;
+}
+.ip-badge:hover{background:rgba(56,189,248,.14);}
+.ip-badge.none{color:var(--t3);border-color:var(--bdr3);background:rgba(56,189,248,.02);cursor:default;}
+.ip-badge svg{width:8px;height:8px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0;}
+.ip-badge.changed{color:#fb7185;border-color:rgba(244,63,94,.3);background:rgba(244,63,94,.07);}
+
+.iph-row{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 16px;border-bottom:1px solid var(--bdr3);
+  transition:background .14s;
+}
+.iph-row:last-child{border-bottom:none}
+.iph-row:hover{background:rgba(56,189,248,.02);}
+.iph-row.fresh{animation:iphFlash 1.6s ease-out;}
+@keyframes iphFlash{0%{background:rgba(56,189,248,.12);}100%{background:transparent;}}
+.iph-ico{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:rgba(56,189,248,.06);border:1px solid var(--bdr3);
+  display:flex;align-items:center;justify-content:center;
+}
+.iph-ico svg{width:15px;height:15px;stroke:var(--sky2);fill:none;stroke-width:1.8;stroke-linecap:round;}
+.iph-main{flex:1;min-width:0;}
+.iph-ip{font-family:var(--mono);font-size:12px;color:var(--t1);letter-spacing:.4px;display:block;}
+.iph-meta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:4px;}
+.iph-time{font-family:var(--mono);font-size:8.5px;color:var(--t3);flex-shrink:0;white-space:nowrap;}
+
 .sess-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bdr3);}
 .sess-row:last-child{border-bottom:none}
 .sess-av{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:var(--hud);font-size:14px;flex-shrink:0;}
@@ -1523,6 +1557,11 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         <span class="nav-item-label">Users</span>
         <span class="nav-badge" id="nb-users" style="background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.25);color:#34d399;">0 Online</span>
+      </div>
+      <div class="nav-item" onclick="navTo('ip-history')" id="nav-ip-history">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <span class="nav-item-label">IP History</span>
+        <span class="nav-badge" id="nb-ip-history">0</span>
       </div>
       <div class="nav-item" onclick="navTo('projects')" id="nav-projects">
         <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
@@ -1950,6 +1989,32 @@ document.addEventListener('DOMContentLoaded',function(){
           <div class="section-head"><span class="section-title">ACTIVE SESSIONS</span><span class="section-badge" id="sess-count-badge">0</span></div>
           <div class="filter-bar" id="sess-filter-bar"></div>
           <div class="list-area" id="sess-list"><div class="empty">Loading sessions...</div></div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: IP HISTORY ══ -->
+      <div class="page" id="page-ip-history">
+        <div class="page-header">
+          <div><span class="page-title">IP Address Monitoring</span><span class="page-sub">RIWAYAT IP · DETEKSI PERUBAHAN PERANGKAT</span></div>
+          <div class="page-actions"><div class="rt-badge"><span class="odot g" style="width:5px;height:5px;display:inline-block;border-radius:50%;margin-right:3px;"></span>REALTIME</div></div>
+        </div>
+
+        <div class="rg4 rg4-12">
+          <div class="stat-card c-blue"><div class="stat-top"><span class="stat-label">TOTAL CATATAN IP</span><div class="stat-ico blue"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div></div><span class="stat-val" id="iph-total">0</span><span class="stat-sub">Semua waktu</span></div>
+          <div class="stat-card c-grn"><div class="stat-top"><span class="stat-label">IP UNIK</span><div class="stat-ico grn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg></div></div><span class="stat-val" id="iph-unique">0</span><span class="stat-sub">Alamat berbeda</span></div>
+          <div class="stat-card c-cyan"><div class="stat-top"><span class="stat-label">LISENSI TERPANTAU</span><div class="stat-ico cyan"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><line x1="12.5" y1="12.5" x2="21" y2="4"/></svg></div></div><span class="stat-val" id="iph-keys">0</span><span class="stat-sub">Punya riwayat IP</span></div>
+          <div class="stat-card c-rose"><div class="stat-top"><span class="stat-label">PERUBAHAN 24 JAM</span><div class="stat-ico rose"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div></div><span class="stat-val" id="iph-24h">0</span><span class="stat-sub">IP berubah</span></div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <span class="section-title">RIWAYAT PERUBAHAN IP</span>
+            <span class="section-badge" id="iph-count-badge">0</span>
+          </div>
+          <div style="padding:10px 16px;border-bottom:1px solid var(--bdr3);">
+            <input type="text" id="iph-search" class="f-input" placeholder="Cari berdasarkan license key, device ID, atau IP..." oninput="onIPHistorySearch(this.value)" style="width:100%;"/>
+          </div>
+          <div class="list-area" id="iph-list" style="max-height:560px;"><div class="empty">Loading...</div></div>
         </div>
       </div>
 
@@ -2442,6 +2507,11 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="drawer-item-text"><span class="drawer-item-name">Users</span><span class="drawer-item-sub">Session monitor</span></div>
         <span class="drawer-badge live" id="di-badge-users">0 Online</span>
       </div>
+      <div class="drawer-item" id="di-ip-history" onclick="drawerNav('ip-history')">
+        <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div class="drawer-item-text"><span class="drawer-item-name">IP History</span><span class="drawer-item-sub">Riwayat alamat IP user</span></div>
+        <span class="drawer-badge" id="di-badge-ip-history">0</span>
+      </div>
       <div class="drawer-item" id="di-projects" onclick="drawerNav('projects')">
         <div class="drawer-item-ico"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
         <div class="drawer-item-text"><span class="drawer-item-name">Projects</span><span class="drawer-item-sub">Daftar produk</span></div>
@@ -2491,6 +2561,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <!-- ══════════════════════════════════════════════════════
      FIREBASE + APP LOGIC
 ══════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -2514,6 +2585,13 @@ var currentAdmin=null;
 var allKeys=[],allSessions=[],allProjects=[],allAdmins=[],activityLog=[];
 var keyFilter='ALL',sessFilter='ALL',keySearch='',durMode='off',actFilter='all',currentPeriod='month';
 var charts={};
+
+/* ══ IP MONITORING STATE ══ */
+var sbClient = null;    // diinisialisasi di initIPMonitoring() setelah _SUPA_URL/_SUPA_KEY siap
+var ipDataByKey = {};   // key -> {current_ip, first_ip, last_ip, last_ip_update}
+var ipHistoryList = []; // riwayat IP, terbaru duluan
+var ipHistorySearch = '';
+var ipRealtimeChannel = null;
 
 /* ══ HELPERS ══ */
 function gi(id){return document.getElementById(id);}
@@ -2624,7 +2702,7 @@ var pageTitles={
   overview:'Overview',analytics:'Analytics',keys:'Key Management',
   users:'User Sessions',projects:'Projects',team:'Admin Team',activity:'Activity Log',
   products:'Products — File Manager',send:'Kirim Produk',
-  account:'Account',support:'Support'
+  account:'Account',support:'Support','ip-history':'IP Address Monitoring'
 };
 
 var mobileNavPages=['overview','analytics','keys','users'];
@@ -2655,6 +2733,7 @@ function navTo(page){
   if(page==='analytics'){renderAnalytics();renderAnalyticsCharts();}
   if(page==='activity'){renderActivity();}
   if(page==='overview'){renderOverviewCharts();}
+  if(page==='ip-history'){renderIPHistory();}
 }
 
 /* ══ MODAL ══ */
@@ -2782,6 +2861,7 @@ function enterApp(){
     updateClock();
     loadAll();
     startListeners();
+    initIPMonitoring();
     db.collection('admins').doc(currentAdmin.id).get()
       .then(function(doc){
         if(doc.exists){var d=doc.data();currentAdmin.avatarUrl=d.avatarUrl||d.avatar_url||null;}
@@ -3050,6 +3130,7 @@ function renderKeys(){
     }
     else if(!d.expiresAt){html+='<span class="km-tag km-exp none">no expiry</span>';}
     if(d.deviceId)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Device: '+d.deviceId+'">📱 ...'+d.deviceId.slice(-8)+'</span>';
+    html+=ipBadgeHTML(d.key);
     html+='</div></div>';
     html+='<span class="key-status '+sc+'">'+sl+'</span>';
     html+='<button class="btn btn-secondary btn-sm" onclick="copyKey(\''+d.key+'\')">COPY</button>';
@@ -3062,6 +3143,174 @@ function renderKeys(){
 /* ══ Supabase auto-sync config ══ */
 var _SUPA_URL = 'https://miorkkrwldqkmgugppyk.supabase.co';
 var _SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0';
+
+/* ══════════════════════════════════════════════════════════════
+   IP ADDRESS MONITORING
+   IP ditangkap otomatis oleh trigger Postgres di Supabase
+   (lihat 01_ip_monitoring_migration.sql) — bukan dari APK.
+   File ini hanya MEMBACA & menampilkan + realtime via Supabase.
+══════════════════════════════════════════════════════════════ */
+
+/* Inisialisasi client Supabase (untuk Realtime saja — REST tetap pakai fetch() seperti existing code) */
+function initIPMonitoring(){
+  if(typeof supabase==='undefined'){
+    console.warn('[IP] Supabase JS SDK belum termuat — realtime IP dinonaktifkan.');
+    return;
+  }
+  if(!sbClient) sbClient = supabase.createClient(_SUPA_URL, _SUPA_KEY);
+  loadLicenseIPData();
+  loadIPHistory();
+  subscribeIPRealtime();
+}
+
+/* Ambil current_ip/first_ip/last_ip untuk semua key sekaligus (1 query ringan) */
+async function loadLicenseIPData(){
+  try{
+    var res = await fetch(_SUPA_URL+'/rest/v1/licenses?select=key,current_ip,first_ip,last_ip,last_ip_update&limit=2000',{
+      headers:{'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
+    });
+    if(!res.ok) return;
+    var rows = await res.json();
+    rows.forEach(function(r){
+      if(!r.key) return;
+      ipDataByKey[r.key.toUpperCase()] = {
+        current_ip:     r.current_ip || null,
+        first_ip:       r.first_ip || null,
+        last_ip:        r.last_ip || null,
+        last_ip_update: r.last_ip_update || null
+      };
+    });
+    renderKeys();renderSessions();
+  }catch(e){ console.warn('[IP] loadLicenseIPData gagal:', e.message); }
+}
+
+/* Ambil riwayat IP terakhir (dibatasi 300 baris — query ringan, sudah terindex) */
+async function loadIPHistory(){
+  try{
+    var res = await fetch(_SUPA_URL+'/rest/v1/ip_history?select=*&order=created_at.desc&limit=300',{
+      headers:{'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
+    });
+    if(!res.ok) return;
+    ipHistoryList = await res.json();
+    renderIPHistory();
+  }catch(e){ console.warn('[IP] loadIPHistory gagal:', e.message); }
+}
+
+/* Realtime: dengarkan baris BARU di ip_history saja (ringan, append-only, terindex).
+   Setiap insert otomatis berarti IP sebuah key berubah → cukup 1 channel untuk
+   meng-update badge IP di halaman Keys/Users DAN list IP History — tanpa polling. */
+function subscribeIPRealtime(){
+  if(!sbClient || ipRealtimeChannel) return;
+  ipRealtimeChannel = sbClient
+    .channel('ip-history-live')
+    .on('postgres_changes',
+      { event:'INSERT', schema:'public', table:'ip_history' },
+      function(payload){
+        var row = payload.new;
+        if(!row || !row.license_key) return;
+
+        /* Update peta IP per-key di memori (current/first/last) */
+        var k = row.license_key.toUpperCase();
+        var prev = ipDataByKey[k] || {};
+        ipDataByKey[k] = {
+          current_ip:     row.ip_address,
+          first_ip:       prev.first_ip || row.ip_address,
+          last_ip:        prev.current_ip || prev.last_ip || null,
+          last_ip_update: row.created_at
+        };
+
+        /* Prepend ke list riwayat + render */
+        ipHistoryList.unshift(row);
+        if(ipHistoryList.length>300) ipHistoryList.pop();
+
+        renderIPHistory(true /*flash baris baru*/);
+        renderKeys();renderSessions();
+
+        var badge=gi('nb-ip-history'); if(badge) badge.textContent=ipHistoryList.length;
+        var dbadge=gi('di-badge-ip-history'); if(dbadge) dbadge.textContent=ipHistoryList.length;
+
+        toast('IP baru terdeteksi: '+row.license_key+' → '+row.ip_address,'i',2500);
+      })
+    .subscribe();
+}
+
+/* Badge IP kecil dipakai di renderKeys() & renderSessions() */
+function ipBadgeHTML(key){
+  var d = ipDataByKey[(key||'').toUpperCase()];
+  if(!d || !d.current_ip){
+    return '<span class="ip-badge none" title="Belum ada data IP">🌐 no ip</span>';
+  }
+  var changed = d.last_ip && d.last_ip!==d.current_ip;
+  var cls = changed ? 'ip-badge changed' : 'ip-badge';
+  var title = 'Current: '+d.current_ip+
+              (d.first_ip?('\nFirst: '+d.first_ip):'')+
+              (d.last_ip?('\nPrevious: '+d.last_ip):'')+
+              (d.last_ip_update?('\nUpdated: '+fmtTime(new Date(d.last_ip_update))):'');
+  return '<span class="'+cls+'" title="'+title.replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();showIPHistoryFor(\''+key+'\')">🌐 '+d.current_ip+'</span>';
+}
+
+/* Klik badge IP → lompat ke halaman IP History, ter-filter ke key tsb */
+function showIPHistoryFor(key){
+  ipHistorySearch = key;
+  var inp=gi('iph-search'); if(inp) inp.value=key;
+  navTo('ip-history');
+  renderIPHistory();
+}
+window.showIPHistoryFor = showIPHistoryFor;
+
+function onIPHistorySearch(v){
+  ipHistorySearch = (v||'').trim().toLowerCase();
+  renderIPHistory();
+}
+window.onIPHistorySearch = onIPHistorySearch;
+
+function renderIPHistory(flashFirst){
+  var q = ipHistorySearch;
+  var filtered = !q ? ipHistoryList : ipHistoryList.filter(function(r){
+    return (r.license_key&&r.license_key.toLowerCase().indexOf(q)>=0) ||
+           (r.device_id&&r.device_id.toLowerCase().indexOf(q)>=0) ||
+           (r.ip_address&&r.ip_address.toLowerCase().indexOf(q)>=0);
+  });
+
+  var badge=gi('iph-count-badge'); if(badge) badge.textContent=filtered.length;
+  var nb=gi('nb-ip-history'); if(nb) nb.textContent=ipHistoryList.length;
+  var db=gi('di-badge-ip-history'); if(db) db.textContent=ipHistoryList.length;
+
+  /* Stat strip */
+  var uniqIPs={}, uniqKeys={}, last24h=0;
+  var dayAgo=Date.now()-86400000;
+  ipHistoryList.forEach(function(r){
+    if(r.ip_address) uniqIPs[r.ip_address]=1;
+    if(r.license_key) uniqKeys[r.license_key]=1;
+    if(r.created_at && new Date(r.created_at).getTime()>dayAgo) last24h++;
+  });
+  var t1=gi('iph-total'); if(t1) t1.textContent=ipHistoryList.length;
+  var t2=gi('iph-unique'); if(t2) t2.textContent=Object.keys(uniqIPs).length;
+  var t3=gi('iph-keys'); if(t3) t3.textContent=Object.keys(uniqKeys).length;
+  var t4=gi('iph-24h'); if(t4) t4.textContent=last24h;
+
+  var list=gi('iph-list');
+  if(!list) return;
+  if(!filtered.length){
+    list.innerHTML='<div class="empty">'+(q?'Tidak ada hasil.':'Belum ada riwayat IP.')+'</div>';
+    return;
+  }
+  var html='';
+  filtered.forEach(function(r,idx){
+    var fresh = flashFirst && idx===0;
+    html+='<div class="iph-row'+(fresh?' fresh':'')+'">';
+    html+='<div class="iph-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>';
+    html+='<div class="iph-main">';
+    html+='<span class="iph-ip">'+(r.ip_address||'—')+'</span>';
+    html+='<div class="iph-meta">';
+    html+='<span class="km-tag">'+(r.license_key||'—')+'</span>';
+    if(r.device_id)html+='<span class="km-tag" title="Device: '+r.device_id+'">📱 ...'+r.device_id.slice(-8)+'</span>';
+    html+='</div></div>';
+    html+='<span class="iph-time">'+fmtTime(r.created_at)+'</span>';
+    html+='</div>';
+  });
+  list.innerHTML=html;
+}
 
 /* Format tanggal untuk Supabase — APK baca .take(19) → yyyy-MM-ddTHH:mm:ss */
 function toSupaDate(date) {
@@ -3330,7 +3579,7 @@ function renderSessions(){
     html+='<div class="sess-row">';
     html+='<div class="sess-av '+(isOn?'online':'offline')+'">'+ini+'</div>';
     html+='<div class="sess-info"><span class="sess-key">'+(d.key||'—')+'</span>';
-    html+='<span class="sess-meta"><span class="dev-tag">'+(d.platform||'?')+'</span> · <span class="dev-tag">'+pj+'</span> · '+timeAgo(d.lastSeen)+'</span></div>';
+    html+='<span class="sess-meta"><span class="dev-tag">'+(d.platform||'?')+'</span> · <span class="dev-tag">'+pj+'</span> · '+timeAgo(d.lastSeen)+' · '+ipBadgeHTML(d.key)+'</span></div>';
     html+='<span class="online-badge '+(isOn?'on':'off')+'"><span class="odot '+(isOn?'g':'o')+'"></span>'+(isOn?'ONLINE':'OFFLINE')+'</span></div>';
   });
   gi('sess-list').innerHTML=html;
@@ -3937,6 +4186,8 @@ function updateDrawerBadges(){
   var online = allSessions.filter(function(s){return s.online;}).length;
   var du = gi('di-badge-users');
   if(du) du.textContent = online + ' Online';
+  var di = gi('di-badge-ip-history');
+  if(di) di.textContent = ipHistoryList.length;
 }
 
 /* ── Patch enterApp to handle mode ── */
