@@ -2996,7 +2996,7 @@ function loadProjects(){
       db.collection('projects').doc(p.id).delete().catch(function(){});
     });
     allProjects=allProjects.filter(function(p){return p.name!=='PRIVATE EXTREME';});
-    var defaults=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE','ZX CORE','ZX EXCLUSIVE','ZX APEX'];
+    var defaults=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE','ZX CORE','ZX EXCLUSIVE','ZX APEX','VORTEX'];
     var existing=allProjects.map(function(p){return p.name;});
     var missing=defaults.filter(function(n){return existing.indexOf(n)<0;});
     if(missing.length){
@@ -3135,6 +3135,7 @@ function renderKeys(){
     html+='<span class="key-status '+sc+'">'+sl+'</span>';
     html+='<button class="btn btn-secondary btn-sm" onclick="copyKey(\''+d.key+'\')">COPY</button>';
     if(d.active&&!expired)html+='<button class="btn btn-danger btn-sm" onclick="revokeKey(\''+d._id+'\')">REVOKE</button>';
+    if(d.active&&d.used&&!expired)html+='<button class="btn btn-success btn-sm" onclick="resetKeyUsage(\''+d._id+'\',\''+d.key+'\')" title="Reset agar bisa dipakai kembali" style="margin-left:4px;">RESET</button>';
     html+='</div>';
   });
   gi('keys-list').innerHTML=html;
@@ -3470,6 +3471,32 @@ async function syncAllKeysToSupabase(){
 window.syncAllKeysToSupabase=syncAllKeysToSupabase;
 window.revokeKey=revokeKey;window.copyKey=copyKey;
 
+/* ══ RESET KEY USAGE — untuk key yang salah terpakai ══ */
+async function resetKeyUsage(id, keyVal) {
+  showModal('RESET KEY USAGE','Reset key ini agar bisa dipakai lagi? (used=false, device_id=null)',async function(){
+    try {
+      /* 1. Firebase */
+      await db.collection('keys').doc(id).update({used:false, deviceId:null, usedAt:null});
+      /* 2. Supabase */
+      var sbRes = await fetch(_SUPA_URL+'/rest/v1/licenses?key=eq.'+encodeURIComponent(keyVal),{
+        method:'PATCH',
+        headers:{
+          'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,
+          'Content-Type':'application/json','Prefer':'return=minimal'
+        },
+        body:JSON.stringify({used:false, device_id:null, used_at:null})
+      });
+      if(sbRes.ok){
+        toast('✓ Key berhasil di-reset — siap dipakai kembali','s',3000);
+        pushActivityFS('key','Key <b>'+keyVal+'</b> di-reset (used=false) oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
+      } else {
+        toast('Firebase reset OK, Supabase gagal','w',3000);
+      }
+    }catch(e){toast('Error: '+e.message,'e');}
+  },false);
+}
+window.resetKeyUsage=resetKeyUsage;
+
 /* ══ Sync status FROM Supabase → update tampilan admin ══ */
 async function syncStatusFromSupabase(){
   if(!allKeys.length){toast('Load keys dulu','w');return;}
@@ -3654,7 +3681,8 @@ var PRODUCT_PRICES = {
   'ZX APEX':      155000,
   'ZX EXCLUSIVE': 215000,
   'CYBER PRO':    100000,
-  'INSANITY MAX': 175000
+  'INSANITY MAX': 175000,
+  'VORTEX':       150000
 };
 
 /* Format Rupiah: 1500000 → "1.500.000" */
