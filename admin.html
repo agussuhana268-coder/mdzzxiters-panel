@@ -3342,7 +3342,8 @@ async function syncKeysToSupabase(keys, project, expiresAt, generatedBy){
         generated_by: generatedBy,
         created_at:   new Date().toISOString(),
         expires_at:   toSupaDate(expiresAt),
-        used_at:      null
+        used_at:      null,
+        status:       'unused'
       };
     });
     var res = await fetch(_SUPA_URL+'/rest/v1/licenses', {
@@ -3380,7 +3381,7 @@ function generateKeys(){
   for(var i=0;i<qty;i++){
     var key=genKey();generated.push(key);
     promises.push(db.collection('keys').add({
-      key:key,project:project,active:true,used:false,deviceId:null,
+      key:key,project:project,active:true,used:false,deviceId:null,status:'unused',
       createdAt:firebase.firestore.FieldValue.serverTimestamp(),usedAt:null,
       generatedBy:currentAdmin.username,
       expiresAt:expiresAt?firebase.firestore.Timestamp.fromDate(expiresAt):null
@@ -3484,7 +3485,7 @@ async function resetKeyUsage(id, keyVal) {
           'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,
           'Content-Type':'application/json','Prefer':'return=minimal'
         },
-        body:JSON.stringify({used:false, device_id:null, used_at:null})
+        body:JSON.stringify({used:false, device_id:null, used_at:null, status:'unused'})
       });
       if(sbRes.ok){
         toast('✓ Key berhasil di-reset — siap dipakai kembali','s',3000);
