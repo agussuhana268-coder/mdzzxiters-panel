@@ -2814,75 +2814,128 @@ function autoSetup(){
 }
 
 /* ══ LOGIN ══ */
-function adminLogin(){
-  var u=(gi('adm-user').value||'').trim().toLowerCase();
-  var p=gi('adm-pass').value;
-  var err=gi('adm-err');
-  err.style.display='none';
-  if(!u||!p){err.textContent='Please fill all fields.';err.style.display='block';return;}
-  db.collection('admins').where('username','==',u).get()
-    .then(function(snap){
-      if(snap.empty){err.textContent='Invalid credentials.';err.style.display='block';return;}
-      var doc=snap.docs[0],data=doc.data();
-      if(data.password!==simpleHash(p)){err.textContent='Wrong password.';err.style.display='block';return;}
-      currentAdmin={id:doc.id,username:data.username,name:data.name,role:data.role};
-      localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
-      enterApp();
-      /* Log admin login */
-      pushActivityFS('login','Admin <b>'+(data.name||data.username)+'</b> login ke dashboard',currentAdmin.name||currentAdmin.username);
-      renderRevenue();
-    }).catch(function(e){err.textContent='Connection error: '+e.message;err.style.display='block';});
-}
-gi('adm-pass').addEventListener('keydown',function(e){if(e.key==='Enter')adminLogin();});
-gi('adm-user').addEventListener('keydown',function(e){if(e.key==='Enter')gi('adm-pass').focus();});
+function adminLogin() {
+  var u = (gi('adm-user').value || '').trim();
+  var p = gi('adm-pass').value;
+  var err = gi('adm-err');
 
-function adminLogout(){
-  if(currentAdmin){
-    pushActivityFS('offline','Admin <b>'+(currentAdmin.name||currentAdmin.username)+'</b> logout dari dashboard',currentAdmin.name||currentAdmin.username);
+  err.style.display = 'none';
+
+  if (!u || !p) {
+    err.textContent = 'Please fill all fields.';
+    err.style.display = 'block';
+    return;
   }
-  currentAdmin=null;localStorage.removeItem('_mdzz_adm');location.reload();
-}
 
-function enterApp(){
-  gi('login-page').classList.add('fade-out');
-  setTimeout(function(){
-    gi('login-page').style.display='none';
-    gi('app').style.display='block';
-    var name=currentAdmin.name||currentAdmin.username||'?';
-    var ini=name.charAt(0).toUpperCase();
-    gi('sb-avatar').textContent=ini;gi('tb-avatar').textContent=ini;
-    gi('sb-uname').textContent=name;
-    gi('sb-role').textContent=currentAdmin.role==='owner'?'OWNER':'ADMIN';
-    /* Show correct button in topbar */
-    /* Set main offset based on viewport */
-    gi('main').style.left = isMobile() ? '0' : 'var(--sb)';
-    if(currentAdmin.role!=='owner'){var f=gi('add-admin-form');if(f)f.style.display='none';}
-    gi('nb-activity').style.display='inline-flex';
-    updateClock();
-    loadAll();
-    startListeners();
-    initIPMonitoring();
-    db.collection('admins').doc(currentAdmin.id).get()
-      .then(function(doc){
-        if(doc.exists){var d=doc.data();currentAdmin.avatarUrl=d.avatarUrl||d.avatar_url||null;}
-        loadProfile();
-      }).catch(function(){loadProfile();});
-    setTimeout(checkExpiredKeys,4000);
-    setInterval(checkExpiredKeys,300000);
-  },420);
-}
+  
+  // Login menggunakan Firebase Authentication jika input berupa email
+  if (u.indexOf('@') !== -1) {
+    firebase.auth().signInWithEmailAndPassword(u, p)
+      .then(function (cred) {
+        return cred.user.getIdToken().then(function (token) {
+          return fetch(
+            'https://mdzzxiters-backend-production-cb68.up.railway.app/api/admin/verify',
+            {
+              method: 'GET',
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            }
+          ).then(function (response) {
+            return response.json().then(function (result) {
+              if (!response.ok || !result.success) {
+                throw new Error(
+                  result.message || 'Verifikasi Railway gagal.'
+                );
+              }
 
-function checkSaved(){
-  var saved=JSON.parse(localStorage.getItem('_mdzz_adm')||'null');
-  if(!saved||!saved.id)return;
-  db.collection('admins').doc(saved.id).get().then(function(snap){
-    if(snap.exists){
-      var d=snap.data();
-      currentAdmin={id:snap.id,username:d.username,name:d.name,role:d.role};
-      localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
+              return db.collection('admins')
+                .doc(cred.user.uid)
+                .get();
+            });
+          }).then(function (doc) {
+            if (!doc.exists ||
+                !['owner', 'admin'].includes(doc.data().role)) {
+              throw new Error('Akun tidak terdaftar sebagai admin.');
+            }
+
+            var data = doc.data();
+
+            currentAdmin = {
+              id: doc.id,
+              username: data.username || u,
+              name: data.name || data.username || u,
+              role: data.role,
+              authMode: 'firebase'
+            };
+
+            localStorage.setItem(
+              '_mdzz_adm',
+              JSON.stringify(currentAdmin)
+            );
+
+            enterApp();
+
+            pushActivityFS(
+              'login',
+              'Admin <b>' + currentAdmin.name +
+                '</b> login ke dashboard',
+              currentAdmin.name
+            );
+
+            renderRevenue();
+            console.log('Firebase dan Railway berhasil diverifikasi.');
+          });
+        });
+      })
+      .catch(function (e) {
+        err.textContent = e.message || 'Login Firebase gagal.';
+        err.style.display = 'block';
+      });
+
+    return;
+  }
+
+  // Login lama untuk akun berbasis username tetap dipertahankan
+  db.collection('admins').where('username', '==', u.toLowerCase())
+    .get()
+    .then(function (snap) {
+      if (snap.empty) {
+        err.textContent = 'Invalid credentials.';
+        err.style.display = 'block';
+        return;
+      }
+
+      var doc = snap.docs[0];
+      var data = doc.data();
+
+      if (data.password !== simpleHash(p)) {
+        err.textContent = 'Wrong password.';
+        err.style.display = 'block';
+        return;
+      }
+
+      currentAdmin = {
+        id: doc.id,
+        username: data.username,
+        name: data.name,
+        role: data.role
+      };
+
+      localStorage.setItem('_mdzz_adm', JSON.stringify(currentAdmin));
       enterApp();
-    } else {localStorage.removeItem('_mdzz_adm');}
-  }).catch(function(){});
+      pushActivityFS(
+        'login',
+        'Admin <b>' + (data.name || data.username) +
+          '</b> login ke dashboard',
+        currentAdmin.name || currentAdmin.username
+      );
+      renderRevenue();
+    })
+    .catch(function (e) {
+      err.textContent = 'Connection error: ' + e.message;
+      err.style.display = 'block';
+    });
 }
 
 /* ══ LOAD ALL ══ */
@@ -3329,43 +3382,46 @@ function toSupaDate(date) {
          pad(d.getUTCSeconds());
 }
 
-/* Kirim array keys ke Supabase licenses table */
+/* Kirim array keys ke Railway → Supabase */
 async function syncKeysToSupabase(keys, project, expiresAt, generatedBy){
   try {
     var rows = keys.map(function(k){
       return {
-        key:          k,
-        project:      project,
-        active:       true,
-        used:         false,
-        device_id:    null,
+        key: k,
+        project: project,
         generated_by: generatedBy,
-        created_at:   new Date().toISOString(),
-        expires_at:   toSupaDate(expiresAt),
-        used_at:      null,
-        status:       'unused'
+        expires_at: toSupaDate(expiresAt)
       };
     });
-    var res = await fetch(_SUPA_URL+'/rest/v1/licenses', {
-      method:  'POST',
-      headers: {
-        'apikey':        _SUPA_KEY,
-        'Authorization': 'Bearer '+_SUPA_KEY,
-        'Content-Type':  'application/json',
-        'Prefer':        'return=minimal'
-      },
-      body: JSON.stringify(rows)
-    });
-    if(res.ok){
-      toast('✓ '+keys.length+' key tersimpan ke Supabase','s',2000);
-    } else {
-      var err = await res.text();
-      toast('Supabase sync gagal: '+err,'w',3000);
+
+    var res = await fetch(
+      'https://mdzzxiters-backend-production-cb68.up.railway.app/api/licenses',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+          /* Token autentikasi admin akan ditambahkan
+             setelah mekanisme autentikasi Railway siap. */
+        },
+        body: JSON.stringify({ rows: rows })
+      }
+    );
+
+    var result = await res.json().catch(function(){ return {}; });
+
+    if (res.ok && result.success) {
+      toast('✓ '+keys.length+' key tersimpan di Supabase', 's', 2000);
+        } else {
+      toast(
+        'Supabase sync gagal: '+(result.message || 'HTTP '+res.status),
+        'w',
+        3500
+      );
     }
-  } catch(e){
-    toast('Supabase offline — key tetap di Firebase','w',2500);
+  } catch(e) {
+    toast('Railway tidak dapat dihubungi — key tetap di Firebase', 'w', 3000);
   }
-}
+} // penutup fungsi syncKeysToSupabase — pertahankan
 
 function generateKeys(){
   var qty=Math.min(50,Math.max(1,parseInt(gi('gen-qty').value)||1));
