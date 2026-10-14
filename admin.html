@@ -3398,11 +3398,12 @@ async function syncKeysToSupabase(keys, project, expiresAt, generatedBy){
       'https://mdzzxiters-backend-production-cb68.up.railway.app/api/licenses',
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-          /* Token autentikasi admin akan ditambahkan
-             setelah mekanisme autentikasi Railway siap. */
-        },
+        
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' +
+        await firebase.auth().currentUser.getIdToken()
+    },
         body: JSON.stringify({ rows: rows })
       }
     );
