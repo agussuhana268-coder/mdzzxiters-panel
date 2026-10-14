@@ -3453,38 +3453,78 @@ function generateKeys(){
     syncKeysToSupabase(generated, project, expiresAt, currentAdmin.username);
   }).catch(function(e){toast('Error: '+e.message,'e');});
 }
-
-async function revokeKey(id){
-  showModal('REVOKE KEY','Revoke this key? User loses access immediately.',async function(){
-    var k=allKeys.find(function(x){return x._id===id;});
-    if(!k){toast('Key not found','e');return;}
-    try{
-      /* 1. Update Firebase → admin UI update */
-      await db.collection('keys').doc(id).update({active:false});
-
-      /* 2. Update Supabase → APK LicenseWatchService akan detect active=false → force logout */
-      var sbRes = await fetch(_SUPA_URL+'/rest/v1/licenses?key=eq.'+encodeURIComponent(k.key),{
-        method:'PATCH',
-        headers:{
-          'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,
-          'Content-Type':'application/json','Prefer':'return=minimal'
-        },
-        body:JSON.stringify({active:false,status:'revoked'})
+async function revokeKey(id) {
+  showModal(
+    'REVOKE KEY',
+    'Revoke this key? User loses access immediately.',
+    async function () {
+      var k = allKeys.find(function (x) {
+        return x._id === id;
       });
 
-      if(sbRes.ok){
-        toast('✓ Key revoked — user akan logout otomatis dalam <60 detik','s',3500);
-      } else {
-        toast('Firebase revoked, Supabase sync gagal — user mungkin tidak logout otomatis','w',4000);
+      if (!k) {
+        toast('Key not found', 'e');
+        return;
       }
-      if(k)pushActivityFS('revoke','Key <b>'+k.key+'</b> di-revoke oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
-    }catch(e){
-      toast('Error: '+e.message,'e');
-    }
-  },true);
+
+      try {
+        var user = firebase.auth().currentUser;
+
+        if (!user) {
+          toast('Sesi login berakhir. Silakan login kembali.', 'e');
+          return;
+        }
+
+        var response = await fetch(
+          'https://mdzzxiters-backend-production-cb68.up.railway.app/api/licenses/revoke',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + await user.getIdToken()
+            },
+            body: JSON.stringify({ key: k.key })
+          }
+        );
+
+        var result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || !result.success) {
+          toast(
+            'Supabase revoke gagal: ' +
+              (result.message || 'HTTP ' + response.status),
+            'e',
+            4000
+          );
+          return;
+        }
+
+        await db.collection('keys').doc(id).update({
+          active: false,
+          status: 'revoked'
+        });
+
+        pushActivityFS(
+          'revoke',
+          'Key <b>' + k.key + '</b> di-revoke oleh <b>' +
+            currentAdmin.name + '</b>',
+          currentAdmin.name
+        );
+
+        toast(
+          '✓ Key revoked dan tersinkron ke Supabase',
+          's',
+          3500
+        );
+      } catch (e) {
+        toast('Error: ' + e.message, 'e');
+      }
+    },
+    true
+  );
 }
-function copyKey(key){copyClip(key);toast('Copied: '+key,'s',1800);}
-window.generateKeys=generateKeys;
 
 /* Sync SEMUA key aktif dari Firebase ke Supabase (untuk key lama) */
 async function syncAllKeysToSupabase(){
