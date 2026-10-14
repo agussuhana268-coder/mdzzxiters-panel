@@ -4276,21 +4276,35 @@ function updateDrawerBadges(){
 }
 
 /* ── Patch enterApp to handle mode ── */
-var _origEnterApp = enterApp;
-enterApp = function(){
-  _origEnterApp.apply(this, arguments);
-  /* Set drawer user info */
+function enterApp(){
+  gi('login-page').classList.add('fade-out');
   setTimeout(function(){
-    var name = currentAdmin ? (currentAdmin.name || currentAdmin.username || '?') : '?';
-    var ini = name.charAt(0).toUpperCase();
-    var da = gi('drawer-avatar'); if(da) da.textContent = ini;
-    var du = gi('drawer-uname'); if(du) du.textContent = name;
-    var dr = gi('drawer-role'); if(dr) dr.textContent = currentAdmin && currentAdmin.role==='owner' ? 'OWNER' : 'ADMIN';
-
-    applyMode(localStorage.getItem('zx_mode')||'mobile', true);
-  }, 500);
-};
-
+    gi('login-page').style.display='none';
+    gi('app').style.display='block';
+    var name=currentAdmin.name||currentAdmin.username||'?';
+    var ini=name.charAt(0).toUpperCase();
+    gi('sb-avatar').textContent=ini;gi('tb-avatar').textContent=ini;
+    gi('sb-uname').textContent=name;
+    gi('sb-role').textContent=currentAdmin.role==='owner'?'OWNER':'ADMIN';
+    /* Show correct button in topbar */
+    /* Set main offset based on viewport */
+    gi('main').style.left = isMobile() ? '0' : 'var(--sb)';
+    if(currentAdmin.role!=='owner'){var f=gi('add-admin-form');if(f)f.style.display='none';}
+    gi('nb-activity').style.display='inline-flex';
+    updateClock();
+    loadAll();
+    startListeners();
+    initIPMonitoring();
+    db.collection('admins').doc(currentAdmin.id).get()
+      .then(function(doc){
+        if(doc.exists){var d=doc.data();currentAdmin.avatarUrl=d.avatarUrl||d.avatar_url||null;}
+        loadProfile();
+      }).catch(function(){loadProfile();});
+    setTimeout(checkExpiredKeys,4000);
+    setInterval(checkExpiredKeys,300000);
+  },420);
+}
+   
 /* ── Init: hide mode screen until needed ── */
 (function(){
   var saved = localStorage.getItem('zx_mode');
