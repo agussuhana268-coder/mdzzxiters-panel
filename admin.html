@@ -3126,7 +3126,10 @@ function adminLogin() {
 }
 
 /* ══ LOAD ALL ══ */
-function loadAll(){loadProjects();loadKeys();loadSessions();}
+function loadAll(){
+  /* Keys dan sessions diisi oleh startListeners(); hindari get() duplikat saat login. */
+  loadProjects();
+}
 
 /* ══════════════════════════
    ACTIVITY LOG (PERSISTENT)
@@ -4327,6 +4330,9 @@ function renderAnalyticsCharts(){
 
 /* ══ REALTIME LISTENERS ══ */
 function startListeners(){
+  /* Jangan membuat log massal dari dokumen 'added' pada snapshot awal. */
+  var keysInitialSnapshot = true;
+
   /* Sessions */
   db.collection('sessions').onSnapshot(function(snap){
     allSessions=[];
@@ -4344,7 +4350,7 @@ function startListeners(){
       return tb-ta;
     });
     renderKeys();renderProjects();updateOverviewStats();checkExpiredKeys();
-    if(change){
+    if(change && !keysInitialSnapshot){
       change.docChanges().forEach(function(ch){
         var d=ch.doc.data();
         if(ch.type==='added'&&d.key)pushActivityFS('key','Key <b>'+d.key+'</b> dibuat untuk <b>'+(d.project||'—')+'</b>',currentAdmin?currentAdmin.name:'system');
@@ -4352,6 +4358,7 @@ function startListeners(){
         if(ch.type==='modified'&&!d.active)pushActivityFS('revoke','Key <b>'+d.key+'</b> non-aktif',currentAdmin?currentAdmin.name:'system');
       });
     }
+    keysInitialSnapshot = false;
   },function(){});
 
   /* Admins */
