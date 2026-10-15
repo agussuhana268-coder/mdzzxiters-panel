@@ -3792,7 +3792,7 @@ async function syncStatusFromSupabase(){
     var token = await user.getIdToken();
     var res = await fetch('https://mdzzxiters-backend-production-cb68.up.railway.app/api/licenses/status',{
       method:'GET',
-      headers:{'Authorization':'Bearer '+token,'Accept':'application/json','Cache-Control':'no-cache'}
+      headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}
     });
     var payload = {};
     try { payload = await res.json(); } catch (_) {}
