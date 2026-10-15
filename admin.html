@@ -3782,49 +3782,49 @@ async function resetKeyUsage(id, keyVal) {
 }
 window.resetKeyUsage=resetKeyUsage;
 
-/* ══ Sync status FROM Supabase → update tampilan admin ══ */
+/* ══ Refresh status melalui backend tepercaya (jangan expose service key di browser) ══ */
 async function syncStatusFromSupabase(){
   if(!allKeys.length){toast('Load keys dulu','w');return;}
   toast('Mengambil status terbaru dari Supabase...','i',2000);
   try{
-    var keyList=allKeys.map(function(k){return k.key;}).filter(Boolean);
-    if(!keyList.length){toast('Tidak ada key','w');return;}
-
-    /* Fetch all keys from Supabase in one call */
-    var res=await fetch(_SUPA_URL+'/rest/v1/licenses?select=key,active,used,device_id,status&limit=1000',{
-      headers:{'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
+    var user = firebase.auth().currentUser;
+    if(!user) throw new Error('Sesi admin berakhir. Login ulang lalu coba lagi.');
+    var token = await user.getIdToken();
+    var res = await fetch('https://mdzzxiters-backend-production-cb68.up.railway.app/api/licenses/status',{
+      method:'GET',
+      headers:{'Authorization':'Bearer '+token,'Accept':'application/json','Cache-Control':'no-cache'}
     });
-    if(!res.ok){toast('Supabase tidak bisa diakses: '+res.status,'e');return;}
-    var supaData=await res.json();
-
-    /* Build lookup map key → supabase row */
+    var payload = {};
+    try { payload = await res.json(); } catch (_) {}
+    if(!res.ok || payload.success !== true){
+      if(res.status===401) throw new Error('Autentikasi admin ditolak backend. Login ulang atau periksa konfigurasi Firebase Admin.');
+      if(res.status===403) throw new Error('Akun tidak memiliki izin admin.');
+      throw new Error(payload.message || ('Gagal mengambil status (HTTP '+res.status+')'));
+    }
+    var supaData = Array.isArray(payload.rows) ? payload.rows : [];
     var supaMap={};
-    supaData.forEach(function(r){if(r.key)supaMap[r.key.toUpperCase()]=r;});
+    supaData.forEach(function(r){if(r.key)supaMap[String(r.key).trim().toUpperCase()]=r;});
 
-    /* Update allKeys in memory with Supabase truth */
     var updated=0;
     allKeys.forEach(function(k){
-      var sb=supaMap[k.key?k.key.toUpperCase():''];
+      var sb=supaMap[String(k.key||'').trim().toUpperCase()];
       if(!sb)return;
-      /* If Supabase says revoked/inactive → update Firebase doc too */
-      var wasActive=k.active;
-      k.used=sb.used||false;
+      var wasActive=k.active, wasUsed=!!k.used, wasDevice=k.deviceId||null;
+      k.used=!!sb.used;
       k.active=(sb.active!==false);
       k.deviceId=sb.device_id||k.deviceId||null;
+      if(wasActive!==k.active || wasUsed!==k.used || wasDevice!==k.deviceId){
+        db.collection('keys').doc(k._id).update({
+          active:k.active,used:k.used,deviceId:k.deviceId||null
+        }).catch(function(err){console.warn('[STATUS] Gagal update cache Firebase:',err.message);});
+      }
       updated++;
-      /* Sync back to Firebase if status changed */
-      if(wasActive&&!k.active){
-        db.collection('keys').doc(k._id).update({active:false}).catch(function(){});
-      }
-      if(sb.used&&!k.used){
-        db.collection('keys').doc(k._id).update({used:true,deviceId:sb.device_id||null}).catch(function(){});
-      }
     });
-
     renderKeys();renderProjects();updateOverviewStats();
-    toast('✓ Status diupdate dari Supabase ('+updated+' key)','s',3000);
+    toast('✓ Status berhasil diperbarui ('+updated+' key cocok dari '+supaData.length+' key Supabase)','s',3500);
   }catch(e){
-    toast('Error: '+e.message,'e');
+    console.error('[STATUS] Refresh Supabase gagal:',e);
+    toast('Refresh status gagal: '+(e.message||'kesalahan tidak diketahui'),'e',4500);
   }
 }
 window.syncStatusFromSupabase=syncStatusFromSupabase;
