@@ -3030,31 +3030,24 @@ function adminLogin() {
             }
           ).then(function (response) {
             return response.json().then(function (result) {
-              if (!response.ok || !result.success) {
+              if (!response.ok || !result.success || !result.admin) {
                 throw new Error(
                   result.message || 'Verifikasi Railway gagal.'
                 );
               }
 
-              return db.collection('admins')
-                .doc(cred.user.uid)
-                .get();
+              // Backend sudah memverifikasi role admin; gunakan hasilnya
+              // agar frontend tidak membaca dokumen admins yang sama sekali lagi.
+              var data = result.admin;
+              currentAdmin = {
+                id: data.uid || cred.user.uid,
+                username: data.username || u,
+                name: data.name || data.username || u,
+                role: data.role,
+                authMode: 'firebase'
+              };
             });
-          }).then(function (doc) {
-            if (!doc.exists ||
-                !['owner', 'admin'].includes(doc.data().role)) {
-              throw new Error('Akun tidak terdaftar sebagai admin.');
-            }
-
-            var data = doc.data();
-
-            currentAdmin = {
-              id: doc.id,
-              username: data.username || u,
-              name: data.name || data.username || u,
-              role: data.role,
-              authMode: 'firebase'
-            };
+          }).then(function () {
 
             localStorage.setItem(
               '_mdzz_adm',
