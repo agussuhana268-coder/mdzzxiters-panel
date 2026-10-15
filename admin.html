@@ -1500,8 +1500,12 @@ document.addEventListener('DOMContentLoaded',function(){
     </div>
     <div class="l-field">
       <label>PASSWORD</label>
-      <input type="password" id="adm-pass" class="l-input" placeholder="••••••••" autocomplete="off"/>
+      <input type="password" id="adm-pass" class="l-input" placeholder="••••••••" autocomplete="current-password"/>
     </div>
+    <label style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--t2);cursor:pointer;margin:0 2px;">
+      <input type="checkbox" id="adm-remember" style="width:15px;height:15px;accent-color:#38bdf8;"/>
+      Ingat saya (simpan email dan sesi login di perangkat ini)
+    </label>
     <button class="btn-login" onclick="adminLogin()">SIGN IN TO CONTROL CENTER</button>
     <div class="login-err" id="adm-err">Invalid credentials. Access denied.</div>
     <div class="login-footer">MDZZXITERS CORP · SECURE ACCESS · v2.0</div>
@@ -2118,7 +2122,7 @@ document.addEventListener('DOMContentLoaded',function(){
           <!-- API Config -->
           <div class="api-cfg">
             <label>BACKEND URL</label>
-            <input type="text" id="api-url" value="http://localhost:3000" placeholder="https://yourserver.com"/>
+            <input type="url" id="api-url" value="https://mdzzxiters-backend-production-cb68.up.railway.app" readonly aria-label="Backend URL Railway"/>
             <label>ADMIN KEY</label>
             <input type="password" id="api-key" value="mdzz_admin_2024" placeholder="admin secret key"/>
             <button class="btn btn-secondary btn-sm" onclick="testBackend()">
@@ -2197,7 +2201,7 @@ document.addEventListener('DOMContentLoaded',function(){
         <!-- API Config (shared with products page) -->
         <div class="api-cfg" style="flex-wrap:wrap;gap:8px;">
           <label style="width:auto;">BACKEND URL</label>
-          <input type="text" id="api-url-send" value="http://localhost:3000" placeholder="https://yourserver.com" style="min-width:180px;flex:1;"/>
+          <input type="url" id="api-url-send" value="https://mdzzxiters-backend-production-cb68.up.railway.app" readonly aria-label="Backend URL Railway" style="min-width:180px;flex:1;"/>
           <label style="width:auto;">ADMIN KEY</label>
           <input type="password" id="api-key-send" value="mdzz_admin_2024" placeholder="admin secret" style="min-width:140px;flex:1;"/>
         </div>
@@ -2622,15 +2626,29 @@ function genKey(){
   return 'MDZZ-'+seg(4)+'-'+seg(4)+'-'+seg(4);
 }
 function copyClip(text){
-  if(navigator.clipboard){navigator.clipboard.writeText(text).catch(function(){fb_copy(text);});}
-  else{fb_copy(text);}
+  text=String(text==null?'':text);
+  if(!text){toast('Tidak ada teks untuk disalin','e',2500);return Promise.resolve(false);}
+  if(navigator.clipboard && window.isSecureContext){
+    return navigator.clipboard.writeText(text).then(function(){return true;}).catch(function(){return fb_copy(text);});
+  }
+  return Promise.resolve(fb_copy(text));
 }
 function fb_copy(text){
-  var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0;';
-  document.body.appendChild(ta);ta.focus();ta.select();
-  try{document.execCommand('copy');}catch(e){}
+  var ta=document.createElement('textarea');
+  ta.value=String(text);ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;';
+  document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
+  var ok=false;
+  try{ok=document.execCommand('copy');}catch(e){ok=false;}
   document.body.removeChild(ta);
+  if(!ok)toast('Copy otomatis gagal. Tekan lama teks key lalu pilih Salin.','e',3500);
+  return ok;
 }
+async function copyKey(key){
+  var ok=await copyClip(key);
+  if(ok)toast('License key berhasil disalin','s',2200);
+}
+window.copyKey=copyKey;
 function calcExpiresAt(v,unit){
   var now=Date.now();v=parseInt(v)||1;
   if(unit==='hours')return new Date(now+v*3600000);
@@ -2828,9 +2846,23 @@ function adminLogin() {
   }
 
   
-  // Login menggunakan Firebase Authentication jika input berupa email
+  var remember = !!(gi('adm-remember') && gi('adm-remember').checked);
+  try {
+    if(remember){
+      localStorage.setItem('zx_admin_email',u);
+      localStorage.setItem('zx_admin_remember','1');
+    }else{
+      localStorage.removeItem('zx_admin_email');
+      localStorage.setItem('zx_admin_remember','0');
+    }
+  }catch(_){}
+
+  // Remember email and Firebase session only; never store the password.
   if (u.indexOf('@') !== -1) {
-    firebase.auth().signInWithEmailAndPassword(u, p)
+    var persistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+    firebase.auth().setPersistence(persistence).then(function(){
+      return firebase.auth().signInWithEmailAndPassword(u, p);
+    })
       .then(function (cred) {
         return cred.user.getIdToken().then(function (token) {
           return fetch(
@@ -4369,18 +4401,14 @@ var selectedFile       = null;
 var sendCount          = 0;
 
 /* ── helpers ── */
-/* ══ API CONFIG — single source of truth ══ */
-var _apiUrl = localStorage.getItem('zx_api_url') || '';
+/* ══ API CONFIG — Railway is the single source of truth ══ */
+var API_BASE_URL = 'https://mdzzxiters-backend-production-cb68.up.railway.app';
+var _apiUrl = API_BASE_URL;
 var _apiKey = localStorage.getItem('zx_api_key') || 'mdzz_admin_2024';
 
 function getApiUrl(){
-  /* Read from any visible input, or cached value */
-  var ids = ['api-url','api-url-send'];
-  for(var i=0;i<ids.length;i++){
-    var el=gi(ids[i]);
-    if(el&&el.value.trim()){_apiUrl=el.value.trim();break;}
-  }
-  return (_apiUrl||'http://localhost:3000').replace(/\/$/,'');
+  _apiUrl = API_BASE_URL;
+  return API_BASE_URL;
 }
 function getApiKey(){
   var ids = ['api-key','api-key-send'];
@@ -4391,8 +4419,8 @@ function getApiKey(){
   return _apiKey||'mdzz_admin_2024';
 }
 function syncApiInputs(){
-  var url=getApiUrl(), key=getApiKey();
-  ['api-url','api-url-send'].forEach(function(id){var el=gi(id);if(el&&!el.value)el.value=url;});
+  var url=API_BASE_URL, key=getApiKey();
+  ['api-url','api-url-send'].forEach(function(id){var el=gi(id);if(el)el.value=url;});
   ['api-key','api-key-send'].forEach(function(id){var el=gi(id);if(el&&!el.value)el.value=key;});
   localStorage.setItem('zx_api_url',url);
   localStorage.setItem('zx_api_key',key);
@@ -4682,9 +4710,9 @@ async function sendProduct() {
     var apiUrlEl = gi('api-url-send') || gi('api-url');
     var apiKeyEl = gi('api-key-send') || gi('api-key');
 
-    var resp = await fetch((apiUrlEl.value || 'http://localhost:3000').replace(/\/$/,'') + '/api/send-product', {
+    var resp = await fetch(getApiUrl() + '/api/send-product', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': apiKeyEl.value },
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': getApiKey() },
       body: JSON.stringify({
         buyerEmail:  email,
         productName: product,
@@ -4793,27 +4821,25 @@ window.drawerNav = function(page){ navToPatched(page); closeDrawer(); document.q
 
 /* ── Persist API config in localStorage ── */
 (function(){
-  /* Restore & sync all API config inputs from localStorage */
-  var savedUrl = localStorage.getItem('zx_api_url') || '';
-  var savedKey = localStorage.getItem('zx_api_key') || 'mdzz_admin_2024';
-  if(savedUrl){
-    ['api-url','api-url-send'].forEach(function(id){var el=gi(id);if(el)el.value=savedUrl;});
-  }
-  if(savedKey){
-    ['api-key','api-key-send'].forEach(function(id){var el=gi(id);if(el)el.value=savedKey;});
-  }
-  /* Auto-save on every input change */
-  ['api-url','api-url-send','api-key','api-key-send'].forEach(function(id){
+  localStorage.setItem('zx_api_url', API_BASE_URL);
+  ['api-url','api-url-send'].forEach(function(id){
     var el=gi(id);
-    if(el){
-      el.addEventListener('input', function(){
-        localStorage.setItem(id.includes('url')?'zx_api_url':'zx_api_key', el.value);
-        /* sync twin field */
-        var twin = id==='api-url'?'api-url-send':id==='api-url-send'?'api-url':id==='api-key'?'api-key-send':'api-key';
-        var tw=gi(twin);if(tw)tw.value=el.value;
-      });
-    }
+    if(el){el.value=API_BASE_URL;el.readOnly=true;}
   });
+  var savedKey=localStorage.getItem('zx_api_key')||'mdzz_admin_2024';
+  ['api-key','api-key-send'].forEach(function(id){
+    var el=gi(id);
+    if(el){if(!el.value)el.value=savedKey;el.addEventListener('input',function(){
+      localStorage.setItem('zx_api_key',el.value);
+      var twin=id==='api-key'?'api-key-send':'api-key';
+      var tw=gi(twin);if(tw)tw.value=el.value;
+    });}
+  });
+  try{
+    var savedEmail=localStorage.getItem('zx_admin_email')||'';
+    if(savedEmail)gi('adm-user').value=savedEmail;
+    gi('adm-remember').checked=localStorage.getItem('zx_admin_remember')==='1';
+  }catch(_){}
   renderSendHistory();
 })();
 
