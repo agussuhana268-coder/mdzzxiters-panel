@@ -1495,12 +1495,17 @@ document.addEventListener('DOMContentLoaded',function(){
     </div>
     <div class="login-divider"></div>
     <div class="l-field">
-      <label>USERNAME</label>
-      <input type="text" id="adm-user" class="l-input" placeholder="enter username" autocomplete="off" autocorrect="off" autocapitalize="none"/>
+      <label>USERNAME / EMAIL</label>
+      <input type="text" id="adm-user" class="l-input" placeholder="enter username or email" autocomplete="username" name="username" autocorrect="off" autocapitalize="none"/>
     </div>
     <div class="l-field">
       <label>PASSWORD</label>
-      <input type="password" id="adm-pass" class="l-input" placeholder="••••••••" autocomplete="current-password"/>
+      <div style="position:relative;display:flex;align-items:center;">
+        <input type="password" id="adm-pass" class="l-input" style="padding-right:48px;width:100%;" placeholder="••••••••" autocomplete="current-password" name="password"/>
+        <button type="button" id="adm-pass-toggle" aria-label="Tampilkan password" title="Tampilkan password" onclick="toggleLoginPassword()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--t2);cursor:pointer;padding:8px;display:flex;align-items:center;justify-content:center;">
+          <svg id="adm-pass-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
     </div>
     <label style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--t2);cursor:pointer;margin:0 2px;">
       <input type="checkbox" id="adm-remember" style="width:15px;height:15px;accent-color:#38bdf8;"/>
@@ -2832,6 +2837,22 @@ function autoSetup(){
 }
 
 /* ══ LOGIN ══ */
+function toggleLoginPassword(){
+  var input=gi('adm-pass'), button=gi('adm-pass-toggle'), eye=gi('adm-pass-eye');
+  if(!input)return;
+  var show=input.type==='password';
+  input.type=show?'text':'password';
+  if(button){
+    button.setAttribute('aria-label',show?'Sembunyikan password':'Tampilkan password');
+    button.setAttribute('title',show?'Sembunyikan password':'Tampilkan password');
+  }
+  if(eye){
+    eye.innerHTML=show
+      ? '<path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-4.1 4.8"/><path d="M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.6 10.6 0 0 0 4-.8"/>'
+      : '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
 function adminLogin() {
   var u = (gi('adm-user').value || '').trim();
   var p = gi('adm-pass').value;
