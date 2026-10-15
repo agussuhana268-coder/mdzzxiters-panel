@@ -4357,7 +4357,13 @@ function enterApp(){
    PRODUCT DELIVERY — Supabase Storage + Resend
 ══════════════════════════════════════════════ */
 
-var productSendHistory = JSON.parse(localStorage.getItem('zx_send_hist') || '[]');
+var productSendHistory = [];
+try {
+  var _storedSendHistory = JSON.parse(localStorage.getItem('zx_send_hist') || '[]');
+  productSendHistory = Array.isArray(_storedSendHistory) ? _storedSendHistory : [];
+} catch (_historyParseError) {
+  productSendHistory = [];
+}
 var productFiles       = [];
 var selectedFile       = null;
 var sendCount          = 0;
@@ -4698,6 +4704,7 @@ async function sendProduct() {
 
     /* Save to local history */
     var entry = { email:email, product:product, key:licKey, time:Date.now(), ok:true };
+    if (!Array.isArray(productSendHistory)) productSendHistory = [];
     productSendHistory.unshift(entry);
     if(productSendHistory.length > 50) productSendHistory.pop();
     localStorage.setItem('zx_send_hist', JSON.stringify(productSendHistory));
@@ -4722,6 +4729,7 @@ async function sendProduct() {
     res.className = 'send-result err vis';
     toast('Gagal: ' + e.message,'e',4000);
     var entry = { email:email, product:product, key:licKey, time:Date.now(), ok:false, err:e.message };
+    if (!Array.isArray(productSendHistory)) productSendHistory = [];
     productSendHistory.unshift(entry);
     localStorage.setItem('zx_send_hist', JSON.stringify(productSendHistory));
     renderSendHistory();
