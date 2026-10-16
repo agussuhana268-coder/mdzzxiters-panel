@@ -2189,7 +2189,7 @@ document.addEventListener('DOMContentLoaded',function(){
           <div class="section-head"><span class="section-title">TEAM MEMBERS</span><span class="section-badge" id="team-count-badge">0 admins</span></div>
           <div id="owner-password-setup" style="display:none;padding:12px 0;">
             <button class="btn btn-primary" type="button" onclick="setupOwnerDashboardPassword()">SET OWNER DASHBOARD PASSWORD</button>
-            <div style="font-size:12px;color:var(--t2);margin-top:8px;">Atur password login dashboard owner tanpa membuka DevTools. Minimal 12 karakter.</div>
+            <div style="font-size:12px;color:var(--t2);margin-top:8px;">Atur password login dashboard owner tanpa membuka DevTools. Minimal 8 karakter.</div>
           </div>
           <div class="add-form" id="add-admin-form">
             <input type="text" id="new-name" class="f-input" placeholder="Full Name" style="max-width:100px;"/>
@@ -2976,122 +2976,47 @@ function toggleLoginPassword(){
 }
 
 function adminLogin() {
-  var u = (gi('adm-user').value || '').trim();
+  var u = (gi('adm-user').value || '').trim().toLowerCase();
   var p = gi('adm-pass').value;
   var err = gi('adm-err');
 
   err.style.display = 'none';
 
   if (!u || !p) {
-    err.textContent = 'Please fill all fields.';
+    err.textContent = 'Masukkan username dan password.';
     err.style.display = 'block';
     return;
   }
 
-  
-  var remember = !!(gi('adm-remember') && gi('adm-remember').checked);
-  try {
-    if(remember){
-      localStorage.setItem('zx_admin_email',u);
-      localStorage.setItem('zx_admin_remember','1');
-    }else{
-      localStorage.removeItem('zx_admin_email');
-      localStorage.setItem('zx_admin_remember','0');
-    }
-  }catch(_){}
-
-  // Remember email and Firebase session only; never store the password.
+  // Dashboard login selalu diverifikasi backend terhadap tabel admins di Supabase.
+  // Email Firebase tidak boleh mengalihkan owner ke jalur autentikasi lama.
   if (u.indexOf('@') !== -1) {
-    var persistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-    firebase.auth().setPersistence(persistence).then(function(){
-      return firebase.auth().signInWithEmailAndPassword(u, p);
-    })
-      .then(function (cred) {
-        return cred.user.getIdToken().then(function (token) {
-          return fetch(
-            'https://mdzzxiters-backend-production-cb68.up.railway.app/api/admin/verify',
-            {
-              method: 'GET',
-              headers: {
-                'Authorization': 'Bearer ' + token
-              }
-            }
-          ).then(function (response) {
-            return response.json().then(function (result) {
-              if (!response.ok || !result.success || !result.admin) {
-                throw new Error(
-                  result.message || 'Verifikasi Railway gagal.'
-                );
-              }
-
-              // Tukarkan Firebase ID token menjadi sesi backend bertanda tangan.
-              var verifiedAdmin = result.admin;
-              return fetch(
-                'https://mdzzxiters-backend-production-cb68.up.railway.app/api/admin/session',
-                {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
-                  },
-                  cache: 'no-store'
-                }
-              ).then(function (sessionResponse) {
-                return sessionResponse.json().catch(function () { return {}; }).then(function (sessionResult) {
-                  if (!sessionResponse.ok || !sessionResult.success || !sessionResult.token || !sessionResult.admin) {
-                    throw new Error(sessionResult.message || 'Gagal membuat sesi backend.');
-                  }
-
-                  var data = sessionResult.admin;
-                  currentAdmin = {
-                    id: data.id || verifiedAdmin.uid || cred.user.uid,
-                    username: data.username || verifiedAdmin.username || u,
-                    name: data.name || verifiedAdmin.name || data.username || u,
-                    role: data.role || verifiedAdmin.role,
-                    createdAt: data.created_at || null,
-                    avatarUrl: data.avatar_url || null,
-                    authMode: 'backend'
-                  };
-
-                  var storage = remember ? localStorage : sessionStorage;
-                  storage.setItem('_mdzz_admin_token', sessionResult.token);
-                  (remember ? sessionStorage : localStorage).removeItem('_mdzz_admin_token');
-                });
-              });
-            });
-          }).then(function () {
-            localStorage.setItem('_mdzz_adm', JSON.stringify(currentAdmin));
-            enterApp();
-
-            pushActivityFS(
-              'login',
-              'Admin <b>' + currentAdmin.name +
-                '</b> login ke dashboard',
-              currentAdmin.name
-            );
-
-            renderRevenue();
-            console.log('Firebase login ditukar menjadi sesi backend.');
-          });
-        });
-      })
-      .catch(function (e) {
-        err.textContent = e.message || 'Login Firebase gagal.';
-        err.style.display = 'block';
-      });
-
+    err.textContent = 'Gunakan username dashboard dari tabel admins, bukan alamat email.';
+    err.style.display = 'block';
     return;
   }
 
-  // Username/password diverifikasi backend terhadap Supabase.
+  var remember = !!(gi('adm-remember') && gi('adm-remember').checked);
+  try {
+    if (remember) {
+      localStorage.setItem('zx_admin_email', u);
+      localStorage.setItem('zx_admin_remember', '1');
+    } else {
+      localStorage.removeItem('zx_admin_email');
+      localStorage.setItem('zx_admin_remember', '0');
+    }
+  } catch (_) {}
+
   fetch(API_BASE_URL + '/api/admin/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     cache: 'no-store',
-    body: JSON.stringify({ username: u.toLowerCase(), password: p })
+    body: JSON.stringify({ username: u, password: p })
   }).then(function(response) {
-    return response.json().catch(function(){ return {}; }).then(function(data) {
-      if (!response.ok || !data.success || !data.token || !data.admin) throw new Error(data.message || 'Login gagal.');
+    return response.json().catch(function() { return {}; }).then(function(data) {
+      if (!response.ok || !data.success || !data.token || !data.admin) {
+        throw new Error(data.message || 'Login gagal.');
+      }
       var a = data.admin;
       currentAdmin = {
         id: a.id, username: a.username, name: a.name || a.username,
