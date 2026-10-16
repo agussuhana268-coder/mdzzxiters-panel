@@ -4346,6 +4346,53 @@ function startListeners(){
   adminsRefreshTimer=setInterval(refreshAdminsFromApi,60000);
 }
 
+/* Pulihkan sesi hanya jika token autentikasi masih tersedia. Jangan mempercayai profil localStorage saja. */
+function checkSaved(){
+  var saved=null;
+  try{saved=JSON.parse(localStorage.getItem('_mdzz_adm')||'null');}catch(_){}
+  if(!saved||!saved.username||!saved.role){
+    try{localStorage.removeItem('_mdzz_adm');}catch(_){}
+    return;
+  }
+  if(saved.authMode==='backend'){
+    var token='';
+    try{token=sessionStorage.getItem('_mdzz_admin_token')||localStorage.getItem('_mdzz_admin_token')||'';}catch(_){}
+    if(!token){
+      try{localStorage.removeItem('_mdzz_adm');}catch(_){}
+      return;
+    }
+    currentAdmin=saved;
+    enterApp();
+    return;
+  }
+  if(saved.authMode==='firebase'){
+    firebase.auth().onAuthStateChanged(function(user){
+      if(user&&!user.isAnonymous){
+        currentAdmin=saved;
+        enterApp();
+      }else{
+        try{localStorage.removeItem('_mdzz_adm');}catch(_){}
+      }
+    });
+    return;
+  }
+  // Sesi lawas tanpa mode/token tidak lagi dipercaya; minta login ulang.
+  try{localStorage.removeItem('_mdzz_adm');}catch(_){}
+}
+
+function adminLogout(){
+  try{
+    localStorage.removeItem('_mdzz_adm');
+    localStorage.removeItem('_mdzz_admin_token');
+    sessionStorage.removeItem('_mdzz_admin_token');
+  }catch(_){}
+  currentAdmin=null;
+  Promise.resolve(firebase.auth().signOut()).catch(function(){}).then(function(){
+    window.location.reload();
+  });
+}
+window.adminLogout=adminLogout;
+
 /* ══ INIT ══ */
 autoSetup().then(function(){checkSaved();}).catch(function(){checkSaved();});
 
