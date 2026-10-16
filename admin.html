@@ -3199,13 +3199,9 @@ function checkExpiredKeys(){
     var d=k.expiresAt.toDate?k.expiresAt.toDate():new Date(k.expiresAt.seconds?k.expiresAt.seconds*1000:k.expiresAt);
     return d.getTime()<now;
   });
+  /* Key expired tidak lagi diubah melalui Firestore. Backend lisensi memvalidasi masa berlaku. */
   if(toRevoke.length){
-    toRevoke.forEach(function(k){
-      db.collection('keys').doc(k._id).update({active:false}).then(function(){
-        pushActivityFS('expire','Key <b>'+k.key+'</b> auto-expired dan di-revoke secara otomatis','system');
-        toast('Key expired: '+k.key,'w',3000);
-      });
-    });
+    toRevoke.forEach(function(k){k.active=false;k.status='expired';});
   }
   var exp24=allKeys.filter(function(k){
     if(!k.active||!k.expiresAt)return false;
@@ -3674,10 +3670,9 @@ async function revokeKey(id) {
           return;
         }
 
-        await db.collection('keys').doc(id).update({
-          active: false,
-          status: 'revoked'
-        });
+        k.active=false;
+        k.status='revoked';
+        refreshSupabaseDashboard(false);
 
         pushActivityFS(
           'revoke',
@@ -3687,7 +3682,7 @@ async function revokeKey(id) {
         );
 
         toast(
-          '✓ Key revoked dan tersinkron ke Supabase',
+          '✓ Key revoked di Supabase',
           's',
           3500
         );
