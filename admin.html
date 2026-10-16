@@ -2065,11 +2065,7 @@ document.addEventListener('DOMContentLoaded',function(){
           <div class="section-head">
             <span class="section-title">KEY MANAGEMENT</span>
             <div style="display:flex;gap:8px;align-items:center;">
-              <span class="section-badge" id="key-count-badge">0 keys</span>
-              <button class="btn btn-secondary btn-sm" onclick="syncAllKeysToSupabase()" title="Sync semua key aktif ke Supabase">
-                <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                SYNC → SUPABASE
-              </button> <button class="btn btn-secondary" onclick="syncStatusFromSupabase()" title="Baca status terbaru dari Supabase (used/device)">↻ STATUS</button> <button class="btn btn-secondary" onclick="verifyTrialKey()" title="Cek format trial key di Supabase">🔍 VERIFY</button>
+              <span class="section-badge" id="key-count-badge">0 keys</span> <button class="btn btn-secondary" onclick="syncStatusFromSupabase()" title="Baca status terbaru dari Supabase (used/device)">↻ STATUS</button> <button class="btn btn-secondary" onclick="verifyTrialKey()" title="Cek format trial key di Supabase">🔍 VERIFY</button>
             </div>
           </div>
 
@@ -3592,32 +3588,6 @@ async function revokeKey(id) {
   );
 }
 
-/* Sync SEMUA key aktif dari Firebase ke Supabase (untuk key lama) */
-async function syncAllKeysToSupabase(){
-  var activeKeys = allKeys.filter(function(k){ return k.active; });
-  if(!activeKeys.length){ toast('Tidak ada key aktif','w'); return; }
-  toast('Menyinkron '+activeKeys.length+' key ke Supabase...','i',2000);
-  try {
-    var rows = activeKeys.map(function(k){
-      return {
-        key:          k.key,
-        project:      k.project||'',
-        active:       k.active,
-        used:         k.used||false,
-        device_id:    k.deviceId||null,
-        generated_by: k.generatedBy||'',
-        created_at:   k.createdAt&&k.createdAt.toDate ? k.createdAt.toDate().toISOString() : new Date().toISOString(),
-        expires_at:   k.expiresAt ? toSupaDate(k.expiresAt.toDate ? k.expiresAt.toDate() : new Date(k.expiresAt.seconds ? k.expiresAt.seconds*1000 : k.expiresAt)) : null,
-        used_at:      k.usedAt&&k.usedAt.toDate ? k.usedAt.toDate().toISOString() : null
-      };
-    });
-    await adminApiFetch('/api/licenses/sync',{method:'POST',body:JSON.stringify({rows:rows})});
-    toast('✓ '+activeKeys.length+' key berhasil disinkronkan melalui backend!','s',3000);
-  } catch(e){
-    toast('Error: '+e.message,'e',3000);
-  }
-}
-window.syncAllKeysToSupabase=syncAllKeysToSupabase;
 window.revokeKey=revokeKey;window.copyKey=copyKey;
 
 /* ══ RESET KEY USAGE — untuk key yang salah terpakai ══ */
