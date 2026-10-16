@@ -5037,45 +5037,22 @@ async function handlePhotoUpload(input){
   if(file.size > 3*1024*1024){ toast('Foto max 3MB','e'); return; }
   if(!currentAdmin){ toast('Login terlebih dahulu','e'); return; }
 
-  var ext      = (file.name.split('.').pop()||'jpg').toLowerCase();
-  var filePath = 'avatar_' + currentAdmin.id + '.' + ext;
-
-  toast('Mengunggah foto...','i', 2000);
+  if(!/^image\/(jpeg|png|webp|gif)$/.test(file.type)){toast('Format foto harus JPG, PNG, WEBP, atau GIF','e');return;}
+  toast('Mengunggah foto...','i',2000);
   try{
-    /* Nama bucket Supabase Storage — sesuaikan dengan nama bucket kamu */
-    var AVATAR_BUCKET = 'avatar';
-
-    var uploadRes = await fetch(_SUPA_URL + '/storage/v1/object/' + AVATAR_BUCKET + '/' + filePath, {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + _SUPA_KEY,
-        'apikey': _SUPA_KEY,
-        'x-upsert': 'true',
-        'Content-Type': file.type
-      },
-      body: file
-    });
-    if(!uploadRes.ok){
-      var errText = await uploadRes.text();
-      var parsed = {}; try{parsed=JSON.parse(errText);}catch(_){}
-      if(uploadRes.status===404){
-        throw new Error('Bucket "'+AVATAR_BUCKET+'" tidak ditemukan di Supabase Storage. Pastikan nama bucket benar dan bucket sudah dibuat.');
-      }
-      if(uploadRes.status===403||uploadRes.status===400){
-        throw new Error('Akses ditolak. Jalankan SQL policy di Supabase SQL Editor (lihat instruksi di console).');
-      }
-      throw new Error('Upload gagal (' + uploadRes.status + '): ' + (parsed.message||errText));
-    }
-    var publicUrl  = _SUPA_URL + '/storage/v1/object/public/' + AVATAR_BUCKET + '/' + filePath;
-    var displayUrl = publicUrl + '?t=' + Date.now();
-    await adminApiFetch('/api/admins/me',{method:'PATCH',body:JSON.stringify({avatar_url:publicUrl})});
-    currentAdmin.avatarUrl = publicUrl;
-    setPhoto(displayUrl);
+    var form=new FormData();
+    form.append('file',file,file.name);
+    var result=await adminApiFetch('/api/admins/me/avatar',{method:'POST',body:form});
+    var publicUrl=result.avatar_url;
+    if(!publicUrl)throw new Error('Backend tidak mengembalikan URL foto.');
+    currentAdmin.avatarUrl=publicUrl;
+    localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
+    setPhoto(publicUrl+'?t='+Date.now());
     toast('Foto profil berhasil diperbarui ✓','s');
-    if(typeof renderTeamList === 'function') renderTeamList();
+    if(typeof renderTeamList==='function')renderTeamList();
   }catch(err){
-    console.error('[Avatar]', err);
-    toast('Gagal: ' + (err.message||err), 'e', 4000);
+    console.error('[Avatar]',err);
+    toast('Gagal: '+(err.message||err),'e',4000);
   }
 }
 
