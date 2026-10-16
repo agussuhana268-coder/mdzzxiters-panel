@@ -3760,13 +3760,16 @@ function renderAdmins(){
   if(!allAdminsData.length){gi('team-list').innerHTML='<div class="empty">No admins.</div>';return;}
   var html='';
   allAdminsData.forEach(function(d){
-    var ini=(d.name||d.username||'?').charAt(0).toUpperCase();
+    var ini=escapeHtml((d.name||d.username||'?').charAt(0).toUpperCase());
+    var adminRole=String(d.role||'admin').toLowerCase();
+    var adminId=String(d._id||'');
+    var adminUsername=String(d.username||'—');
     html+='<div class="admin-row">';
     html+='<div class="admin-av">'+ini+'</div>';
-    html+='<div class="admin-info"><span class="admin-name">'+(d.name||'—')+'</span><span class="admin-user">@'+(d.username||'—')+'</span><span class="admin-joined">'+fmtTime(d.createdAt||d.created_at)+'</span></div>';
-    html+='<span class="role-tag '+(d.role||'admin')+'">'+(d.role||'ADMIN').toUpperCase()+'</span>';
-    if(currentAdmin&&currentAdmin.role==='owner'&&d._id!==currentAdmin.id){
-      html+='<button class="btn btn-danger btn-sm" onclick="removeAdmin(\''+d._id+'\',\''+d.username+'\')">REMOVE</button>';
+    html+='<div class="admin-info"><span class="admin-name">'+escapeHtml(d.name||'—')+'</span><span class="admin-user">@'+escapeHtml(adminUsername)+'</span><span class="admin-joined">'+fmtTime(d.createdAt||d.created_at)+'</span></div>';
+    html+='<span class="role-tag '+escapeHtml(adminRole)+'">'+escapeHtml(adminRole.toUpperCase())+'</span>';
+    if(currentAdmin&&currentAdmin.role==='owner'&&adminId!==String(currentAdmin.id||'')){
+      html+='<button class="btn btn-danger btn-sm" onclick="removeAdmin(\''+escapeHtml(adminId)+'\',\''+escapeHtml(adminUsername)+'\')">REMOVE</button>';
     }
     html+='</div>';
   });
