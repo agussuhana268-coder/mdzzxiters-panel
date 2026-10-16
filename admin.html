@@ -3220,25 +3220,12 @@ function checkExpiredKeys(){
 
 /* ══ PROJECTS ══ */
 function loadProjects(){
-  db.collection('projects').orderBy('name').get().then(function(snap){
-    allProjects=[];
-    snap.forEach(function(d){allProjects.push({id:d.id,name:d.data().name});});
-    /* remove PRIVATE EXTREME */
-    allProjects.filter(function(p){return p.name==='PRIVATE EXTREME';}).forEach(function(p){
-      db.collection('projects').doc(p.id).delete().catch(function(){});
+  adminApiFetch('/api/projects').then(function(result){
+    allProjects=(result.rows||[]).filter(function(p){return p.name!=='PRIVATE EXTREME';}).map(function(p){
+      return {id:p.id,name:p.name,createdAt:p.created_at?new Date(p.created_at):null};
     });
-    allProjects=allProjects.filter(function(p){return p.name!=='PRIVATE EXTREME';});
-    var defaults=['INSANITY MAX','CYBER PRO','BLAZE','ATOMIC PRO','ZX PRIVATE','ZX CORE','ZX EXCLUSIVE','ZX APEX','VORTEX'];
-    var existing=allProjects.map(function(p){return p.name;});
-    var missing=defaults.filter(function(n){return existing.indexOf(n)<0;});
-    if(missing.length){
-      Promise.all(missing.map(function(n){return db.collection('projects').add({name:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});}))
-        .then(function(){loadProjects();});
-      if(!allProjects.length)return;
-    }
-    renderProjects();renderProjectSelect();renderKeyFilters();renderSessFilters();
-    updateOverviewStats();
-  }).catch(function(e){toast('Error projects: '+e.message,'e');});
+    renderProjects();renderProjectSelect();renderKeyFilters();renderSessFilters();updateOverviewStats();
+  }).catch(function(e){toast('Gagal memuat proyek Supabase: '+e.message,'e');});
 }
 function renderProjects(){
   var total=allProjects.length;
@@ -3281,22 +3268,21 @@ function addProject(){
   if(!name){toast('Enter project name','e');return;}
   if(name==='PRIVATE EXTREME'){toast('Nama ini tidak diizinkan','e');return;}
   if(allProjects.some(function(p){return p.name===name;})){toast('Project already exists','e');return;}
-  db.collection('projects').add({name:name,createdAt:firebase.firestore.FieldValue.serverTimestamp()})
-    .then(function(){
-      gi('new-proj').value='';
-      toast('Project "'+name+'" created!','s');
-      pushActivityFS('project','Project <b>'+name+'</b> dibuat oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
-      loadProjects();
-    }).catch(function(e){toast('Error: '+e.message,'e');});
+  adminApiFetch('/api/projects',{method:'POST',body:JSON.stringify({name:name})}).then(function(){
+    gi('new-proj').value='';
+    toast('Project "'+name+'" created!','s');
+    pushActivityFS('project','Project <b>'+name+'</b> dibuat oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
+    loadProjects();
+  }).catch(function(e){toast('Gagal membuat proyek: '+e.message,'e');});
 }
 function deleteProject(id,name){
   if(currentAdmin.role!=='owner'){toast('Only owner can delete','e');return;}
   showModal('DELETE PROJECT','Delete "'+name+"? Keys akan tetap ada.",function(){
-    db.collection('projects').doc(id).delete().then(function(){
+    adminApiFetch('/api/projects/'+encodeURIComponent(id),{method:'DELETE'}).then(function(){
       toast('Deleted','s');
       pushActivityFS('project','Project <b>'+name+'</b> dihapus oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
       loadProjects();
-    }).catch(function(e){toast('Error: '+e.message,'e');});
+    }).catch(function(e){toast('Gagal menghapus proyek: '+e.message,'e');});
   },true);
 }
 window.addProject=addProject;window.deleteProject=deleteProject;
