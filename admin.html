@@ -3129,18 +3129,14 @@ function loadAll(){
 ══════════════════════════ */
 function pushActivityFS(type,text,admin){
   admin=admin||(currentAdmin?currentAdmin.name:'system');
-  db.collection('activity_log').add({
-    type:type,text:text,admin:admin,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(function(){});
+  adminApiFetch('/api/activity',{method:'POST',body:JSON.stringify({type:type,text:text,admin:admin})}).catch(function(){});
 }
 
 function refreshActivity(){
-  db.collection('activity_log').orderBy('createdAt','desc').limit(200).get().then(function(snap){
-    activityLog=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;activityLog.push(d);});
+  adminApiFetch('/api/activity').then(function(result){
+    activityLog=(result.rows||[]).map(function(d){d._id=d.id;d.createdAt=d.created_at;return d;});
     renderActivity();updateActStats();
-  }).catch(function(){});
+  }).catch(function(e){console.warn('[Activity] Gagal memuat dari backend:',e.message);});
 }
 
 function updateActStats(){
@@ -4334,13 +4330,22 @@ function refreshSupabaseDashboard(showError){
   });
 }
 /* Polling ringan menggantikan snapshot Firestore untuk keys dan sessions. */
+var activityRefreshTimer=null;
 var supabaseDashboardTimer=null;
 function startListeners(){
   refreshSupabaseDashboard(true);
   if(supabaseDashboardTimer)clearInterval(supabaseDashboardTimer);
   supabaseDashboardTimer=setInterval(function(){refreshSupabaseDashboard(false);},20000);
 
-  /* Admins dan activity log masih Firestore; migrasi bagian ini menyusul. */
+  /* Activity log dipoll dari Supabase; tidak lagi memasang listener Firestore. */
+  refreshActivity();
+  if(activityRefreshTimer)clearInterval(activityRefreshTimer);
+  activityRefreshTimer=setInterval(function(){
+    refreshActivity();
+    if(gi('page-overview').classList.contains('active'))renderOverviewCharts();
+  },30000);
+
+  /* Admin management dimigrasikan terpisah setelah skema auth/admin dipastikan. */
   db.collection('admins').orderBy('createdAt').onSnapshot(function(snap){
     allAdminsData=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
@@ -4353,13 +4358,6 @@ function startListeners(){
       renderAdmins();
     },function(){});
   });
-
-  db.collection('activity_log').orderBy('createdAt','desc').limit(200).onSnapshot(function(snap){
-    activityLog=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;activityLog.push(d);});
-    renderActivity();
-    if(gi('page-overview').classList.contains('active'))renderOverviewCharts();
-  },function(){refreshActivity();});
 }
 
 /* ══ INIT ══ */
