@@ -4893,7 +4893,14 @@ async function sendProduct() {
     gi('sf-email').value = ''; gi('sf-key').value = '';
 
   } catch(e) {
-    res.innerHTML = '<div class="sr-title">GAGAL TERKIRIM</div><div class="sr-body">' + e.message + '</div>';
+    res.replaceChildren();
+    var sendErrorTitle=document.createElement('div');
+    sendErrorTitle.className='sr-title';
+    sendErrorTitle.textContent='GAGAL TERKIRIM';
+    var sendErrorBody=document.createElement('div');
+    sendErrorBody.className='sr-body';
+    sendErrorBody.textContent=e&&e.message?e.message:'Pengiriman email gagal.';
+    res.append(sendErrorTitle,sendErrorBody);
     res.className = 'send-result err vis';
     toast('Gagal: ' + e.message,'e',4000);
     var entry = { email:email, product:product, key:licKey, time:Date.now(), ok:false, err:e.message };
