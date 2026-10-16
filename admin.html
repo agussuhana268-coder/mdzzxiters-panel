@@ -3145,6 +3145,10 @@ function updateActStats(){
   var cb=gi('act-count-badge');if(cb)cb.textContent=activityLog.length+' events';
 }
 
+function escapeHtml(value){
+  return String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 function sanitizeActivityHtml(value){
   var allowedTags=[];
   var text=String(value==null?'':value);
@@ -3476,10 +3480,10 @@ function renderIPHistory(flashFirst){
     html+='<div class="iph-row'+(fresh?' fresh':'')+'">';
     html+='<div class="iph-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>';
     html+='<div class="iph-main">';
-    html+='<span class="iph-ip">'+(r.ip_address||'—')+'</span>';
+    html+='<span class="iph-ip">'+escapeHtml(r.ip_address||'—')+'</span>';
     html+='<div class="iph-meta">';
-    html+='<span class="km-tag">'+(r.license_key||'—')+'</span>';
-    if(r.device_id)html+='<span class="km-tag" title="Device: '+r.device_id+'">📱 ...'+r.device_id.slice(-8)+'</span>';
+    html+='<span class="km-tag">'+escapeHtml(r.license_key||'—')+'</span>';
+    if(r.device_id){var deviceId=String(r.device_id);html+='<span class="km-tag" title="Device: '+escapeHtml(deviceId)+'">📱 ...'+escapeHtml(deviceId.slice(-8))+'</span>';}
     html+='</div></div>';
     html+='<span class="iph-time">'+fmtTime(r.created_at)+'</span>';
     html+='</div>';
