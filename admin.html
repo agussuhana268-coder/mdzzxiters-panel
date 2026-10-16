@@ -1543,6 +1543,59 @@ body.sb-open{overflow:hidden;}
   .mobile-nav{display:block;}
   .content{padding-bottom:78px!important;}
 }
+
+  
+  /* MOBILE LOGIN ONLY — single-panel layout */
+  @media (max-width: 850px) {
+    #login-page {
+      grid-template-columns: minmax(0, 1fr) !important;
+      grid-template-rows: 1fr !important;
+      align-items: center !important;
+      align-content: center !important;
+      justify-items: center !important;
+      gap: 0 !important;
+      min-height: 100svh !important;
+      padding: 24px 18px !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+    }
+    #login-page .login-intro {
+      display: none !important;
+    }
+    #login-page .login-card {
+      grid-column: 1 !important;
+      grid-row: 1 !important;
+      justify-self: center !important;
+      align-self: center !important;
+      width: min(100%, 420px) !important;
+      max-width: 420px !important;
+      margin: auto !important;
+      padding: clamp(24px, 7vw, 32px) clamp(20px, 6vw, 28px) 24px !important;
+      border-radius: 18px !important;
+      box-shadow: 0 22px 56px rgba(0,0,0,.38), 0 1px 0 rgba(255,255,255,.04) inset !important;
+    }
+    #login-page .login-logo-wrap { gap: 12px !important; }
+    #login-page .login-logo-hex { width: 42px !important; height: 42px !important; }
+    #login-page .login-brand { font-size: 16px !important; letter-spacing: 1.5px !important; }
+    #login-page .login-brand-sub { font-size: 8px !important; letter-spacing: 1.4px !important; }
+    #login-page .login-divider { margin: 22px 0 24px !important; }
+    #login-page .l-field { margin-bottom: 16px !important; }
+    #login-page .l-input { min-height: 48px !important; font-size: 16px !important; }
+    #login-page .btn-login { min-height: 50px !important; margin-top: 18px !important; }
+    #login-page label:has(#adm-remember) { gap: 8px !important; font-size: 11px !important; }
+    #login-page .login-footer { margin-top: 16px !important; font-size: 8px !important; letter-spacing: 1px !important; }
+    #login-page::before { top: 16px !important; left: 18px !important; font-size: 8px !important; letter-spacing: 1.8px !important; }
+    #login-page::after { display: none !important; }
+    #login-page .login-bg-grid { inset: 0 !important; opacity: .28 !important; }
+    #login-page .login-orb { width: 360px !important; height: 360px !important; top: 50% !important; left: 50% !important; }
+  }
+  @media (max-width: 380px) {
+    #login-page { padding: 20px 12px !important; }
+    #login-page .login-card { padding: 23px 17px 20px !important; }
+    #login-page .login-divider { margin: 18px 0 20px !important; }
+    #login-page .login-footer { font-size: 7px !important; }
+  }
+
 </style>
 </head>
 <body>
