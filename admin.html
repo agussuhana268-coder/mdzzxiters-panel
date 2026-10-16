@@ -3282,11 +3282,10 @@ window.setKeyFilter=setKeyFilter;window.setSessFilter=setSessFilter;
 
 /* ══ KEYS ══ */
 function loadKeys(){
-  db.collection('keys').orderBy('createdAt','desc').get().then(function(snap){
-    allKeys=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
+  /* Single source of truth: backend API backed by Supabase. */
+  refreshSupabaseDashboard(true).then(function(){
     renderKeys();renderProjects();updateOverviewStats();checkExpiredKeys();
-  }).catch(function(e){toast('Error loading keys: '+e.message,'e');});
+  }).catch(function(e){toast('Gagal memuat lisensi dari backend: '+e.message,'e');});
 }
 
 function searchFilter(keys){
@@ -3809,11 +3808,17 @@ window.verifyTrialKey = verifyTrialKey;
 
 /* ══ SESSIONS ══ */
 function loadSessions(){
-  db.collection('sessions').orderBy('lastSeen','desc').get().then(function(snap){
-    allSessions=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allSessions.push(d);});
+  /* Sessions are loaded from the backend API backed by Supabase. */
+  adminApiFetch('/api/sessions/status').then(function(result){
+    allSessions=(result.rows||[]).map(function(d){
+      return {
+        _id:d.id, id:d.id, key:d.key, platform:d.platform||'?',
+        online:d.online===true, lastSeen:d.last_seen||null,
+        ipAddress:d.ip_address||null, lastSeenIpAt:d.last_seen_ip_at||null
+      };
+    });
     renderSessions();updateOverviewStats();
-  }).catch(function(e){toast('Error sessions: '+e.message,'e');});
+  }).catch(function(e){toast('Gagal memuat sesi dari backend: '+e.message,'e');});
 }
 function renderSessions(){
   var online=allSessions.filter(function(s){return s.online;}).length;
