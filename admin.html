@@ -5149,7 +5149,7 @@ async function loadAccountStats(){
       var recents=data.slice(-8).reverse();
       var html=recents.map(function(k){
         return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr3);">'+
-          '<span style="font-family:var(--mono);font-size:9px;color:var(--sky2);">'+k.key+'</span>'+
+          '<span style="font-family:var(--mono);font-size:9px;color:var(--sky2);">'+escapeHtml(k.key)+'</span>'+
           '<span class="key-status '+(k.active?'active':'revoked')+'">'+(k.active?'ACTIVE':'REVOKED')+'</span>'+
           '</div>';
       }).join('');
@@ -5164,7 +5164,7 @@ async function loadAccountStats(){
   gi('acc-active-keys').textContent=myKeys.filter(function(k){return k.active;}).length;
   var recHtml=myKeys.slice(-8).reverse().map(function(k){
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr3);">'+
-      '<span style="font-family:var(--mono);font-size:9px;color:var(--sky2);">'+k.key+'</span>'+
+      '<span style="font-family:var(--mono);font-size:9px;color:var(--sky2);">'+escapeHtml(k.key)+'</span>'+
       '<span class="key-status '+(k.active?'active':'revoked')+'">'+(k.active?'ACTIVE':'REVOKED')+'</span>'+
       '</div>';
   }).join('');
