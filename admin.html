@@ -5023,34 +5023,39 @@ function onDataReady(){
    ACCOUNT PAGE + PROFILE PHOTO SYSTEM
 ══════════════════════════════════════════════════════ */
 
-/* Load profile from localStorage (photo stored as data URL) */
-function loadProfile(){
+/* Load profile metadata from backend/Supabase; local storage is only a UI cache. */
+async function loadProfile(){
   if(!currentAdmin) return;
-  var stored='{}';
-  try{stored=localStorage.getItem('_mdzz_profile_name_'+currentAdmin.id)||'{}';}catch(_){}
-  var prof={};try{prof=JSON.parse(stored);}catch(_){}
-  var name=prof.fullName||currentAdmin.name||currentAdmin.username||'?';
-  var ini=name.charAt(0).toUpperCase();
-  var inp=gi('acc-name-inp');if(inp)inp.value=name;
+  var fallbackName=currentAdmin.name||currentAdmin.username||'?';
+  var inp=gi('acc-name-inp');
   var un=gi('acc-username');if(un)un.textContent='@'+(currentAdmin.username||'—');
-  var jb=gi('acc-joined');if(jb)jb.textContent=currentAdmin.createdAt?fmtTime(currentAdmin.createdAt):'—';
   var rb=gi('acc-role-badge');
   if(rb){var role=currentAdmin.role||'admin';rb.innerHTML='<span class="role-tag '+role+'">'+role.toUpperCase()+'</span>';}
-  setInitials(ini);
-  if(currentAdmin.avatarUrl){
-    setPhoto(currentAdmin.avatarUrl+'?t='+Date.now());
-  } else {
-    adminApiFetch('/api/admins/me').then(function(result){
-      var d=result.profile||{};
-      var url=d.avatar_url||d.avatarUrl||null;
-      if(d.created_at)currentAdmin.createdAt=d.created_at;
-      if(d.name)currentAdmin.name=d.name;
-      if(url){currentAdmin.avatarUrl=url;setPhoto(url+'?t='+Date.now());}
-      localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
-      var joined=gi('acc-joined');if(joined&&currentAdmin.createdAt)joined.textContent=fmtTime(currentAdmin.createdAt);
-    }).catch(function(e){
-      console.warn('[Profile] Metadata profil belum tersedia:',e.message);
-    });
+  setInitials(fallbackName.charAt(0).toUpperCase());
+  if(inp)inp.value=fallbackName;
+  var jb=gi('acc-joined');if(jb)jb.textContent=currentAdmin.createdAt?fmtTime(currentAdmin.createdAt):'—';
+  if(currentAdmin.avatarUrl)setPhoto(currentAdmin.avatarUrl+'?t='+Date.now());
+
+  try{
+    var result=await adminApiFetch('/api/admins/me');
+    var d=result.profile||{};
+    if(d.name)currentAdmin.name=d.name;
+    if(d.created_at)currentAdmin.createdAt=d.created_at;
+    currentAdmin.avatarUrl=d.avatar_url||d.avatarUrl||null;
+    var name=currentAdmin.name||currentAdmin.username||'?';
+    if(inp)inp.value=name;
+    setInitials(name.charAt(0).toUpperCase());
+    var sidebarName=gi('sb-uname');if(sidebarName)sidebarName.textContent=name;
+    if(currentAdmin.avatarUrl)setPhoto(currentAdmin.avatarUrl+'?t='+Date.now());
+    else{
+      var img=gi('acc-avatar-img');if(img){img.removeAttribute('src');img.style.display='none';}
+      var ini=gi('acc-avatar-init');if(ini)ini.style.opacity='1';
+      ['sb-avatar','tb-avatar'].forEach(function(id){var el=gi(id);if(el){el.style.backgroundImage='';el.style.color='';}});
+    }
+    if(jb&&currentAdmin.createdAt)jb.textContent=fmtTime(currentAdmin.createdAt);
+    localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
+  }catch(e){
+    console.warn('[Profile] Gagal memuat profil dari backend:',e.message);
   }
 }
 
