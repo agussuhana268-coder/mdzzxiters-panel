@@ -3024,24 +3024,43 @@ function adminLogin() {
                 );
               }
 
-              // Backend sudah memverifikasi role admin; gunakan hasilnya
-              // agar frontend tidak membaca dokumen admins yang sama sekali lagi.
-              var data = result.admin;
-              currentAdmin = {
-                id: data.uid || cred.user.uid,
-                username: data.username || u,
-                name: data.name || data.username || u,
-                role: data.role,
-                authMode: 'firebase'
-              };
+              // Tukarkan Firebase ID token menjadi sesi backend bertanda tangan.
+              var verifiedAdmin = result.admin;
+              return fetch(
+                'https://mdzzxiters-backend-production-cb68.up.railway.app/api/admin/session',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                  },
+                  cache: 'no-store'
+                }
+              ).then(function (sessionResponse) {
+                return sessionResponse.json().catch(function () { return {}; }).then(function (sessionResult) {
+                  if (!sessionResponse.ok || !sessionResult.success || !sessionResult.token || !sessionResult.admin) {
+                    throw new Error(sessionResult.message || 'Gagal membuat sesi backend.');
+                  }
+
+                  var data = sessionResult.admin;
+                  currentAdmin = {
+                    id: data.id || verifiedAdmin.uid || cred.user.uid,
+                    username: data.username || verifiedAdmin.username || u,
+                    name: data.name || verifiedAdmin.name || data.username || u,
+                    role: data.role || verifiedAdmin.role,
+                    createdAt: data.created_at || null,
+                    avatarUrl: data.avatar_url || null,
+                    authMode: 'backend'
+                  };
+
+                  var storage = remember ? localStorage : sessionStorage;
+                  storage.setItem('_mdzz_admin_token', sessionResult.token);
+                  (remember ? sessionStorage : localStorage).removeItem('_mdzz_admin_token');
+                });
+              });
             });
           }).then(function () {
-
-            localStorage.setItem(
-              '_mdzz_adm',
-              JSON.stringify(currentAdmin)
-            );
-
+            localStorage.setItem('_mdzz_adm', JSON.stringify(currentAdmin));
             enterApp();
 
             pushActivityFS(
@@ -3052,7 +3071,7 @@ function adminLogin() {
             );
 
             renderRevenue();
-            console.log('Firebase dan Railway berhasil diverifikasi.');
+            console.log('Firebase login ditukar menjadi sesi backend.');
           });
         });
       })
