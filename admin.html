@@ -2704,7 +2704,6 @@ document.addEventListener('DOMContentLoaded',function(){
 <!-- ══════════════════════════════════════════════════════
      FIREBASE + APP LOGIC
 ══════════════════════════════════════════════════════ -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -2730,11 +2729,9 @@ var keyFilter='ALL',sessFilter='ALL',keySearch='',durMode='off',actFilter='all',
 var charts={};
 
 /* ══ IP MONITORING STATE ══ */
-var sbClient = null;    // diinisialisasi di initIPMonitoring() setelah _SUPA_URL/_SUPA_KEY siap
 var ipDataByKey = {};   // key -> {current_ip, first_ip, last_ip, last_ip_update}
 var ipHistoryList = []; // riwayat IP, terbaru duluan
 var ipHistorySearch = '';
-var ipRealtimeChannel = null;
 
 /* ══ HELPERS ══ */
 function gi(id){return document.getElementById(id);}
@@ -3337,8 +3334,6 @@ function renderKeys(){
 }
 
 /* ══ Supabase auto-sync config ══ */
-var _SUPA_URL = 'https://miorkkrwldqkmgugppyk.supabase.co';
-var _SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb3Jra3J3bGRxa21ndWdwcHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDIwNjksImV4cCI6MjA5NTExODA2OX0.r_JeD_NdPpKZ7X_yAy8vx5Llrk6APV6AE7zQHTlxTD0';
 
 /* ══════════════════════════════════════════════════════════════
    IP ADDRESS MONITORING
@@ -3348,15 +3343,15 @@ var _SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 ══════════════════════════════════════════════════════════════ */
 
 /* Inisialisasi client Supabase (untuk Realtime saja — REST tetap pakai fetch() seperti existing code) */
+var ipRefreshTimer=null;
 function initIPMonitoring(){
-  if(typeof supabase==='undefined'){
-    console.warn('[IP] Supabase JS SDK belum termuat — realtime IP dinonaktifkan.');
-    return;
-  }
-  if(!sbClient) sbClient = supabase.createClient(_SUPA_URL, _SUPA_KEY);
   loadLicenseIPData();
   loadIPHistory();
-  subscribeIPRealtime();
+  if(ipRefreshTimer)clearInterval(ipRefreshTimer);
+  ipRefreshTimer=setInterval(function(){
+    loadLicenseIPData();
+    loadIPHistory();
+  },30000);
 }
 
 /* Ambil current_ip/first_ip/last_ip untuk semua key sekaligus (1 query ringan) */
@@ -3388,42 +3383,6 @@ async function loadIPHistory(){
 /* Realtime: dengarkan baris BARU di ip_history saja (ringan, append-only, terindex).
    Setiap insert otomatis berarti IP sebuah key berubah → cukup 1 channel untuk
    meng-update badge IP di halaman Keys/Users DAN list IP History — tanpa polling. */
-function subscribeIPRealtime(){
-  if(!sbClient || ipRealtimeChannel) return;
-  ipRealtimeChannel = sbClient
-    .channel('ip-history-live')
-    .on('postgres_changes',
-      { event:'INSERT', schema:'public', table:'ip_history' },
-      function(payload){
-        var row = payload.new;
-        if(!row || !row.license_key) return;
-
-        /* Update peta IP per-key di memori (current/first/last) */
-        var k = row.license_key.toUpperCase();
-        var prev = ipDataByKey[k] || {};
-        ipDataByKey[k] = {
-          current_ip:     row.ip_address,
-          first_ip:       prev.first_ip || row.ip_address,
-          last_ip:        prev.current_ip || prev.last_ip || null,
-          last_ip_update: row.created_at
-        };
-
-        /* Prepend ke list riwayat + render */
-        ipHistoryList.unshift(row);
-        if(ipHistoryList.length>300) ipHistoryList.pop();
-
-        renderIPHistory(true /*flash baris baru*/);
-        renderKeys();renderSessions();
-
-        var badge=gi('nb-ip-history'); if(badge) badge.textContent=ipHistoryList.length;
-        var dbadge=gi('di-badge-ip-history'); if(dbadge) dbadge.textContent=ipHistoryList.length;
-
-        toast('IP baru terdeteksi: '+row.license_key+' → '+row.ip_address,'i',2500);
-      })
-    .subscribe();
-}
-
-/* Badge IP kecil dipakai di renderKeys() & renderSessions() */
 function ipBadgeHTML(key){
   var d = ipDataByKey[(key||'').toUpperCase()];
   if(!d || !d.current_ip){
