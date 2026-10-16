@@ -3727,13 +3727,13 @@ function renderSessions(){
   if(!filtered.length){gi('sess-list').innerHTML='<div class="empty">No sessions found.</div>';return;}
   var html='';
   filtered.forEach(function(d){
-    var isOn=d.online===true;var ini=(d.platform||'?').charAt(0);
+    var isOn=d.online===true;var ini=escapeHtml((d.platform||'?').charAt(0));
     var mk=allKeys.find(function(k){return k.key===d.key;});
     var pj=mk?mk.project:'—';
     html+='<div class="sess-row">';
     html+='<div class="sess-av '+(isOn?'online':'offline')+'">'+ini+'</div>';
-    html+='<div class="sess-info"><span class="sess-key">'+(d.key||'—')+'</span>';
-    html+='<span class="sess-meta"><span class="dev-tag">'+(d.platform||'?')+'</span> · <span class="dev-tag">'+pj+'</span> · '+timeAgo(d.lastSeen)+' · '+ipBadgeHTML(d.key)+'</span></div>';
+    html+='<div class="sess-info"><span class="sess-key">'+escapeHtml(d.key||'—')+'</span>';
+    html+='<span class="sess-meta"><span class="dev-tag">'+escapeHtml(d.platform||'?')+'</span> · <span class="dev-tag">'+escapeHtml(pj)+'</span> · '+timeAgo(d.lastSeen)+' · '+ipBadgeHTML(d.key)+'</span></div>';
     html+='<span class="online-badge '+(isOn?'on':'off')+'"><span class="odot '+(isOn?'g':'o')+'"></span>'+(isOn?'ONLINE':'OFFLINE')+'</span></div>';
   });
   gi('sess-list').innerHTML=html;
