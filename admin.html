@@ -3594,16 +3594,14 @@ async function syncKeysToSupabase(keys, project, expiresAt, generatedBy){
     var result = await res.json().catch(function(){ return {}; });
 
     if (res.ok && result.success) {
-      toast('✓ '+keys.length+' key tersimpan di Supabase', 's', 2000);
+      return true;
         } else {
-      toast(
-        'Supabase sync gagal: '+(result.message || 'HTTP '+res.status),
-        'w',
-        3500
-      );
+      toast('Supabase gagal: '+(result.message || 'HTTP '+res.status), 'e', 3500);
+      return false;
     }
   } catch(e) {
-    toast('Railway tidak dapat dihubungi — key tetap di Firebase', 'w', 3000);
+    toast('Railway tidak dapat dihubungi — key tidak disimpan', 'e', 3000);
+    return false;
   }
 } // penutup fungsi syncKeysToSupabase — pertahankan
 
@@ -3617,23 +3615,15 @@ function generateKeys(){
     expiresAt=calcExpiresAt(v,u);
     if(!expiresAt){toast('Invalid duration','e');return;}
   }
-  var generated=[],promises=[];
-  for(var i=0;i<qty;i++){
-    var key=genKey();generated.push(key);
-    promises.push(db.collection('keys').add({
-      key:key,project:project,active:true,used:false,deviceId:null,status:'unused',
-      createdAt:firebase.firestore.FieldValue.serverTimestamp(),usedAt:null,
-      generatedBy:currentAdmin.username,
-      expiresAt:expiresAt?firebase.firestore.Timestamp.fromDate(expiresAt):null
-    }));
-  }
-  Promise.all(promises).then(function(){
+  var generated=[];
+  for(var i=0;i<qty;i++)generated.push(genKey());
+  syncKeysToSupabase(generated, project, expiresAt, currentAdmin.username).then(function(ok){
+    if(!ok)return;
     var expStr=expiresAt?(' | exp '+expiresAt.toLocaleDateString('id-ID')):'';
     toast(qty+' key generated for '+project+expStr,'s',3000);
     if(qty===1){copyClip(generated[0]);toast('Key copied to clipboard','i',1500);}
     pushActivityFS('key',qty+' key dibuat untuk <b>'+project+'</b>'+(expiresAt?' (exp '+expiresAt.toLocaleDateString('id-ID')+')':', tanpa batas')+' oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
-    /* ── Auto sync ke Supabase ── */
-    syncKeysToSupabase(generated, project, expiresAt, currentAdmin.username);
+    refreshSupabaseDashboard(false);
   }).catch(function(e){toast('Error: '+e.message,'e');});
 }
 async function revokeKey(id) {
@@ -4322,39 +4312,54 @@ function renderAnalyticsCharts(){
 }
 
 /* ══ REALTIME LISTENERS ══ */
-function startListeners(){
-  /* Jangan membuat log massal dari dokumen 'added' pada snapshot awal. */
-  var keysInitialSnapshot = true;
-
-  /* Sessions */
-  db.collection('sessions').onSnapshot(function(snap){
-    allSessions=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allSessions.push(d);});
-    renderSessions();updateOverviewStats();
-  },function(){});
-
-  /* Keys */
-  db.collection('keys').onSnapshot(function(snap,change){
-    allKeys=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allKeys.push(d);});
-    allKeys.sort(function(a,b){
-      var ta=a.createdAt?a.createdAt.toMillis?a.createdAt.toMillis():0:0;
-      var tb=b.createdAt?b.createdAt.toMillis?b.createdAt.toMillis():0:0;
-      return tb-ta;
+function adminApiFetch(path, options){
+  options=options||{};
+  return firebase.auth().currentUser.getIdToken().then(function(token){
+    var headers=Object.assign({'Authorization':'Bearer '+token,'Content-Type':'application/json'},options.headers||{});
+    return fetch('https://mdzzxiters-backend-production-cb68.up.railway.app'+path,Object.assign({},options,{headers:headers,cache:'no-store'}));
+  }).then(function(res){
+    return res.json().catch(function(){return {};}).then(function(data){
+      if(!res.ok||data.success===false)throw new Error(data.message||('HTTP '+res.status));
+      return data;
     });
-    renderKeys();renderProjects();updateOverviewStats();checkExpiredKeys();
-    if(change && !keysInitialSnapshot){
-      change.docChanges().forEach(function(ch){
-        var d=ch.doc.data();
-        if(ch.type==='added'&&d.key)pushActivityFS('key','Key <b>'+d.key+'</b> dibuat untuk <b>'+(d.project||'—')+'</b>',currentAdmin?currentAdmin.name:'system');
-        if(ch.type==='modified'&&d.used&&d.deviceId)pushActivityFS('login','Key <b>'+d.key+'</b> digunakan oleh perangkat baru',currentAdmin?currentAdmin.name:'system');
-        if(ch.type==='modified'&&!d.active)pushActivityFS('revoke','Key <b>'+d.key+'</b> non-aktif',currentAdmin?currentAdmin.name:'system');
-      });
-    }
-    keysInitialSnapshot = false;
-  },function(){});
+  });
+}
+function refreshSupabaseDashboard(showError){
+  return Promise.all([
+    adminApiFetch('/api/licenses/status'),
+    adminApiFetch('/api/sessions/status')
+  ]).then(function(results){
+    allKeys=(results[0].rows||[]).map(function(d){
+      var created=d.created_at?new Date(d.created_at):null;
+      var expires=d.expires_at?new Date(d.expires_at):null;
+      var usedAt=d.used_at?new Date(d.used_at):null;
+      return {
+        _id:d.key,key:d.key,project:d.project||'',active:d.active!==false,
+        used:d.used===true,deviceId:d.device_id||null,status:d.status||'unused',
+        generatedBy:d.generated_by||'',createdAt:created,expiresAt:expires,usedAt:usedAt,
+        currentIp:d.current_ip||d.last_ip||d.ip_address||null,nexusId:d.nexus_id||null
+      };
+    });
+    allKeys.sort(function(a,b){return (b.createdAt?b.createdAt.getTime():0)-(a.createdAt?a.createdAt.getTime():0);});
+    allSessions=(results[1].rows||[]).map(function(d){
+      return {_id:d.id,key:d.key,platform:d.platform||'?',online:d.online===true,
+        lastSeen:d.last_seen?new Date(d.last_seen):null,ipAddress:d.ip_address||null,
+        lastSeenIpAt:d.last_seen_ip_at?new Date(d.last_seen_ip_at):null};
+    });
+    renderKeys();renderProjects();renderSessions();updateOverviewStats();checkExpiredKeys();
+  }).catch(function(err){
+    console.error('Refresh dashboard Supabase:',err);
+    if(showError)toast('Gagal memuat data Supabase: '+err.message,'e',4000);
+  });
+}
+/* Polling ringan menggantikan snapshot Firestore untuk keys dan sessions. */
+var supabaseDashboardTimer=null;
+function startListeners(){
+  refreshSupabaseDashboard(true);
+  if(supabaseDashboardTimer)clearInterval(supabaseDashboardTimer);
+  supabaseDashboardTimer=setInterval(function(){refreshSupabaseDashboard(false);},20000);
 
-  /* Admins */
+  /* Admins dan activity log masih Firestore; migrasi bagian ini menyusul. */
   db.collection('admins').orderBy('createdAt').onSnapshot(function(snap){
     allAdminsData=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
@@ -4368,12 +4373,10 @@ function startListeners(){
     },function(){});
   });
 
-  /* Activity log realtime */
   db.collection('activity_log').orderBy('createdAt','desc').limit(200).onSnapshot(function(snap){
     activityLog=[];
     snap.forEach(function(doc){var d=doc.data();d._id=doc.id;activityLog.push(d);});
     renderActivity();
-    /* update chart if overview active */
     if(gi('page-overview').classList.contains('active'))renderOverviewCharts();
   },function(){refreshActivity();});
 }
