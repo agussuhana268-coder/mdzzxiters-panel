@@ -4968,8 +4968,8 @@ function renderSendHistory() {
     h += '<div class=\"sh-row\">';
     h += '<div class=\"sh-dot '+(x.ok?'ok':'err')+'\"></div>';
     h += '<div class=\"sh-info\">';
-    h += '<span class=\"sh-email\">'+(x.ok?'':'✗ ')+x.email+'</span>';
-    h += '<span class=\"sh-meta\">'+(x.product||'—')+' · '+(x.key?x.key.substr(0,12)+'...':'—')+'</span>';
+    h += '<span class=\"sh-email\">'+(x.ok?'':'✗ ')+escapeHtml(String(x.email||''))+'</span>';
+    h += '<span class=\"sh-meta\">'+escapeHtml(String(x.product||'—'))+' · '+(x.key?escapeHtml(String(x.key).substr(0,12))+'...':'—')+'</span>';
     h += '</div>';
     h += '<span class=\"sh-time\">'+ago+'</span>';
     h += '</div>';
