@@ -2959,15 +2959,8 @@ window.setActFilter=setActFilter;
 
 /* ══ AUTO SETUP ══ */
 function autoSetup(){
-  return db.collection('admins').get().then(function(snap){
-    if(snap.empty){
-      return db.collection('admins').add({
-        username:'owner',password:simpleHash('MDZZX@2024'),
-        name:'Owner',role:'owner',
-        createdAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-  });
+  // Admin dikelola melalui backend/Supabase; jangan membuat akun default di browser.
+  return Promise.resolve();
 }
 
 /* ══ LOGIN ══ */
@@ -3076,46 +3069,35 @@ function adminLogin() {
     return;
   }
 
-  // Login lama untuk akun berbasis username tetap dipertahankan
-  db.collection('admins').where('username', '==', u.toLowerCase())
-    .get()
-    .then(function (snap) {
-      if (snap.empty) {
-        err.textContent = 'Invalid credentials.';
-        err.style.display = 'block';
-        return;
-      }
-
-      var doc = snap.docs[0];
-      var data = doc.data();
-
-      if (data.password !== simpleHash(p)) {
-        err.textContent = 'Wrong password.';
-        err.style.display = 'block';
-        return;
-      }
-
+  // Username/password diverifikasi backend terhadap Supabase.
+  fetch(API_BASE_URL + '/api/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    cache: 'no-store',
+    body: JSON.stringify({ username: u.toLowerCase(), password: p })
+  }).then(function(response) {
+    return response.json().catch(function(){ return {}; }).then(function(data) {
+      if (!response.ok || !data.success || !data.token || !data.admin) throw new Error(data.message || 'Login gagal.');
+      var a = data.admin;
       currentAdmin = {
-        id: doc.id,
-        username: data.username,
-        name: data.name,
-        role: data.role
+        id: a.id, username: a.username, name: a.name || a.username,
+        role: a.role, createdAt: a.created_at || null,
+        avatarUrl: a.avatar_url || null, authMode: 'backend'
       };
-
-      localStorage.setItem('_mdzz_adm', JSON.stringify(currentAdmin));
+      try {
+        var storage = remember ? localStorage : sessionStorage;
+        storage.setItem('_mdzz_admin_token', data.token);
+        (remember ? sessionStorage : localStorage).removeItem('_mdzz_admin_token');
+        localStorage.setItem('_mdzz_adm', JSON.stringify(currentAdmin));
+      } catch (_) {}
       enterApp();
-      pushActivityFS(
-        'login',
-        'Admin <b>' + (data.name || data.username) +
-          '</b> login ke dashboard',
-        currentAdmin.name || currentAdmin.username
-      );
+      pushActivityFS('login', 'Admin <b>' + currentAdmin.name + '</b> login ke dashboard', currentAdmin.name);
       renderRevenue();
-    })
-    .catch(function (e) {
-      err.textContent = 'Connection error: ' + e.message;
-      err.style.display = 'block';
     });
+  }).catch(function(e) {
+    err.textContent = e.message || 'Login admin gagal.';
+    err.style.display = 'block';
+  });
 }
 
 /* ══ LOAD ALL ══ */
@@ -3895,32 +3877,27 @@ function renderAdmins(){
   if(typeof patchTeamList==='function') patchTeamList();
 }
 function addAdmin(){
-  if(currentAdmin.role!=='owner'){toast('Only owner can add admins','e');return;}
+  if(!currentAdmin||currentAdmin.role!=='owner'){toast('Only owner can add admins','e');return;}
   var name=(gi('new-name').value||'').trim();
   var username=(gi('new-user').value||'').trim().toLowerCase();
   var password=gi('new-pass').value;
-  if(!name||!username||!password){toast('Fill all fields','e');return;}
-  if(password.length<6){toast('Password min 6 chars','e');return;}
-  db.collection('admins').where('username','==',username).get().then(function(snap){
-    if(!snap.empty){toast('Username exists','e');return;}
-    return db.collection('admins').add({
-      username:username,password:simpleHash(password),
-      name:name,role:'admin',
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(){
-      gi('new-name').value='';gi('new-user').value='';gi('new-pass').value='';
-      toast('Admin "'+name+'" added!','s');
-      pushActivityFS('admin','Admin <b>'+name+'</b> (@'+username+') ditambahkan ke team oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
-    });
-  }).catch(function(e){toast('Error: '+e.message,'e');});
+  if(!name||!username||!password){toast('Isi nama, username, dan password','e');return;}
+  if(password.length<8){toast('Password minimal 8 karakter','e');return;}
+  adminApiFetch('/api/admins',{method:'POST',body:JSON.stringify({name:name,username:username,password:password})}).then(function(){
+    gi('new-name').value='';gi('new-user').value='';gi('new-pass').value='';
+    toast('Admin "'+name+'" berhasil ditambahkan','s');
+    pushActivityFS('admin','Admin <b>'+name+'</b> (@'+username+') ditambahkan oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
+    return refreshAdminsFromApi();
+  }).catch(function(e){toast('Gagal menambah admin: '+e.message,'e',4000);});
 }
 function removeAdmin(id,username){
-  if(currentAdmin.role!=='owner'){toast('Only owner can remove admins','e');return;}
-  showModal('REMOVE ADMIN','Remove @'+username+' from the team?',function(){
-    db.collection('admins').doc(id).delete().then(function(){
-      toast('Admin removed','s');
-      pushActivityFS('admin','Admin @'+username+' dihapus dari team oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
-    }).catch(function(e){toast('Error: '+e.message,'e');});
+  if(!currentAdmin||currentAdmin.role!=='owner'){toast('Only owner can remove admins','e');return;}
+  showModal('REMOVE ADMIN','Hapus @'+username+' dari team?',function(){
+    adminApiFetch('/api/admins/'+encodeURIComponent(id),{method:'DELETE'}).then(function(){
+      toast('Admin berhasil dihapus','s');
+      pushActivityFS('admin','Admin @'+username+' dihapus oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
+      return refreshAdminsFromApi();
+    }).catch(function(e){toast('Gagal menghapus admin: '+e.message,'e',4000);});
   },true);
 }
 window.addAdmin=addAdmin;window.removeAdmin=removeAdmin;
@@ -4303,9 +4280,15 @@ function renderAnalyticsCharts(){
 /* ══ REALTIME LISTENERS ══ */
 function adminApiFetch(path, options){
   options=options||{};
-  return firebase.auth().currentUser.getIdToken().then(function(token){
-    var headers=Object.assign({'Authorization':'Bearer '+token,'Content-Type':'application/json'},options.headers||{});
-    return fetch('https://mdzzxiters-backend-production-cb68.up.railway.app'+path,Object.assign({},options,{headers:headers,cache:'no-store'}));
+  var backendToken='';
+  try{backendToken=sessionStorage.getItem('_mdzz_admin_token')||localStorage.getItem('_mdzz_admin_token')||'';}catch(_){}
+  var tokenPromise=(currentAdmin&&currentAdmin.authMode==='backend'&&backendToken)
+    ?Promise.resolve(backendToken)
+    :(firebase.auth().currentUser?firebase.auth().currentUser.getIdToken():Promise.reject(new Error('Sesi login berakhir. Silakan login ulang.')));
+  return tokenPromise.then(function(token){
+    var headers=Object.assign({'Authorization':'Bearer '+token},options.headers||{});
+    if(typeof FormData==='undefined'||!(options.body instanceof FormData))headers['Content-Type']=headers['Content-Type']||'application/json';
+    return fetch(API_BASE_URL+path,Object.assign({},options,{headers:headers,cache:'no-store'}));
   }).then(function(res){
     return res.json().catch(function(){return {};}).then(function(data){
       if(!res.ok||data.success===false)throw new Error(data.message||('HTTP '+res.status));
