@@ -4655,7 +4655,11 @@ async function loadProductFiles() {
     });
     gi('product-files-list').innerHTML = html;
   } catch(e) {
-    gi('product-files-list').innerHTML = '<div class="empty" style="color:#fb7185;">Error: ' + e.message + '</div>';
+    var errorEl=document.createElement('div');
+    errorEl.className='empty';
+    errorEl.style.color='#fb7185';
+    errorEl.textContent='Error: '+(e&&e.message?e.message:'Gagal memuat file.');
+    gi('product-files-list').replaceChildren(errorEl);
   }
 }
 window.loadProductFiles = loadProductFiles;
