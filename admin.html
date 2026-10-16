@@ -4236,6 +4236,45 @@ function startListeners(){
   refreshAdminsFromApi();
   if(adminsRefreshTimer)clearInterval(adminsRefreshTimer);
   adminsRefreshTimer=setInterval(refreshAdminsFromApi,60000);
+  startAdminSessionWatch();
+}
+
+/* Revalidasi sesi aktif; sesi admin yang dicabut dikeluarkan saat API menolak token. */
+function startAdminSessionWatch(){
+  if(window.__mdzzAdminSessionWatch)clearInterval(window.__mdzzAdminSessionWatch);
+  function verifyActiveAdmin(){
+    if(!currentAdmin||!gi('app')||gi('app').style.display==='none')return;
+    var tokenPromise;
+    if(currentAdmin.authMode==='backend'){
+      var backendToken='';
+      try{backendToken=sessionStorage.getItem('_mdzz_admin_token')||localStorage.getItem('_mdzz_admin_token')||'';}catch(_){}
+      tokenPromise=backendToken?Promise.resolve(backendToken):Promise.reject(new Error('Missing session'));
+    }else{
+      tokenPromise=firebase.auth().currentUser
+        ?firebase.auth().currentUser.getIdToken()
+        :Promise.reject(new Error('Missing session'));
+    }
+    tokenPromise.then(function(token){
+      return fetch(API_BASE_URL+'/api/admin/verify',{
+        method:'GET',
+        headers:{'Authorization':'Bearer '+token},
+        cache:'no-store'
+      });
+    }).then(function(response){
+      if(response.status===401||response.status===403){
+        adminLogout();
+        return;
+      }
+      if(!response.ok)return;
+      return response.json().then(function(data){
+        if(!data.success||!data.admin||!data.admin.username||!data.admin.role)adminLogout();
+      });
+    }).catch(function(){ /* Gangguan jaringan sementara tidak langsung mengeluarkan admin. */ });
+  }
+  window.__mdzzAdminSessionWatch=setInterval(verifyActiveAdmin,60000);
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)verifyActiveAdmin();
+  });
 }
 
 /* Pulihkan sesi hanya jika token autentikasi masih tersedia. Jangan mempercayai profil localStorage saja. */
