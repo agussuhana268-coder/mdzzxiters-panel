@@ -4781,7 +4781,14 @@ async function doUpload() {
     var data = await apiCall('POST', '/api/upload-product', fd, true);
     clearInterval(piv); fill.style.width = '100%';
     if(!data.success) throw new Error(data.message);
-    res.innerHTML = '<div class="sr-title">UPLOAD BERHASIL</div><div class="sr-body">' + data.message + '<br/>Ukuran: ' + fmtBytes(data.size) + '</div>';
+    res.replaceChildren();
+    var uploadTitle = document.createElement('div');
+    uploadTitle.className = 'sr-title';
+    uploadTitle.textContent = 'UPLOAD BERHASIL';
+    var uploadBody = document.createElement('div');
+    uploadBody.className = 'sr-body';
+    uploadBody.append(document.createTextNode(String(data.message || 'File berhasil diunggah.')), document.createElement('br'), 'Ukuran: ' + fmtBytes(data.size));
+    res.append(uploadTitle, uploadBody);
     res.className = 'send-result ok vis';
     toast('File berhasil diunggah!','s',2500);
     pushActivityFS('key', 'File <b>' + data.path + '</b> diunggah ke Supabase Storage oleh <b>' + (currentAdmin ? currentAdmin.name : 'admin') + '</b>', currentAdmin ? currentAdmin.name : 'admin');
