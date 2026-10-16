@@ -3713,7 +3713,13 @@ function loadSessions(){
   }).catch(function(e){toast('Gagal memuat sesi dari backend: '+e.message,'e');});
 }
 function renderSessions(){
-  var online=allSessions.filter(function(s){return s.online;}).length;
+  /* Abaikan flag online yang sudah stale: hitung hanya sesi dengan heartbeat 5 menit terakhir. */
+  var nowMs=Date.now();
+  var online=allSessions.filter(function(s){
+    if(s.online!==true||!s.lastSeen)return false;
+    var seenAt=typeof s.lastSeen==='number'?s.lastSeen:new Date(s.lastSeen).getTime();
+    return Number.isFinite(seenAt)&&seenAt>0&&(nowMs-seenAt)<=5*60*1000;
+  }).length;
   var ob=gi('tb-online-count');if(ob)ob.textContent=online;
   var mnlive=gi('mn-live');if(mnlive)mnlive.className='mn-live'+(online>0?' vis':'');
   var nbu=gi('nb-users');if(nbu)nbu.textContent=online+' Online';
@@ -3727,7 +3733,9 @@ function renderSessions(){
   if(!filtered.length){gi('sess-list').innerHTML='<div class="empty">No sessions found.</div>';return;}
   var html='';
   filtered.forEach(function(d){
-    var isOn=d.online===true;var ini=escapeHtml((d.platform||'?').charAt(0));
+    var seenAt=d.lastSeen?(typeof d.lastSeen==='number'?d.lastSeen:new Date(d.lastSeen).getTime()):0;
+    var isOn=d.online===true&&Number.isFinite(seenAt)&&seenAt>0&&(Date.now()-seenAt)<=5*60*1000;
+    var ini=escapeHtml((d.platform||'?').charAt(0));
     var mk=allKeys.find(function(k){return k.key===d.key;});
     var pj=mk?mk.project:'—';
     html+='<div class="sess-row">';
