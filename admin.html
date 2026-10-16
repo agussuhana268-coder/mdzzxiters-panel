@@ -2187,6 +2187,10 @@ document.addEventListener('DOMContentLoaded',function(){
         </div>
         <div class="section">
           <div class="section-head"><span class="section-title">TEAM MEMBERS</span><span class="section-badge" id="team-count-badge">0 admins</span></div>
+          <div id="owner-password-setup" style="display:none;padding:12px 0;">
+            <button class="btn btn-primary" type="button" onclick="setupOwnerDashboardPassword()">SET OWNER DASHBOARD PASSWORD</button>
+            <div style="font-size:12px;color:var(--t2);margin-top:8px;">Atur password login dashboard owner tanpa membuka DevTools. Minimal 12 karakter.</div>
+          </div>
           <div class="add-form" id="add-admin-form">
             <input type="text" id="new-name" class="f-input" placeholder="Full Name" style="max-width:100px;"/>
             <input type="text" id="new-user" class="f-input" placeholder="Username" style="max-width:100px;"/>
@@ -3754,6 +3758,24 @@ function renderAdmins(){
   gi('team-list').innerHTML=html;
   if(typeof patchTeamList==='function') patchTeamList();
 }
+function setupOwnerDashboardPassword(){
+  if(!currentAdmin||currentAdmin.role!=='owner'){toast('Hanya owner yang dapat mengatur password','e');return;}
+  var password=prompt('Buat password dashboard owner baru (minimal 12 karakter):');
+  if(password===null)return;
+  if(password.length<12||password.length>256){toast('Password harus 12–256 karakter','e');return;}
+  var confirmation=prompt('Masukkan ulang password yang sama:');
+  if(confirmation===null)return;
+  if(password!==confirmation){toast('Konfirmasi password tidak cocok','e');return;}
+  if(!confirm('Simpan password dashboard owner baru? Password lama untuk login username akan diganti.'))return;
+  adminApiFetch('/api/admin/owner-password',{method:'POST',body:JSON.stringify({password:password})})
+    .then(function(result){
+      toast(result.message||'Password dashboard owner berhasil disimpan','s');
+      alert('Berhasil! Password dashboard owner sudah disimpan. Login berikutnya gunakan username owner dan password baru.');
+    })
+    .catch(function(e){toast('Gagal menyimpan password: '+e.message,'e',5000);});
+}
+window.setupOwnerDashboardPassword=setupOwnerDashboardPassword;
+
 function addAdmin(){
   if(!currentAdmin||currentAdmin.role!=='owner'){toast('Only owner can add admins','e');return;}
   var name=(gi('new-name').value||'').trim();
@@ -4467,6 +4489,8 @@ function enterApp(){
     gi('sb-avatar').textContent=ini;gi('tb-avatar').textContent=ini;
     gi('sb-uname').textContent=name;
     gi('sb-role').textContent=currentAdmin.role==='owner'?'OWNER':'ADMIN';
+  var ownerPasswordSetup=gi('owner-password-setup');
+  if(ownerPasswordSetup)ownerPasswordSetup.style.display=currentAdmin.role==='owner'?'block':'none';
     /* Show correct button in topbar */
     /* Set main offset based on viewport */
     gi('main').style.left = isMobile() ? '0' : 'var(--sb)';
