@@ -3362,34 +3362,27 @@ function initIPMonitoring(){
 /* Ambil current_ip/first_ip/last_ip untuk semua key sekaligus (1 query ringan) */
 async function loadLicenseIPData(){
   try{
-    var res = await fetch(_SUPA_URL+'/rest/v1/licenses?select=key,current_ip,first_ip,last_ip,last_ip_update&limit=2000',{
-      headers:{'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
-    });
-    if(!res.ok) return;
-    var rows = await res.json();
-    rows.forEach(function(r){
+    var payload=await adminApiFetch('/api/licenses/status');
+    (payload.rows||[]).forEach(function(r){
       if(!r.key) return;
-      ipDataByKey[r.key.toUpperCase()] = {
-        current_ip:     r.current_ip || null,
-        first_ip:       r.first_ip || null,
-        last_ip:        r.last_ip || null,
-        last_ip_update: r.last_ip_update || null
+      ipDataByKey[String(r.key).toUpperCase()] = {
+        current_ip:r.current_ip||null,
+        first_ip:r.first_ip||null,
+        last_ip:r.last_ip||null,
+        last_ip_update:r.last_ip_update||null
       };
     });
     renderKeys();renderSessions();
-  }catch(e){ console.warn('[IP] loadLicenseIPData gagal:', e.message); }
+  }catch(e){console.warn('[IP] loadLicenseIPData gagal:',e.message);}
 }
 
 /* Ambil riwayat IP terakhir (dibatasi 300 baris — query ringan, sudah terindex) */
 async function loadIPHistory(){
   try{
-    var res = await fetch(_SUPA_URL+'/rest/v1/ip_history?select=*&order=created_at.desc&limit=300',{
-      headers:{'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
-    });
-    if(!res.ok) return;
-    ipHistoryList = await res.json();
+    var payload=await adminApiFetch('/api/ip-history');
+    ipHistoryList=payload.rows||[];
     renderIPHistory();
-  }catch(e){ console.warn('[IP] loadIPHistory gagal:', e.message); }
+  }catch(e){console.warn('[IP] loadIPHistory gagal:',e.message);}
 }
 
 /* Realtime: dengarkan baris BARU di ip_history saja (ringan, append-only, terindex).
