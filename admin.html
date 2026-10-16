@@ -4265,9 +4265,14 @@ function startAdminSessionWatch(){
         adminLogout();
         return;
       }
-      if(!response.ok)return;
+      if(!response.ok){
+        /* API non-2xx selain 401/403 juga tidak boleh membiarkan sesi admin terus aktif. */
+        adminLogout();
+        return;
+      }
       return response.json().then(function(data){
         if(!data.success||!data.admin||!data.admin.username||!data.admin.role)adminLogout();
+        else if(data.admin.role!==currentAdmin.role||data.admin.username.toLowerCase()!==String(currentAdmin.username||'').toLowerCase())adminLogout();
       });
     }).catch(function(){ /* Gangguan jaringan sementara tidak langsung mengeluarkan admin. */ });
   }
