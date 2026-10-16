@@ -4792,7 +4792,14 @@ async function doUpload() {
     if(gi('upload-file')) gi('upload-file').value = '';
   } catch(e) {
     clearInterval(piv); fill.style.width = '0%';
-    res.innerHTML = '<div class="sr-title">UPLOAD GAGAL</div><div class="sr-body">' + e.message + '</div>';
+    res.replaceChildren();
+    var errorTitle=document.createElement('div');
+    errorTitle.className='sr-title';
+    errorTitle.textContent='UPLOAD GAGAL';
+    var errorBody=document.createElement('div');
+    errorBody.className='sr-body';
+    errorBody.textContent=e&&e.message?e.message:'Upload gagal.';
+    res.append(errorTitle,errorBody);
     res.className = 'send-result err vis';
     toast('Upload gagal: ' + e.message,'e',3500);
   }
