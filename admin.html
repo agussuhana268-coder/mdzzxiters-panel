@@ -3184,7 +3184,7 @@ function renderActivity(){
     prev.forEach(function(a){
       ph+='<div class="act-row">';
       ph+='<div class="act-dot-wrap"><div class="act-dot '+(a.type||'key')+'"></div></div>';
-      ph+='<div class="act-body"><div class="act-text">'+a.text+'</div><div class="act-by">by <b>'+(a.admin||'system')+'</b></div></div>';
+      ph+='<div class="act-body"><div class="act-text">'+sanitizeActivityHtml(a.text)+'</div><div class="act-by">by <b>'+sanitizeActivityHtml(a.admin||'system')+'</b></div></div>';
       ph+='<div class="act-time">'+timeAgo(a.createdAt)+'</div>';
       ph+='</div>';
     });
