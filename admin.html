@@ -3536,28 +3536,8 @@ async function syncKeysToSupabase(keys, project, expiresAt, generatedBy){
       };
     });
 
-    var res = await fetch(
-      'https://mdzzxiters-backend-production-cb68.up.railway.app/api/licenses',
-      {
-        method: 'POST',
-        
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' +
-        await firebase.auth().currentUser.getIdToken()
-    },
-        body: JSON.stringify({ rows: rows })
-      }
-    );
-
-    var result = await res.json().catch(function(){ return {}; });
-
-    if (res.ok && result.success) {
-      return true;
-        } else {
-      toast('Supabase gagal: '+(result.message || 'HTTP '+res.status), 'e', 3500);
-      return false;
-    }
+    await adminApiFetch('/api/licenses',{method:'POST',body:JSON.stringify({rows:rows})});
+    return true;
   } catch(e) {
     toast('Railway tidak dapat dihubungi — key tidak disimpan', 'e', 3000);
     return false;
@@ -3676,23 +3656,8 @@ async function syncAllKeysToSupabase(){
         used_at:      k.usedAt&&k.usedAt.toDate ? k.usedAt.toDate().toISOString() : null
       };
     });
-    /* Upsert — insert atau update kalau key sudah ada */
-    var res = await fetch(_SUPA_URL+'/rest/v1/licenses', {
-      method:  'POST',
-      headers: {
-        'apikey':        _SUPA_KEY,
-        'Authorization': 'Bearer '+_SUPA_KEY,
-        'Content-Type':  'application/json',
-        'Prefer':        'resolution=merge-duplicates,return=minimal'
-      },
-      body: JSON.stringify(rows)
-    });
-    if(res.ok){
-      toast('✓ '+activeKeys.length+' key berhasil disync ke Supabase!','s',3000);
-    } else {
-      var err = await res.text();
-      toast('Sync gagal: '+err.substring(0,80),'e',4000);
-    }
+    await adminApiFetch('/api/licenses/sync',{method:'POST',body:JSON.stringify({rows:rows})});
+    toast('✓ '+activeKeys.length+' key berhasil disinkronkan melalui backend!','s',3000);
   } catch(e){
     toast('Error: '+e.message,'e',3000);
   }
@@ -3754,12 +3719,9 @@ async function verifyTrialKey() {
   if (!keyInput) return;
   var k = keyInput.trim().toUpperCase();
   try {
-    var res = await fetch(_SUPA_URL+'/rest/v1/licenses?key=eq.'+encodeURIComponent(k)+'&select=key,active,used,expires_at,device_id,status', {
-      headers: {'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
-    });
-    var data = await res.json();
-    if (!data.length) { alert('Key tidak ditemukan di Supabase!'); return; }
-    var row = data[0];
+    var payload = await adminApiFetch('/api/licenses/status');
+    var row = (payload.rows||[]).find(function(item){return String(item.key||'').trim().toUpperCase()===k;});
+    if (!row) { alert('Key tidak ditemukan di Supabase!'); return; }
     var exp = row.expires_at || 'NULL (permanent)';
     var take19 = exp !== 'NULL (permanent)' ? exp.substring(0,19) : 'N/A';
     var msg = '=== KEY INFO ===\n'+
@@ -5118,11 +5080,9 @@ async function loadAccountStats(){
   var me=currentAdmin.username;
   /* Try Supabase */
   try{
-    var res=await fetch(_SUPA_URL+'/rest/v1/licenses?generated_by=eq.'+encodeURIComponent(me)+'&select=key,active&limit=1000',{
-      headers:{'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,'Accept':'application/json'}
-    });
-    var data=await res.json();
-    if(Array.isArray(data)){
+    var payload=await adminApiFetch('/api/licenses/status');
+    var data=(payload.rows||[]).filter(function(k){return String(k.generated_by||'')===String(me);});
+    {
       gi('acc-total-keys').textContent=data.length;
       gi('acc-active-keys').textContent=data.filter(function(k){return k.active;}).length;
       /* Recent 8 */
