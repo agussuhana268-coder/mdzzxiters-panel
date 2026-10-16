@@ -5134,19 +5134,13 @@ async function loadAccountStats(){
       gi('acc-keys-list').innerHTML=html||'<div class="empty">Belum ada key yang dibuat</div>';
       return;
     }
-  }catch(e){console.warn('Supabase stats:',e.message);}
-
-  /* Fallback: count from allKeys (Firebase) */
-  var myKeys=allKeys.filter(function(k){return k.generatedBy===me||k.generated_by===me;});
-  gi('acc-total-keys').textContent=myKeys.length;
-  gi('acc-active-keys').textContent=myKeys.filter(function(k){return k.active;}).length;
-  var recHtml=myKeys.slice(-8).reverse().map(function(k){
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr3);">'+
-      '<span style="font-family:var(--mono);font-size:9px;color:var(--sky2);">'+escapeHtml(k.key)+'</span>'+
-      '<span class="key-status '+(k.active?'active':'revoked')+'">'+(k.active?'ACTIVE':'REVOKED')+'</span>'+
-      '</div>';
-  }).join('');
-  gi('acc-keys-list').innerHTML=recHtml||'<div class="empty">Belum ada key</div>';
+  }catch(e){
+    console.warn('Supabase stats:',e.message);
+    /* Jangan tampilkan statistik cache ketika sumber utama gagal. */
+    gi('acc-total-keys').textContent='—';
+    gi('acc-active-keys').textContent='—';
+    gi('acc-keys-list').textContent='Gagal memuat statistik akun dari server. Coba muat ulang halaman.';
+  }
 }
 
 /* Support page init */
