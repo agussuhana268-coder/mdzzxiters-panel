@@ -3145,9 +3145,13 @@ function updateActStats(){
   var cb=gi('act-count-badge');if(cb)cb.textContent=activityLog.length+' events';
 }
 
-function escapeActivityHtml(value){
-  return String(value==null?'':value).replace(/[&<>"']/g,function(ch){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+function sanitizeActivityHtml(value){
+  var allowedTags=[];
+  var text=String(value==null?'':value);
+  return text.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,function(tag,name){
+    name=name.toLowerCase();
+    if(name==='b'||name==='strong'||name==='i'||name==='em')return '<'+(tag.charAt(1)==='/'?'/':'')+name+'>';
+    return tag.replace(/</g,'&lt;').replace(/>/g,'&gt;');
   });
 }
 
@@ -3166,7 +3170,7 @@ function renderActivity(){
     html+='<div class="act-row">';
     html+='<div class="act-dot-wrap"><div class="act-dot '+(a.type||'key')+'"></div></div>';
     html+='<div class="act-body">';
-    html+='<div class="act-text">'+escapeActivityHtml(a.text)+'</div>';
+    html+='<div class="act-text">'+sanitizeActivityHtml(a.text)+'</div>';
     html+='<div class="act-by">by <b>'+(a.admin||'system')+'</b></div>';
     html+='</div>';
     html+='<div class="act-time">'+timeAgo(a.createdAt)+'</div>';
