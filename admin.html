@@ -3704,23 +3704,15 @@ window.revokeKey=revokeKey;window.copyKey=copyKey;
 async function resetKeyUsage(id, keyVal) {
   showModal('RESET KEY USAGE','Reset key ini agar bisa dipakai lagi? (used=false, device_id=null)',async function(){
     try {
-      /* 1. Firebase */
-      await db.collection('keys').doc(id).update({used:false, deviceId:null, usedAt:null});
-      /* 2. Supabase */
-      var sbRes = await fetch(_SUPA_URL+'/rest/v1/licenses?key=eq.'+encodeURIComponent(keyVal),{
-        method:'PATCH',
-        headers:{
-          'apikey':_SUPA_KEY,'Authorization':'Bearer '+_SUPA_KEY,
-          'Content-Type':'application/json','Prefer':'return=minimal'
-        },
-        body:JSON.stringify({used:false, device_id:null, used_at:null, status:'unused'})
+      await adminApiFetch('/api/licenses/reset-usage',{
+        method:'POST',
+        body:JSON.stringify({key:keyVal})
       });
-      if(sbRes.ok){
-        toast('✓ Key berhasil di-reset — siap dipakai kembali','s',3000);
-        pushActivityFS('key','Key <b>'+keyVal+'</b> di-reset (used=false) oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
-      } else {
-        toast('Firebase reset OK, Supabase gagal','w',3000);
-      }
+      var match=allKeys.find(function(k){return k.key===keyVal;});
+      if(match){match.used=false;match.deviceId=null;match.usedAt=null;match.status='unused';}
+      renderKeys();updateOverviewStats();
+      toast('✓ Key berhasil di-reset — siap dipakai kembali','s',3000);
+      pushActivityFS('key','Key <b>'+keyVal+'</b> di-reset (used=false) oleh <b>'+currentAdmin.name+'</b>',currentAdmin.name);
     }catch(e){toast('Error: '+e.message,'e');}
   },false);
 }
@@ -3731,20 +3723,7 @@ async function syncStatusFromSupabase(){
   if(!allKeys.length){toast('Load keys dulu','w');return;}
   toast('Mengambil status terbaru dari Supabase...','i',2000);
   try{
-    var user = firebase.auth().currentUser;
-    if(!user) throw new Error('Sesi admin berakhir. Login ulang lalu coba lagi.');
-    var token = await user.getIdToken();
-    var res = await fetch('https://mdzzxiters-backend-production-cb68.up.railway.app/api/licenses/status',{
-      method:'GET',
-      headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}
-    });
-    var payload = {};
-    try { payload = await res.json(); } catch (_) {}
-    if(!res.ok || payload.success !== true){
-      if(res.status===401) throw new Error('Autentikasi admin ditolak backend. Login ulang atau periksa konfigurasi Firebase Admin.');
-      if(res.status===403) throw new Error('Akun tidak memiliki izin admin.');
-      throw new Error(payload.message || ('Gagal mengambil status (HTTP '+res.status+')'));
-    }
+    var payload = await adminApiFetch('/api/licenses/status');
     var supaData = Array.isArray(payload.rows) ? payload.rows : [];
     var supaMap={};
     supaData.forEach(function(r){if(r.key)supaMap[String(r.key).trim().toUpperCase()]=r;});
@@ -3757,11 +3736,7 @@ async function syncStatusFromSupabase(){
       k.used=!!sb.used;
       k.active=(sb.active!==false);
       k.deviceId=sb.device_id||k.deviceId||null;
-      if(wasActive!==k.active || wasUsed!==k.used || wasDevice!==k.deviceId){
-        db.collection('keys').doc(k._id).update({
-          active:k.active,used:k.used,deviceId:k.deviceId||null
-        }).catch(function(err){console.warn('[STATUS] Gagal update cache Firebase:',err.message);});
-      }
+      /* Supabase adalah sumber utama; tidak menulis cache ke Firestore. */
       updated++;
     });
     renderKeys();renderProjects();updateOverviewStats();
@@ -4915,10 +4890,16 @@ async function sendProduct() {
     var nbc = gi('nb-send-count'); if(nbc) nbc.textContent = sendCount;
     renderSendHistory();
 
-    /* Mark key as used in firebase (best effort) */
+    /* Tandai lisensi di Supabase melalui backend; email sudah terkirim, jadi kegagalan hanya dicatat. */
     var matchKey = allKeys.find(function(k){ return k.key === licKey; });
-    if(matchKey && matchKey._id){
-      db.collection('keys').doc(matchKey._id).update({ used:true, usedAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
+    if(matchKey){
+      try{
+        await adminApiFetch('/api/licenses/mark-used',{method:'POST',body:JSON.stringify({key:licKey})});
+        matchKey.used=true;matchKey.status='used';matchKey.usedAt=new Date();
+      }catch(markErr){
+        console.warn('[LICENSE] Gagal menandai key sebagai used:',markErr.message);
+        toast('Email terkirim, tetapi status lisensi gagal diperbarui: '+markErr.message,'w',4500);
+      }
     }
 
     /* Activity log */
