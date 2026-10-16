@@ -4264,6 +4264,14 @@ function checkSaved(){
         sessionStorage.removeItem('_mdzz_admin_token');
       }catch(_){}
       currentAdmin=null;
+      gi('app').style.display='none';
+      gi('login-page').style.display='flex';
+      gi('login-page').classList.remove('fade-out');
+      var loginError=gi('adm-err');
+      if(loginError){
+        loginError.textContent='Sesi admin sudah tidak berlaku. Silakan login dengan akun yang masih terdaftar.';
+        loginError.style.display='block';
+      }
       Promise.resolve(firebase.auth().signOut()).catch(function(){});
     });
   }
