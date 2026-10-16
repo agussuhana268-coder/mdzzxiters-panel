@@ -606,15 +606,11 @@ body{position:relative;}
 }
 @keyframes loginDrift{from{transform:translate(-50%,-50%) scale(.94)}to{transform:translate(-44%,-45%) scale(1.06)}}
 #login-page::before{
-  content:"SECURE COMMERCE SYSTEMS";
+  content:"MDZZXITERS SYSTEM";
   position:absolute;left:clamp(28px,5vw,76px);top:clamp(24px,4vw,54px);
   color:#7d9bbf;font:600 10px/1.4 'Space Grotesk',sans-serif;letter-spacing:2.8px;
 }
-#login-page::after{
-  content:"MDZZXITERS  /  ADMINISTRATIVE ACCESS";
-  position:absolute;left:clamp(28px,5vw,76px);bottom:clamp(20px,3vw,42px);
-  color:#58718f;font:500 9px/1.4 'Space Grotesk',sans-serif;letter-spacing:1.8px;
-}
+   
 #login-page .login-card{
   grid-column:2;grid-row:1;align-self:center;justify-self:center;
   width:min(100%,440px);max-width:440px;
@@ -1657,12 +1653,12 @@ document.addEventListener('DOMContentLoaded',function(){
   <div class="login-bg-grid"></div>
   <div class="login-orb"></div>
   <section class="login-intro" aria-label="Admin console introduction">
-    <div class="login-intro-kicker">Operations console · Secure access</div>
-    <h1>One workspace.<br/><span>Clear control.</span></h1>
-    <p>Manage your digital products, deliveries, and access from one focused workspace built for reliable day-to-day operations.</p>
+    <div class="login-intro-kicker">ADMINISTRATOR LOGIN</div>
+    <h1>Manage Everything.<br/><span>All in One Place</span></h1>
+    <p>Kelola produk, lisensi, dan pengiriman digital secepat kilat.</p>
     <div class="login-intro-meta">
-      <span><i></i> PRODUCT MANAGEMENT</span>
-      <span><i></i> SECURE DELIVERY</span>
+      <span><i></i> PRODUCTS</span>
+      <span><i></i> LICENSE DELIVERY</span>
     </div>
   </section>
   <div class="login-card">
@@ -1677,12 +1673,12 @@ document.addEventListener('DOMContentLoaded',function(){
       </div>
       <div>
         <span class="login-brand">MDZZXITERS</span>
-        <span class="login-brand-sub">CONTROL CENTER v2.0</span>
+        <span class="login-brand-sub">ADMIN PANEL</span>
       </div>
     </div>
     <div class="login-divider"></div>
     <div class="l-field">
-      <label>USERNAME DASHBOARD</label>
+      <label>USERNAME</label>
       <input type="text" id="adm-user" class="l-input" placeholder="Masukkan username dashboard" autocomplete="username" name="username" autocorrect="off" autocapitalize="none"/>
     </div>
     <div class="l-field">
@@ -1696,11 +1692,11 @@ document.addEventListener('DOMContentLoaded',function(){
     </div>
     <label style="display:flex;align-items:center;gap:9px;font-size:12px;color:var(--t2);cursor:pointer;margin:0 2px;">
       <input type="checkbox" id="adm-remember" style="width:15px;height:15px;accent-color:#38bdf8;"/>
-      Ingat saya (simpan email dan sesi login di perangkat ini)
+      Ingat saya
     </label>
-    <button class="btn-login" onclick="adminLogin()">SIGN IN TO CONTROL CENTER</button>
+    <button class="btn-login" onclick="adminLogin()">Masuk ke Dashboard ⟶</button>
     <div class="login-err" id="adm-err">Invalid credentials. Access denied.</div>
-    <div class="login-footer">MDZZXITERS CORP · SECURE ACCESS · v2.0</div>
+    <div class="login-footer">MDZZXITERS · ADMIN PANEL</div>
   </div>
 </div>
 
