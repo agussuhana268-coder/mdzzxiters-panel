@@ -3760,9 +3760,9 @@ function renderAdmins(){
 }
 function setupOwnerDashboardPassword(){
   if(!currentAdmin||currentAdmin.role!=='owner'){toast('Hanya owner yang dapat mengatur password','e');return;}
-  var password=prompt('Buat password dashboard owner baru (minimal 12 karakter):');
+  var password=prompt('Buat password dashboard owner baru (minimal 8 karakter):');
   if(password===null)return;
-  if(password.length<12||password.length>256){toast('Password harus 12–256 karakter','e');return;}
+  if(password.length<8||password.length>256){toast('Password harus 8–256 karakter','e');return;}
   var confirmation=prompt('Masukkan ulang password yang sama:');
   if(confirmation===null)return;
   if(password!==confirmation){toast('Konfirmasi password tidak cocok','e');return;}
