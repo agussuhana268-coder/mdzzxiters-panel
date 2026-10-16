@@ -2705,7 +2705,6 @@ document.addEventListener('DOMContentLoaded',function(){
      FIREBASE + APP LOGIC
 ══════════════════════════════════════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
@@ -2719,7 +2718,6 @@ firebase.initializeApp({
   messagingSenderId:"515480722704",
   appId:"1:515480722704:web:225d9105e3fea021125995"
 });
-var db=firebase.firestore();
 firebase.auth().signInAnonymously().catch(function(){});
 
 /* ══ STATE ══ */
