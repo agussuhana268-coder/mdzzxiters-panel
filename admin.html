@@ -5011,10 +5011,16 @@ function loadProfile(){
     setPhoto(currentAdmin.avatarUrl+'?t='+Date.now());
   } else {
     adminApiFetch('/api/admins/me').then(function(result){
-      var d=result.profile;
-      var url=d&&(d.avatar_url||null);
+      var d=result.profile||{};
+      var url=d.avatar_url||d.avatarUrl||null;
+      if(d.created_at)currentAdmin.createdAt=d.created_at;
+      if(d.name)currentAdmin.name=d.name;
       if(url){currentAdmin.avatarUrl=url;setPhoto(url+'?t='+Date.now());}
-    }).catch(function(){});
+      localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
+      var joined=gi('acc-joined');if(joined&&currentAdmin.createdAt)joined.textContent=fmtTime(currentAdmin.createdAt);
+    }).catch(function(e){
+      console.warn('[Profile] Metadata profil belum tersedia:',e.message);
+    });
   }
 }
 
