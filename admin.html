@@ -4319,18 +4319,7 @@ function checkSaved(){
     validateSavedSession();
     return;
   }
-  if(saved.authMode==='firebase'){
-    firebase.auth().onAuthStateChanged(function(user){
-      if(user&&!user.isAnonymous){
-        currentAdmin=saved;
-        validateSavedSession();
-      }else{
-        try{localStorage.removeItem('_mdzz_adm');}catch(_){}
-      }
-    });
-    return;
-  }
-  // Sesi lawas tanpa mode/token tidak lagi dipercaya; minta login ulang.
+  // Hanya sesi backend yang dipercaya. Sesi Firebase-only lawas harus login ulang.
   try{localStorage.removeItem('_mdzz_adm');}catch(_){}
 }
 
