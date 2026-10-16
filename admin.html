@@ -4246,6 +4246,27 @@ function checkSaved(){
     try{localStorage.removeItem('_mdzz_adm');}catch(_){}
     return;
   }
+  function validateSavedSession(){
+    adminApiFetch('/api/admin/verify').then(function(result){
+      if(!result.admin||!result.admin.username||!result.admin.role)throw new Error('Sesi admin tidak valid.');
+      currentAdmin=Object.assign({},saved,{
+        id:result.admin.uid||saved.id,
+        username:result.admin.username,
+        name:result.admin.name||result.admin.username,
+        role:result.admin.role
+      });
+      localStorage.setItem('_mdzz_adm',JSON.stringify(currentAdmin));
+      enterApp();
+    }).catch(function(){
+      try{
+        localStorage.removeItem('_mdzz_adm');
+        localStorage.removeItem('_mdzz_admin_token');
+        sessionStorage.removeItem('_mdzz_admin_token');
+      }catch(_){}
+      currentAdmin=null;
+      Promise.resolve(firebase.auth().signOut()).catch(function(){});
+    });
+  }
   if(saved.authMode==='backend'){
     var token='';
     try{token=sessionStorage.getItem('_mdzz_admin_token')||localStorage.getItem('_mdzz_admin_token')||'';}catch(_){}
@@ -4254,14 +4275,14 @@ function checkSaved(){
       return;
     }
     currentAdmin=saved;
-    enterApp();
+    validateSavedSession();
     return;
   }
   if(saved.authMode==='firebase'){
     firebase.auth().onAuthStateChanged(function(user){
       if(user&&!user.isAnonymous){
         currentAdmin=saved;
-        enterApp();
+        validateSavedSession();
       }else{
         try{localStorage.removeItem('_mdzz_adm');}catch(_){}
       }
