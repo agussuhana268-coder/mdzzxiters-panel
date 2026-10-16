@@ -1868,7 +1868,7 @@ document.addEventListener('DOMContentLoaded',function(){
               <div class="stat-ico grn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg></div>
             </div>
             <span class="stat-val" id="ov-online">0</span>
-            <span class="stat-sub">Active sessions</span>
+            <span class="stat-sub">Active in last 15 minutes</span>
           </div>
           <div class="stat-card c-gold" style="min-height:130px;">
             <div class="stat-top">
@@ -2776,6 +2776,8 @@ firebase.initializeApp({
 /* ══ STATE ══ */
 var currentAdmin=null;
 var allKeys=[],allSessions=[],allProjects=[],allAdmins=[],activityLog=[];
+var sessionStats={totalCount:null,onlineCount:null};
+var SESSION_ONLINE_WINDOW_MS=15*60*1000;
 var keyFilter='ALL',sessFilter='ALL',keySearch='',durMode='off',actFilter='all',currentPeriod='month';
 var charts={};
 
@@ -3661,22 +3663,26 @@ function loadSessions(){
         ipAddress:d.ip_address||null, lastSeenIpAt:d.last_seen_ip_at||null
       };
     });
+    sessionStats.totalCount=Number.isFinite(Number(result.total_count))?Number(result.total_count):allSessions.length;
+    sessionStats.onlineCount=Number.isFinite(Number(result.online_count))?Number(result.online_count):null;
     renderSessions();updateOverviewStats();
   }).catch(function(e){toast('Gagal memuat sesi dari backend: '+e.message,'e');});
 }
 function renderSessions(){
-  /* Abaikan flag online yang sudah stale: hitung hanya sesi dengan heartbeat 5 menit terakhir. */
+  /* Online berarti heartbeat dalam 15 menit terakhir, agar konsisten dengan backend. */
   var nowMs=Date.now();
-  var online=allSessions.filter(function(s){
+  var online=typeof sessionStats.onlineCount==='number'?sessionStats.onlineCount:allSessions.filter(function(s){
     if(s.online!==true||!s.lastSeen)return false;
     var seenAt=typeof s.lastSeen==='number'?s.lastSeen:new Date(s.lastSeen).getTime();
-    return Number.isFinite(seenAt)&&seenAt>0&&(nowMs-seenAt)<=5*60*1000;
+    return Number.isFinite(seenAt)&&seenAt>0&&(nowMs-seenAt)<=SESSION_ONLINE_WINDOW_MS;
   }).length;
+  var total=typeof sessionStats.totalCount==='number'?sessionStats.totalCount:allSessions.length;
   var ob=gi('tb-online-count');if(ob)ob.textContent=online;
   var mnlive=gi('mn-live');if(mnlive)mnlive.className='mn-live'+(online>0?' vis':'');
   var nbu=gi('nb-users');if(nbu)nbu.textContent=online+' Online';
   var uc=gi('users-online-count');if(uc)uc.textContent=online+' users online';
-  var ut=gi('users-total-count');if(ut)ut.textContent=allSessions.length+' total sessions';
+  var ut=gi('users-total-count');
+  if(ut)ut.textContent=allSessions.length<total?allSessions.length+' shown · '+total+' total sessions':total+' total sessions';
   var ovo=gi('ov-online');if(ovo)ovo.textContent=online;
   var filtered=sessFilter==='ALL'?allSessions:allSessions.filter(function(s){
     var k=allKeys.find(function(k){return k.key===s.key;});return k&&k.project===sessFilter;
@@ -3686,7 +3692,7 @@ function renderSessions(){
   var html='';
   filtered.forEach(function(d){
     var seenAt=d.lastSeen?(typeof d.lastSeen==='number'?d.lastSeen:new Date(d.lastSeen).getTime()):0;
-    var isOn=d.online===true&&Number.isFinite(seenAt)&&seenAt>0&&(Date.now()-seenAt)<=5*60*1000;
+    var isOn=d.online===true&&Number.isFinite(seenAt)&&seenAt>0&&(Date.now()-seenAt)<=SESSION_ONLINE_WINDOW_MS;
     var ini=escapeHtml((d.platform||'?').charAt(0));
     var mk=allKeys.find(function(k){return k.key===d.key;});
     var pj=mk?mk.project:'—';
@@ -4196,6 +4202,8 @@ function refreshSupabaseDashboard(showError){
         lastSeen:d.last_seen?new Date(d.last_seen):null,ipAddress:d.ip_address||null,
         lastSeenIpAt:d.last_seen_ip_at?new Date(d.last_seen_ip_at):null};
     });
+    sessionStats.totalCount=Number.isFinite(Number(results[1].total_count))?Number(results[1].total_count):allSessions.length;
+    sessionStats.onlineCount=Number.isFinite(Number(results[1].online_count))?Number(results[1].online_count):null;
     renderKeys();renderProjects();renderSessions();updateOverviewStats();checkExpiredKeys();
   }).catch(function(err){
     console.error('Refresh dashboard Supabase:',err);
