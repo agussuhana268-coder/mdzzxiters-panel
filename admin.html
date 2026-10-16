@@ -4167,7 +4167,7 @@ function adminApiFetch(path, options){
   try{backendToken=sessionStorage.getItem('_mdzz_admin_token')||localStorage.getItem('_mdzz_admin_token')||'';}catch(_){}
   var tokenPromise=(currentAdmin&&currentAdmin.authMode==='backend'&&backendToken)
     ?Promise.resolve(backendToken)
-    :(firebase.auth().currentUser?firebase.auth().currentUser.getIdToken():Promise.reject(new Error('Sesi login berakhir. Silakan login ulang.')));
+    :Promise.reject(new Error('Sesi backend berakhir. Silakan login ulang.'));
   return tokenPromise.then(function(token){
     var headers=Object.assign({'Authorization':'Bearer '+token},options.headers||{});
     if(typeof FormData==='undefined'||!(options.body instanceof FormData))headers['Content-Type']=headers['Content-Type']||'application/json';
@@ -4236,15 +4236,13 @@ function startAdminSessionWatch(){
   function verifyActiveAdmin(){
     if(!currentAdmin||!gi('app')||gi('app').style.display==='none')return;
     var tokenPromise;
-    if(currentAdmin.authMode==='backend'){
-      var backendToken='';
-      try{backendToken=sessionStorage.getItem('_mdzz_admin_token')||localStorage.getItem('_mdzz_admin_token')||'';}catch(_){}
-      tokenPromise=backendToken?Promise.resolve(backendToken):Promise.reject(new Error('Missing session'));
-    }else{
-      tokenPromise=firebase.auth().currentUser
-        ?firebase.auth().currentUser.getIdToken()
-        :Promise.reject(new Error('Missing session'));
+    if(currentAdmin.authMode!=='backend'){
+      adminLogout();
+      return;
     }
+    var backendToken='';
+    try{backendToken=sessionStorage.getItem('_mdzz_admin_token')||localStorage.getItem('_mdzz_admin_token')||'';}catch(_){}
+    tokenPromise=backendToken?Promise.resolve(backendToken):Promise.reject(new Error('Missing backend session'));
     tokenPromise.then(function(token){
       return fetch(API_BASE_URL+'/api/admin/verify',{
         method:'GET',
