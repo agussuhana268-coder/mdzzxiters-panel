@@ -4508,11 +4508,11 @@ function enterApp(){
     loadAll();
     startListeners();
     initIPMonitoring();
-    db.collection('admins').doc(currentAdmin.id).get()
-      .then(function(doc){
-        if(doc.exists){var d=doc.data();currentAdmin.avatarUrl=d.avatarUrl||d.avatar_url||null;}
-        loadProfile();
-      }).catch(function(){loadProfile();});
+    adminApiFetch('/api/admins/me').then(function(result){
+      var d=result.profile;
+      if(d){currentAdmin.avatarUrl=d.avatar_url||null;if(d.name)currentAdmin.name=d.name;}
+      loadProfile();
+    }).catch(function(){loadProfile();});
     setTimeout(checkExpiredKeys,4000);
     setInterval(checkExpiredKeys,300000);
   },420);
@@ -5010,13 +5010,11 @@ function loadProfile(){
   if(currentAdmin.avatarUrl){
     setPhoto(currentAdmin.avatarUrl+'?t='+Date.now());
   } else {
-    db.collection('admins').doc(currentAdmin.id).get()
-      .then(function(doc){
-        if(!doc.exists)return;
-        var d=doc.data();
-        var url=d.avatarUrl||d.avatar_url||null;
-        if(url){currentAdmin.avatarUrl=url;setPhoto(url+'?t='+Date.now());}
-      }).catch(function(){});
+    adminApiFetch('/api/admins/me').then(function(result){
+      var d=result.profile;
+      var url=d&&(d.avatar_url||null);
+      if(url){currentAdmin.avatarUrl=url;setPhoto(url+'?t='+Date.now());}
+    }).catch(function(){});
   }
 }
 
@@ -5081,7 +5079,7 @@ async function handlePhotoUpload(input){
     }
     var publicUrl  = _SUPA_URL + '/storage/v1/object/public/' + AVATAR_BUCKET + '/' + filePath;
     var displayUrl = publicUrl + '?t=' + Date.now();
-    await db.collection('admins').doc(currentAdmin.id).update({ avatarUrl: publicUrl });
+    await adminApiFetch('/api/admins/me',{method:'PATCH',body:JSON.stringify({avatar_url:publicUrl})});
     currentAdmin.avatarUrl = publicUrl;
     setPhoto(displayUrl);
     toast('Foto profil berhasil diperbarui ✓','s');
