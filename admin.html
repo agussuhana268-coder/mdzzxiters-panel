@@ -4858,8 +4858,25 @@ async function sendProduct() {
     var data = await resp.json();
     if(!data.success) throw new Error(data.message);
 
-    res.innerHTML = '<div class="sr-title">EMAIL TERKIRIM</div><div class="sr-body">Email dikirim ke <b style=\'color:var(--t1);\'>' + email + '</b><br/>Produk: <b style=\'color:var(--t1);\'>' + product + '</b><br/>Email ID: ' + (data.emailId || '—') + '</div>' +
-      '<div class="sr-key">Expired: ' + (data.expiresAt || '15 menit') + '</div>';
+    res.replaceChildren();
+    var successTitle = document.createElement('div');
+    successTitle.className = 'sr-title';
+    successTitle.textContent = 'EMAIL TERKIRIM';
+    var successBody = document.createElement('div');
+    successBody.className = 'sr-body';
+    successBody.append('Email dikirim ke ');
+    var emailValue = document.createElement('b');
+    emailValue.style.color = 'var(--t1)';
+    emailValue.textContent = email;
+    successBody.append(emailValue, document.createElement('br'), 'Produk: ');
+    var productValue = document.createElement('b');
+    productValue.style.color = 'var(--t1)';
+    productValue.textContent = product;
+    successBody.append(productValue, document.createElement('br'), 'Email ID: ' + (data.emailId || '—'));
+    var expiry = document.createElement('div');
+    expiry.className = 'sr-key';
+    expiry.textContent = 'Expired: ' + (data.expiresAt || '15 menit');
+    res.append(successTitle, successBody, expiry);
     res.className = 'send-result ok vis';
 
     toast('Email berhasil dikirim ke ' + email,'s',3000);
