@@ -3862,6 +3862,18 @@ function renderSessions(){
 
 /* ══ ADMINS / TEAM ══ */
 var allAdminsData=[];
+var adminsRefreshTimer=null;
+function refreshAdminsFromApi(){
+  adminApiFetch('/api/admins').then(function(result){
+    allAdminsData=(result.rows||[]).map(function(d){
+      d._id=d.id;
+      return d;
+    });
+    renderAdmins();
+  }).catch(function(e){
+    console.warn('[Admins] Gagal memuat daftar admin dari backend:',e.message);
+  });
+}
 function renderAdmins(){
   gi('team-count-badge').textContent=allAdminsData.length+' admins';
   gi('ov-admins').textContent=allAdminsData.length;
@@ -3872,7 +3884,7 @@ function renderAdmins(){
     var ini=(d.name||d.username||'?').charAt(0).toUpperCase();
     html+='<div class="admin-row">';
     html+='<div class="admin-av">'+ini+'</div>';
-    html+='<div class="admin-info"><span class="admin-name">'+(d.name||'—')+'</span><span class="admin-user">@'+(d.username||'—')+'</span><span class="admin-joined">'+fmtTime(d.createdAt)+'</span></div>';
+    html+='<div class="admin-info"><span class="admin-name">'+(d.name||'—')+'</span><span class="admin-user">@'+(d.username||'—')+'</span><span class="admin-joined">'+fmtTime(d.createdAt||d.created_at)+'</span></div>';
     html+='<span class="role-tag '+(d.role||'admin')+'">'+(d.role||'ADMIN').toUpperCase()+'</span>';
     if(currentAdmin&&currentAdmin.role==='owner'&&d._id!==currentAdmin.id){
       html+='<button class="btn btn-danger btn-sm" onclick="removeAdmin(\''+d._id+'\',\''+d.username+'\')">REMOVE</button>';
@@ -4345,19 +4357,10 @@ function startListeners(){
     if(gi('page-overview').classList.contains('active'))renderOverviewCharts();
   },30000);
 
-  /* Admin management dimigrasikan terpisah setelah skema auth/admin dipastikan. */
-  db.collection('admins').orderBy('createdAt').onSnapshot(function(snap){
-    allAdminsData=[];
-    snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
-    renderAdmins();
-    gi('ov-admins').textContent=allAdminsData.length;
-  },function(){
-    db.collection('admins').onSnapshot(function(snap){
-      allAdminsData=[];
-      snap.forEach(function(doc){var d=doc.data();d._id=doc.id;allAdminsData.push(d);});
-      renderAdmins();
-    },function(){});
-  });
+  /* Daftar Admin Team dibaca dari Supabase melalui backend; password tidak pernah dikirim. */
+  refreshAdminsFromApi();
+  if(adminsRefreshTimer)clearInterval(adminsRefreshTimer);
+  adminsRefreshTimer=setInterval(refreshAdminsFromApi,60000);
 }
 
 /* ══ INIT ══ */
