@@ -1679,12 +1679,12 @@ document.addEventListener('DOMContentLoaded',function(){
     <div class="login-divider"></div>
     <div class="l-field">
       <label>USERNAME</label>
-      <input type="text" id="adm-user" class="l-input" placeholder="Masukkan username dashboard" autocomplete="username" name="username" autocorrect="off" autocapitalize="none" onkeydown="if(event.key===\'Enter\'){event.preventDefault();adminLogin();}"/>
+      <input type="text" id="adm-user" class="l-input" placeholder="Masukkan username dashboard" autocomplete="username" name="username" autocorrect="off" autocapitalize="none" onkeydown="if(event.key==='Enter'){event.preventDefault();adminLogin();}"/>
     </div>
     <div class="l-field">
       <label>PASSWORD</label>
       <div style="position:relative;display:flex;align-items:center;">
-        <input type="password" id="adm-pass" class="l-input" style="padding-right:48px;width:100%;" placeholder="••••••••" autocomplete="current-password" name="password" onkeydown="if(event.key===\'Enter\'){event.preventDefault();adminLogin();}"/>
+        <input type="password" id="adm-pass" class="l-input" style="padding-right:48px;width:100%;" placeholder="••••••••" autocomplete="current-password" name="password" onkeydown="if(event.key==='Enter'){event.preventDefault();adminLogin();}"/>
         <button type="button" id="adm-pass-toggle" aria-label="Tampilkan password" title="Tampilkan password" onclick="toggleLoginPassword()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--t2);cursor:pointer;padding:8px;display:flex;align-items:center;justify-content:center;">
           <svg id="adm-pass-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
