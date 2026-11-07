@@ -4542,7 +4542,7 @@ function syncApiInputs(){
 function fmtBytes(b)  { if(!b)return '—'; if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(1)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
 
 /* ── API call helper ── */
-async function apiCall(method, endpoint, body, isFormData) {
+async function apiCall(method, endpoint, body, isFormData, timeoutMs) {
   syncApiInputs();
   var url  = getApiUrl() + endpoint;
   var key  = getApiKey();
@@ -4557,9 +4557,10 @@ async function apiCall(method, endpoint, body, isFormData) {
   } else if (body && isFormData) {
     opts.body = body;
   }
-  /* 30 second timeout */
+  /* Timeout default 30s; long product uploads get a dedicated longer window. */
   var controller = new AbortController();
-  var tid = setTimeout(function(){ controller.abort(); }, 30000);
+  var requestTimeout = Number(timeoutMs) > 0 ? Number(timeoutMs) : 30000;
+  var tid = setTimeout(function(){ controller.abort(); }, requestTimeout);
   opts.signal = controller.signal;
   try {
     var resp = await fetch(url, opts);
@@ -4571,7 +4572,7 @@ async function apiCall(method, endpoint, body, isFormData) {
     return resp.json();
   } catch(e) {
     clearTimeout(tid);
-    if(e.name === 'AbortError') throw new Error('Timeout — server tidak merespons dalam 30 detik');
+    if(e.name === 'AbortError') throw new Error('Waktu tunggu habis setelah ' + Math.round(requestTimeout/1000) + ' detik. Periksa daftar produk sebelum mencoba upload ulang.');
     if(e.message.includes('Failed to fetch') || e.message.includes('NetworkError')){
       throw new Error('Tidak bisa terhubung ke server. Pastikan BACKEND URL sudah benar dan server sedang berjalan.');
     }
@@ -4769,7 +4770,7 @@ async function doUpload() {
     var fd = new FormData();
     fd.append('file', selectedFile, selectedFile.name);
     fd.append('fileName', fileName);
-    var data = await apiCall('POST', '/api/upload-product', fd, true);
+    var data = await apiCall('POST', '/api/upload-product', fd, true, 300000);
     clearInterval(piv); fill.style.width = '100%';
     if(!data.success) throw new Error(data.message);
     res.replaceChildren();
