@@ -3656,7 +3656,14 @@ function loadSessions(){
       return {
         _id:d.id, id:d.id, key:d.key, platform:d.platform||'?',
         online:d.online===true, lastSeen:d.last_seen||null,
-        ipAddress:d.ip_address||null, lastSeenIpAt:d.last_seen_ip_at||null
+        ipAddress:d.ip_address||null, lastSeenIpAt:d.last_seen_ip_at||null,
+        deviceBrand:d.device_brand||null,
+        deviceManufacturer:d.device_manufacturer||null,
+        deviceModel:d.device_model||null,
+        deviceName:d.device_name||null,
+        deviceCodename:d.device_codename||null,
+        androidVersion:d.android_version||null,
+        sdkInt:d.sdk_int||null
       };
     });
     sessionStats.totalCount=Number.isFinite(Number(result.total_count))?Number(result.total_count):allSessions.length;
@@ -3694,8 +3701,15 @@ function renderSessions(){
     var pj=mk?mk.project:'—';
     html+='<div class="sess-row">';
     html+='<div class="sess-av '+(isOn?'online':'offline')+'">'+ini+'</div>';
+    var deviceLabel=d.deviceName||[d.deviceManufacturer||d.deviceBrand,d.deviceModel].filter(Boolean).join(' ');
+    var deviceMeta=deviceLabel
+      ? '<span class="dev-tag" title="Model perangkat yang dilaporkan Android">📱 '+escapeHtml(deviceLabel)+'</span>'
+      : '<span class="dev-tag" title="Belum ada metadata perangkat">📱 Model belum tersedia</span>';
+    var androidMeta=d.androidVersion
+      ? '<span class="dev-tag">Android '+escapeHtml(d.androidVersion)+'</span>'
+      : '';
     html+='<div class="sess-info"><span class="sess-key">'+escapeHtml(d.key||'—')+'</span>';
-    html+='<span class="sess-meta"><span class="dev-tag">'+escapeHtml(d.platform||'?')+'</span> · <span class="dev-tag">'+escapeHtml(pj)+'</span> · '+timeAgo(d.lastSeen)+' · '+ipBadgeHTML(d.key)+'</span></div>';
+    html+='<span class="sess-meta">'+deviceMeta+' '+androidMeta+' · <span class="dev-tag">'+escapeHtml(d.platform||'?')+'</span> · <span class="dev-tag">'+escapeHtml(pj)+'</span> · '+timeAgo(d.lastSeen)+' · '+ipBadgeHTML(d.key)+'</span></div>';
     html+='<span class="online-badge '+(isOn?'on':'off')+'"><span class="odot '+(isOn?'g':'o')+'"></span>'+(isOn?'ONLINE':'OFFLINE')+'</span></div>';
   });
   gi('sess-list').innerHTML=html;
