@@ -3328,7 +3328,10 @@ function renderKeys(){
       html+='<span class="km-tag km-exp '+expInfo.cls+'" title="Exp: '+(d.expiresAt?(d.expiresAt.toDate?d.expiresAt.toDate().toLocaleDateString('id-ID'):new Date(d.expiresAt).toLocaleDateString('id-ID')):'?')+'">⏰ '+expInfo.label+'</span>';
     }
     else if(!d.expiresAt){html+='<span class="km-tag km-exp none">no expiry</span>';}
-    if(d.deviceId)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Device: '+d.deviceId+'">📱 ...'+d.deviceId.slice(-8)+'</span>';
+    var deviceSession=allSessions.find(function(sess){return String(sess.key||'').trim().toUpperCase()===String(d.key||'').trim().toUpperCase();});
+    var phoneLabel=deviceSession&&(deviceSession.deviceName||[deviceSession.deviceManufacturer||deviceSession.deviceBrand,deviceSession.deviceModel].filter(Boolean).join(' '));
+    if(phoneLabel)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Model perangkat yang dilaporkan Android">📱 '+escapeHtml(phoneLabel)+'</span>';
+    else if(d.deviceId)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Device ID: '+escapeHtml(d.deviceId)+'">📱 ...'+escapeHtml(d.deviceId.slice(-8))+'</span>';
     html+=ipBadgeHTML(d.key);
     html+='</div></div>';
     html+='<span class="key-status '+sc+'">'+sl+'</span>';
@@ -4210,7 +4213,11 @@ function refreshSupabaseDashboard(showError){
     allSessions=(results[1].rows||[]).map(function(d){
       return {_id:d.id,key:d.key,platform:d.platform||'?',online:d.online===true,
         lastSeen:d.last_seen?new Date(d.last_seen):null,ipAddress:d.ip_address||null,
-        lastSeenIpAt:d.last_seen_ip_at?new Date(d.last_seen_ip_at):null};
+        lastSeenIpAt:d.last_seen_ip_at?new Date(d.last_seen_ip_at):null,
+        deviceBrand:d.device_brand||null,deviceManufacturer:d.device_manufacturer||null,
+        deviceModel:d.device_model||null,deviceName:d.device_name||null,
+        deviceCodename:d.device_codename||null,androidVersion:d.android_version||null,
+        sdkInt:d.sdk_int||null};
     });
     sessionStats.totalCount=Number.isFinite(Number(results[1].total_count))?Number(results[1].total_count):allSessions.length;
     sessionStats.onlineCount=Number.isFinite(Number(results[1].online_count))?Number(results[1].online_count):null;
