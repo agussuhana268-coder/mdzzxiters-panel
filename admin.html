@@ -1593,6 +1593,10 @@ body.sb-open{overflow:hidden;}
   }
 
 </style>
+
+<!-- Leaflet.js GPS Tracking Map Resources -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 <script>
@@ -1754,6 +1758,11 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
         <span class="nav-item-label">IP History</span>
         <span class="nav-badge" id="nb-ip-history">0</span>
+      </div>
+      <div class="nav-item" onclick="navTo('gps-tracking')" id="nav-gps-tracking">
+        <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+        <span class="nav-item-label">GPS Tracking</span>
+        <span class="nav-badge" id="nb-gps-tracking" style="background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.25);color:var(--sky2);">LIVE</span>
       </div>
       <div class="nav-item" onclick="navTo('projects')" id="nav-projects">
         <div class="nav-item-ico"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
@@ -2635,6 +2644,94 @@ document.addEventListener('DOMContentLoaded',function(){
         </div>
       </div>
 
+    
+      <!-- ══ GPS LOCATION TRACKING PAGE ══ -->
+      <div class="page" id="page-gps-tracking">
+        <div class="page-header">
+          <div>
+            <span class="page-title">NEXUS GPS Location Tracking</span>
+            <span class="page-sub">REALTIME GPS MONITOR · ADMIN REMOTE CONTROL</span>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="loadGpsDevices()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh Data</button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px;">
+          <!-- Left: Leaflet Interactive Map -->
+          <div class="section" style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-family:var(--hud);font-size:10px;letter-spacing:1.5px;color:var(--sky2);">INTERACTIVE GPS MAP</div>
+              <span class="badge live" id="gps-map-status">MAP READY</span>
+            </div>
+            <div id="leafletGpsMap" style="height:480px;width:100%;border-radius:12px;border:1px solid var(--bdr);overflow:hidden;background:#050c18;"></div>
+          </div>
+
+          <!-- Right: Selected Device Info & Remote Admin Controls -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <!-- Device Selector -->
+            <div class="section" style="padding:18px;">
+              <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:10px;">PILIH PERANGKAT TERHUBUNG</div>
+              <select id="gpsDeviceSelect" class="sf-select" onchange="onGpsDeviceSelected(this.value)">
+                <option value="">-- Memuat daftar perangkat... --</option>
+              </select>
+            </div>
+
+            <!-- Device Detail Card -->
+            <div class="section" style="padding:18px;flex:1;">
+              <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:12px;">INFORMASI PERANGKAT TERPILIH</div>
+              <div style="display:flex;flex-direction:column;gap:10px;font-family:var(--mono);font-size:10.5px;">
+                <div><span style="color:var(--t3);">Device ID:</span> <span id="gps-lbl-device-id" style="color:var(--sky2);font-weight:600;">-</span></div>
+                <div><span style="color:var(--t3);">Nexus ID:</span> <span id="gps-lbl-nexus-id" style="color:var(--t1);">-</span></div>
+                <div><span style="color:var(--t3);">License Key:</span> <span id="gps-lbl-key" style="color:#f59e0b;">-</span></div>
+                <div><span style="color:var(--t3);">Model HP:</span> <span id="gps-lbl-model" style="color:var(--t1);">-</span></div>
+                <hr style="border-color:var(--bdr3);margin:6px 0;">
+                <div><span style="color:var(--t3);">Latitude:</span> <span id="gps-lbl-lat" style="color:var(--t1);font-weight:700;">-</span></div>
+                <div><span style="color:var(--t3);">Longitude:</span> <span id="gps-lbl-lng" style="color:var(--t1);font-weight:700;">-</span></div>
+                <div><span style="color:var(--t3);">Akurasi:</span> <span id="gps-lbl-accuracy" style="color:#34d399;">-</span></div>
+                <div><span style="color:var(--t3);">Provider:</span> <span id="gps-lbl-provider" style="color:var(--sky2);">-</span></div>
+                <div><span style="color:var(--t3);">Update Terakhir:</span> <span id="gps-lbl-last-update" style="color:var(--t3);font-size:9px;">-</span></div>
+              </div>
+
+              <hr style="border-color:var(--bdr3);margin:14px 0 12px;">
+
+              <!-- Remote Controls -->
+              <div style="font-family:var(--hud);font-size:9px;letter-spacing:1px;color:var(--t2);margin-bottom:10px;">KONTROL REMOTE ADMIN</div>
+              <div style="display:flex;gap:10px;">
+                <button class="btn btn-primary" style="flex:1;background:linear-gradient(135deg,#dc2626,#ef4444);border-color:#f87171;" onclick="sendAdminGpsCmd('START_TRACKING')">Start Track</button>
+                <button class="btn btn-secondary" style="flex:1;" onclick="sendAdminGpsCmd('STOP_TRACKING')">Stop Track</button>
+              </div>
+              <div id="gps-cmd-feedback" style="margin-top:10px;font-family:var(--mono);font-size:9px;color:var(--sky2);text-align:center;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- History Table Section -->
+        <div class="section" style="padding:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div style="font-family:var(--hud);font-size:10px;letter-spacing:1px;color:var(--t2);">RIWAYAT LINTASAN LOKASI (LOCATION HISTORY TRAIL)</div>
+            <button class="btn btn-secondary" style="font-size:9px;padding:5px 10px;" onclick="loadGpsHistory()">Muat History</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table" style="width:100%;font-size:10.5px;">
+              <thead>
+                <tr>
+                  <th>Waktu (UTC)</th>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                  <th>Akurasi</th>
+                  <th>Provider</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-gps-history-body">
+                <tr><td colspan="6" style="text-align:center;color:var(--t3);padding:18px;">Pilih perangkat di atas untuk melihat riwayat lintasan lokasi.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 
@@ -2901,7 +2998,7 @@ function closeMobileSidebar(){
 }
 
 /* ══ NAVIGATION ══ */
-var pageTitles={
+var pageTitles={'gps-tracking':'NEXUS GPS Location Tracking',
   overview:'Overview',analytics:'Analytics',keys:'Key Management',
   users:'User Sessions',projects:'Projects',team:'Admin Team',activity:'Activity Log',
   products:'Products — File Manager',send:'Kirim Produk',
@@ -2936,6 +3033,7 @@ function navTo(page){
   if(page==='analytics'){renderAnalytics();renderAnalyticsCharts();}
   if(page==='activity'){renderActivity();}
   if(page==='overview'){renderOverviewCharts();}
+  if(page==='gps-tracking'){initGpsTrackingPage();}
   if(page==='ip-history'){renderIPHistory();}
 }
 
@@ -5431,5 +5529,169 @@ function patchTeamList(){
 
 
    
+
+<script>
+/* ══ NEXUS GPS TRACKING LEAFLET.JS INTEGRATION ══ */
+var leafletGpsMap = null;
+var activeGpsMarker = null;
+var activeGpsPolyline = null;
+var selectedGpsDeviceId = null;
+
+function initGpsTrackingPage() {
+  if (!leafletGpsMap) {
+    leafletGpsMap = L.map('leafletGpsMap').setView([-6.175392, 106.827153], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(leafletGpsMap);
+  }
+  loadGpsDevices();
+}
+
+async function loadGpsDevices() {
+  var sel = document.getElementById('gpsDeviceSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Memuat daftar perangkat... --</option>';
+
+  try {
+    var res = await fetch('/api/admin/location/devices', {
+      headers: { 'Authorization': typeof getAdminAuthToken === 'function' ? getAdminAuthToken() : '' }
+    });
+    var data = await res.json();
+    sel.innerHTML = '<option value="">-- Pilih Perangkat Terhubung --</option>';
+
+    if (data.success && data.devices && data.devices.length > 0) {
+      data.devices.forEach(function(d) {
+        var opt = document.createElement('option');
+        opt.value = d.device_id;
+        opt.textContent = (d.nexus_id || d.device_id) + ' (' + (d.key || 'License') + ')';
+        sel.appendChild(opt);
+      });
+    } else {
+      sel.innerHTML = '<option value="">Tidak ada perangkat aktif</option>';
+    }
+  } catch (e) {
+    console.error('[GPS Dashboard Error]', e);
+    sel.innerHTML = '<option value="">Gagal memuat perangkat (Error API)</option>';
+  }
+}
+
+function onGpsDeviceSelected(deviceId) {
+  if (!deviceId) return;
+  selectedGpsDeviceId = deviceId;
+  document.getElementById('gps-lbl-device-id').textContent = deviceId;
+  fetchLatestGpsLocation(deviceId);
+  loadGpsHistory(deviceId);
+}
+
+async function fetchLatestGpsLocation(deviceId) {
+  if (!deviceId) return;
+  try {
+    var res = await fetch('/api/admin/location/latest/' + encodeURIComponent(deviceId), {
+      headers: { 'Authorization': typeof getAdminAuthToken === 'function' ? getAdminAuthToken() : '' }
+    });
+    var data = await res.json();
+    if (data.success && data.location) {
+      var loc = data.location;
+      document.getElementById('gps-lbl-nexus-id').textContent = loc.nexus_id || '-';
+      document.getElementById('gps-lbl-key').textContent = loc.license_key || '-';
+      document.getElementById('gps-lbl-model').textContent = loc.device_model || 'Android Device';
+      document.getElementById('gps-lbl-lat').textContent = loc.latitude.toFixed(6);
+      document.getElementById('gps-lbl-lng').textContent = loc.longitude.toFixed(6);
+      document.getElementById('gps-lbl-accuracy').textContent = loc.accuracy ? loc.accuracy + ' m' : '-';
+      document.getElementById('gps-lbl-provider').textContent = loc.provider || 'GPS';
+      document.getElementById('gps-lbl-last-update').textContent = new Date(loc.recorded_at).toLocaleString();
+
+      var pos = [loc.latitude, loc.longitude];
+      if (!activeGpsMarker) {
+        activeGpsMarker = L.marker(pos).addTo(leafletGpsMap);
+      } else {
+        activeGpsMarker.setLatLng(pos);
+      }
+      leafletGpsMap.panTo(pos);
+      activeGpsMarker.bindPopup('<b>Nexus ID: ' + (loc.nexus_id || '-') + '</b><br>Lat: ' + loc.latitude + '<br>Lng: ' + loc.longitude).openPopup();
+    }
+  } catch (e) {
+    console.error('[GPS Error]', e);
+  }
+}
+
+async function loadGpsHistory(deviceId) {
+  var devId = deviceId || selectedGpsDeviceId;
+  if (!devId) return;
+  var tbody = document.getElementById('tbl-gps-history-body');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:14px;">Memuat riwayat lokasi...</td></tr>';
+
+  try {
+    var res = await fetch('/api/admin/location/history/' + encodeURIComponent(devId) + '?limit=50', {
+      headers: { 'Authorization': typeof getAdminAuthToken === 'function' ? getAdminAuthToken() : '' }
+    });
+    var data = await res.json();
+
+    if (data.success && data.history && data.history.length > 0) {
+      tbody.innerHTML = '';
+      var latLngs = [];
+
+      data.history.forEach(function(h) {
+        latLngs.push([h.latitude, h.longitude]);
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + new Date(h.recorded_at).toLocaleString() + '</td>' +
+                       '<td style="font-family:var(--mono);">' + h.latitude.toFixed(6) + '</td>' +
+                       '<td style="font-family:var(--mono);">' + h.longitude.toFixed(6) + '</td>' +
+                       '<td>' + (h.accuracy ? h.accuracy + 'm' : '-') + '</td>' +
+                       '<td><span class="badge">' + (h.provider || 'GPS') + '</span></td>' +
+                       '<td><button class="btn btn-secondary" style="font-size:8px;padding:3px 8px;" onclick="panMapTo(' + h.latitude + ',' + h.longitude + ')">Fokus</button></td>';
+        tbody.appendChild(tr);
+      });
+
+      if (activeGpsPolyline) leafletGpsMap.removeLayer(activeGpsPolyline);
+      if (latLngs.length > 0) {
+        activeGpsPolyline = L.polyline(latLngs, { color: '#38bdf8', weight: 3, opacity: 0.8 }).addTo(leafletGpsMap);
+      }
+    } else {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:14px;">Belum ada riwayat lokasi recorded.</td></tr>';
+    }
+  } catch (e) {
+    console.error('[GPS History Error]', e);
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#fb7185;padding:14px;">Gagal memuat riwayat lokasi.</td></tr>';
+  }
+}
+
+function panMapTo(lat, lng) {
+  if (leafletGpsMap) {
+    leafletGpsMap.panTo([lat, lng]);
+  }
+}
+
+async function sendAdminGpsCmd(command) {
+  if (!selectedGpsDeviceId) {
+    alert('Pilih perangkat terlebih dahulu dari dropdown!');
+    return;
+  }
+  var feedback = document.getElementById('gps-cmd-feedback');
+  if (feedback) feedback.textContent = 'Sending command ' + command + '...';
+
+  try {
+    var res = await fetch('/api/admin/location/command', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': typeof getAdminAuthToken === 'function' ? getAdminAuthToken() : ''
+      },
+      body: JSON.stringify({ device_id: selectedGpsDeviceId, command: command })
+    });
+    var data = await res.json();
+    if (data.success) {
+      if (feedback) feedback.textContent = 'Perintah ' + command + ' dikirim (ID: ' + (data.command_id || 'OK') + ')';
+    } else {
+      if (feedback) feedback.textContent = 'Gagal: ' + (data.error || 'Unknown error');
+    }
+  } catch (e) {
+    if (feedback) feedback.textContent = 'Error koneksi backend';
+  }
+}
+</script>
+
 </body>
 </html>
