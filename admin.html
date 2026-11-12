@@ -3309,8 +3309,16 @@ function renderKeys(){
   var html='';
   filtered.forEach(function(d){
     var expired=isExpired(d);
-    var sc=!d.active?(expired?'ks-expired':'ks-revoked'):(d.used?'ks-used':'ks-unused');
-    var sl=!d.active?(expired?'EXPIRED':'REVOKED'):(d.used?'IN USE':'AVAILABLE');
+    var deviceSession=allSessions.find(function(sess){
+      return String(sess.key||'').trim().toUpperCase()===String(d.key||'').trim().toUpperCase()
+        && String(sess.platform||'').trim().toLowerCase()==='insanitymax_ios';
+    });
+    var isInsanityMax=String(d.project||'').trim().toLowerCase().includes('insanity max');
+    /* Untuk INSANITY MAX iOS, sesi platform iOS menjadi bukti binding
+       meskipun kolom licenses.used belum tersinkron oleh RPC. */
+    var keyInUse=!!d.used||(isInsanityMax&&!!deviceSession);
+    var sc=!d.active?(expired?'ks-expired':'ks-revoked'):(keyInUse?'ks-used':'ks-unused');
+    var sl=!d.active?(expired?'EXPIRED':'REVOKED'):(keyInUse?'IN USE':'AVAILABLE');
     var expInfo=d.expiresAt?fmtExpiry(d.expiresAt):null;
     var keyDisp=d.key||'—';
     if(keySearch&&keyDisp.toLowerCase().indexOf(keySearch)>=0){
@@ -3328,7 +3336,6 @@ function renderKeys(){
       html+='<span class="km-tag km-exp '+expInfo.cls+'" title="Exp: '+(d.expiresAt?(d.expiresAt.toDate?d.expiresAt.toDate().toLocaleDateString('id-ID'):new Date(d.expiresAt).toLocaleDateString('id-ID')):'?')+'">⏰ '+expInfo.label+'</span>';
     }
     else if(!d.expiresAt){html+='<span class="km-tag km-exp none">no expiry</span>';}
-    var deviceSession=allSessions.find(function(sess){return String(sess.key||'').trim().toUpperCase()===String(d.key||'').trim().toUpperCase();});
     var phoneLabel=deviceSession&&(deviceSession.deviceName||[deviceSession.deviceManufacturer||deviceSession.deviceBrand,deviceSession.deviceModel].filter(Boolean).join(' '));
     if(phoneLabel)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Model perangkat yang dilaporkan Android">📱 '+escapeHtml(phoneLabel)+'</span>';
     else if(d.deviceId)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Device ID: '+escapeHtml(d.deviceId)+'">📱 ...'+escapeHtml(d.deviceId.slice(-8))+'</span>';
@@ -3671,7 +3678,7 @@ function loadSessions(){
     });
     sessionStats.totalCount=Number.isFinite(Number(result.total_count))?Number(result.total_count):allSessions.length;
     sessionStats.onlineCount=Number.isFinite(Number(result.online_count))?Number(result.online_count):null;
-    renderSessions();updateOverviewStats();
+    renderSessions();renderKeys();updateOverviewStats();
   }).catch(function(e){toast('Gagal memuat sesi dari backend: '+e.message,'e');});
 }
 function renderSessions(){
