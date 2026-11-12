@@ -2650,7 +2650,7 @@ document.addEventListener('DOMContentLoaded',function(){
         <div class="page-header">
           <div>
             <span class="page-title">NEXUS GPS Location Tracking</span>
-            <span class="page-sub">REALTIME GPS MONITOR · ADMIN REMOTE CONTROL</span>
+            <span class="page-sub">REALTIME GPS MONITOR · AUTO-REFRESH 5S</span>
           </div>
           <div class="page-actions">
             <button class="btn btn-primary" onclick="loadGpsDevices()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh Perangkat</button>
@@ -5542,14 +5542,14 @@ function patchTeamList(){
    
 
 <script>
-/* ══ NEXUS GPS TRACKING LEAFLET.JS INTEGRATION (v6 PRODUCTION FIX) ══ */
+/* ══ NEXUS GPS TRACKING LEAFLET.JS INTEGRATION (v7 AUTO-REFRESH 5S) ══ */
 var leafletGpsMap = null;
 var activeGpsMarker = null;
 var activeGpsPolyline = null;
 var selectedGpsDeviceId = null;
+var gpsAutoRefreshTimer = null;
 
 function getGpsBackendBaseUrl() {
-  // Always point strictly to the verified Railway production domain
   return 'https://mdzzxiters-backend-production-605e.up.railway.app';
 }
 
@@ -5580,6 +5580,14 @@ function initGpsTrackingPage() {
     }).addTo(leafletGpsMap);
   }
   loadGpsDevices();
+
+  // Auto-refresh GPS location every 5 seconds
+  if (gpsAutoRefreshTimer) clearInterval(gpsAutoRefreshTimer);
+  gpsAutoRefreshTimer = setInterval(function() {
+    if (selectedGpsDeviceId) {
+      fetchLatestGpsLocation(selectedGpsDeviceId);
+    }
+  }, 5000);
 }
 
 async function loadGpsDevices() {
@@ -5657,6 +5665,7 @@ async function fetchLatestGpsLocation(deviceId) {
       }
       leafletGpsMap.panTo(pos);
       activeGpsMarker.bindPopup('<b>Nexus ID: ' + (loc.nexus_id || '-') + '</b><br>Lat: ' + loc.latitude + '<br>Lng: ' + loc.longitude).openPopup();
+      document.getElementById('gps-map-status').textContent = 'UPDATED ' + new Date().toLocaleTimeString();
     }
   } catch (e) {
     console.error('[GPS Error]', e);
