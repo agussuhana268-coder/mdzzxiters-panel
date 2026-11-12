@@ -2696,6 +2696,8 @@ document.addEventListener('DOMContentLoaded',function(){
                 <div><span style="color:var(--t3);">Nexus ID:</span> <span id="gps-lbl-nexus-id" style="color:var(--t1);">-</span></div>
                 <div><span style="color:var(--t3);">License Key:</span> <span id="gps-lbl-key" style="color:#f59e0b;">-</span></div>
                 <div><span style="color:var(--t3);">Model HP:</span> <span id="gps-lbl-model" style="color:var(--t1);">-</span></div>
+                <div><span style="color:var(--t3);">Status Tracking:</span> <span id="gps-lbl-tracking-status" style="color:var(--sky2);font-weight:700;">BELUM DIMULAI</span></div>
+                <div><span style="color:var(--t3);">Persetujuan Lokasi:</span> <span id="gps-lbl-consent-status" style="color:var(--t1);">-</span></div>
                 <hr style="border-color:var(--bdr3);margin:6px 0;">
                 <div><span style="color:var(--t3);">Latitude:</span> <span id="gps-lbl-lat" style="color:var(--t1);font-weight:700;">-</span></div>
                 <div><span style="color:var(--t3);">Longitude:</span> <span id="gps-lbl-lng" style="color:var(--t1);font-weight:700;">-</span></div>
@@ -5571,6 +5573,28 @@ function getAdminAuthHeaders() {
   };
 }
 
+async function gpsAdminFetch(path, options) {
+  options = options || {};
+  var token = '';
+  try {
+    token = sessionStorage.getItem('_mdzz_admin_token') || localStorage.getItem('_mdzz_admin_token') || '';
+  } catch (e) {}
+  if (!token) throw new Error('Sesi admin tidak tersedia. Silakan login ulang.');
+  var headers = Object.assign({ 'Authorization': 'Bearer ' + token }, options.headers || {});
+  if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+  var response = await fetch(getGpsBackendBaseUrl() + path, Object.assign({}, options, {
+    headers: headers,
+    cache: 'no-store'
+  }));
+  var payload;
+  try { payload = await response.json(); }
+  catch (e) { throw new Error('Backend mengirim respons non-JSON (HTTP ' + response.status + ').'); }
+  if (!response.ok || payload.success === false) {
+    throw new Error(payload.message || payload.code || ('HTTP ' + response.status));
+  }
+  return payload;
+}
+
 function initGpsTrackingPage() {
   if (!leafletGpsMap) {
     leafletGpsMap = L.map('leafletGpsMap').setView([-6.175392, 106.827153], 12);
@@ -5596,18 +5620,14 @@ async function loadGpsDevices() {
   sel.innerHTML = '<option value="">-- Memuat daftar perangkat... --</option>';
 
   try {
-    var backendUrl = getGpsBackendBaseUrl();
-    var res = await fetch(backendUrl + '/api/admin/location/devices', {
-      headers: getAdminAuthHeaders()
-    });
-    var data = await res.json();
+    var data = await gpsAdminFetch('/api/admin/location/devices');
     sel.innerHTML = '<option value="">-- Pilih Perangkat Terhubung --</option>';
 
     if (data.success && data.devices && data.devices.length > 0) {
       data.devices.forEach(function(d) {
         var opt = document.createElement('option');
         opt.value = d.device_id || d.key;
-        opt.textContent = (d.nexus_id || d.device_id || 'Device') + ' (' + (d.key || 'License') + ')';
+        opt.textContent = (d.nexus_id || d.device_id || 'Device') + ' (' + (d.key || 'License') + ') — ' + (d.tracking_status || 'NOT_STARTED');
         sel.appendChild(opt);
       });
     } else {
@@ -5634,6 +5654,10 @@ function onGpsDeviceSelected(deviceId) {
   if (!deviceId) return;
   selectedGpsDeviceId = deviceId;
   document.getElementById('gps-lbl-device-id').textContent = deviceId;
+  var statusEl = document.getElementById('gps-lbl-tracking-status');
+  var consentEl = document.getElementById('gps-lbl-consent-status');
+  if (statusEl) statusEl.textContent = 'MEMUAT...';
+  if (consentEl) consentEl.textContent = '-';
   fetchLatestGpsLocation(deviceId);
   loadGpsHistory(deviceId);
 }
@@ -5641,9 +5665,17 @@ function onGpsDeviceSelected(deviceId) {
 async function fetchLatestGpsLocation(deviceId) {
   if (!deviceId) return;
   try {
-    var backendUrl = getGpsBackendBaseUrl();
-    var res = await fetch(backendUrl + '/api/admin/location/latest/' + encodeURIComponent(deviceId), {
-      headers: getAdminAuthHeaders()
+    var statusData = await gpsAdminFetch('/api/admin/location/status/' + encodeURIComponent(deviceId));
+    var statusEl = document.getElementById('gps-lbl-tracking-status');
+    var consentEl = document.getElementById('gps-lbl-consent-status');
+    if (statusEl) {
+      var statusLabels = { ACTIVE: 'AKTIF', STALE: 'AKTIF — DATA LAMA', STOPPED: 'BERHENTI', NOT_STARTED: 'BELUM DIMULAI' };
+      statusEl.textContent = statusLabels[statusData.tracking_status] || statusData.tracking_status || 'TIDAK DIKETAHUI';
+    }
+    if (consentEl) consentEl.textContent = statusData.consent_status === 'GRANTED' ? 'DISETUJUI' : (statusData.consent_status || 'BELUM DISETUJUI');
+    var res = await fetch(getGpsBackendBaseUrl() + '/api/admin/location/latest/' + encodeURIComponent(deviceId), {
+      headers: { 'Authorization': 'Bearer ' + (sessionStorage.getItem('_mdzz_admin_token') || localStorage.getItem('_mdzz_admin_token') || '') },
+      cache: 'no-store'
     });
     var data = await res.json();
     if (data.success && data.location) {
@@ -5680,11 +5712,7 @@ async function loadGpsHistory(deviceId) {
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:14px;">Memuat riwayat lokasi...</td></tr>';
 
   try {
-    var backendUrl = getGpsBackendBaseUrl();
-    var res = await fetch(backendUrl + '/api/admin/location/history/' + encodeURIComponent(devId) + '?limit=50', {
-      headers: getAdminAuthHeaders()
-    });
-    var data = await res.json();
+    var data = await gpsAdminFetch('/api/admin/location/history/' + encodeURIComponent(devId) + '?limit=50');
 
     if (data.success && data.history && data.history.length > 0) {
       tbody.innerHTML = '';
@@ -5730,30 +5758,11 @@ async function sendAdminGpsCmd(command) {
   if (feedback) feedback.textContent = 'Sending command ' + command + '...';
 
   try {
-    var backendUrl = getGpsBackendBaseUrl();
-    var headers = Object.assign({ 'Content-Type': 'application/json' }, getAdminAuthHeaders());
-
-    var res = await fetch(backendUrl + '/api/admin/location/command', {
+    var data = await gpsAdminFetch('/api/admin/location/command', {
       method: 'POST',
-      headers: headers,
       body: JSON.stringify({ device_id: selectedGpsDeviceId, command: command })
     });
-
-    var contentType = res.headers.get('content-type') || '';
-    if (contentType.indexOf('application/json') !== -1) {
-      var data = await res.json();
-      if (res.ok && data.success) {
-        if (feedback) feedback.textContent = 'Perintah ' + command + ' dikirim (ID: ' + (data.command_id || 'OK') + ')';
-      } else {
-        var errText = data.error || (data.message || ('HTTP ' + res.status));
-        if (feedback) feedback.textContent = 'Gagal: ' + errText;
-        console.warn('[GPS Admin Command Error]', data);
-      }
-    } else {
-      var rawHtml = await res.text();
-      console.error('[GPS Non-JSON Response HTML]', rawHtml);
-      if (feedback) feedback.textContent = 'Gagal: Endpoint backend mengembalikan HTML (HTTP ' + res.status + ')';
-    }
+    if (feedback) feedback.textContent = 'Perintah ' + command + ' masuk antrean (ID: ' + (data.command_id || 'OK') + '). Menunggu respons perangkat.';
   } catch (e) {
     if (feedback) feedback.textContent = 'Error koneksi backend (' + e.message + ')';
     console.error('[GPS Admin Command Exception]', e);
