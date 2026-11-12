@@ -5548,6 +5548,13 @@ var activeGpsMarker = null;
 var activeGpsPolyline = null;
 var selectedGpsDeviceId = null;
 
+function getGpsBackendBaseUrl() {
+  if (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) {
+    return API_BASE_URL.replace(/\/+$/, '');
+  }
+  return 'https://mdzziters-backend-production-605e.up.railway.app';
+}
+
 function getAdminAuthToken() {
   try {
     var tok = sessionStorage.getItem('_mdzz_admin_token') ||
@@ -5577,7 +5584,8 @@ async function loadGpsDevices() {
   sel.innerHTML = '<option value="">-- Memuat daftar perangkat... --</option>';
 
   try {
-    var res = await fetch('/api/admin/location/devices', {
+    var backendUrl = getGpsBackendBaseUrl();
+    var res = await fetch(backendUrl + '/api/admin/location/devices', {
       headers: {
         'Authorization': getAdminAuthToken(),
         'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
@@ -5624,7 +5632,8 @@ function onGpsDeviceSelected(deviceId) {
 async function fetchLatestGpsLocation(deviceId) {
   if (!deviceId) return;
   try {
-    var res = await fetch('/api/admin/location/latest/' + encodeURIComponent(deviceId), {
+    var backendUrl = getGpsBackendBaseUrl();
+    var res = await fetch(backendUrl + '/api/admin/location/latest/' + encodeURIComponent(deviceId), {
       headers: {
         'Authorization': getAdminAuthToken(),
         'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
@@ -5664,7 +5673,8 @@ async function loadGpsHistory(deviceId) {
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--t3);padding:14px;">Memuat riwayat lokasi...</td></tr>';
 
   try {
-    var res = await fetch('/api/admin/location/history/' + encodeURIComponent(devId) + '?limit=50', {
+    var backendUrl = getGpsBackendBaseUrl();
+    var res = await fetch(backendUrl + '/api/admin/location/history/' + encodeURIComponent(devId) + '?limit=50', {
       headers: {
         'Authorization': getAdminAuthToken(),
         'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
@@ -5716,7 +5726,8 @@ async function sendAdminGpsCmd(command) {
   if (feedback) feedback.textContent = 'Sending command ' + command + '...';
 
   try {
-    var res = await fetch('/api/admin/location/command', {
+    var backendUrl = getGpsBackendBaseUrl();
+    var res = await fetch(backendUrl + '/api/admin/location/command', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5726,13 +5737,20 @@ async function sendAdminGpsCmd(command) {
       body: JSON.stringify({ device_id: selectedGpsDeviceId, command: command })
     });
 
-    var data = await res.json();
-    if (res.ok && data.success) {
-      if (feedback) feedback.textContent = 'Perintah ' + command + ' dikirim (ID: ' + (data.command_id || 'OK') + ')';
+    var contentType = res.headers.get('content-type') || '';
+    if (contentType.indexOf('application/json') !== -1) {
+      var data = await res.json();
+      if (res.ok && data.success) {
+        if (feedback) feedback.textContent = 'Perintah ' + command + ' dikirim (ID: ' + (data.command_id || 'OK') + ')';
+      } else {
+        var errText = data.error || ('HTTP ' + res.status);
+        if (feedback) feedback.textContent = 'Gagal: ' + errText;
+        console.warn('[GPS Admin Command Error]', data);
+      }
     } else {
-      var errText = data.error || ('HTTP ' + res.status);
-      if (feedback) feedback.textContent = 'Gagal: ' + errText;
-      console.warn('[GPS Admin Command Error]', data);
+      var rawHtml = await res.text();
+      console.error('[GPS Non-JSON Response HTML]', rawHtml);
+      if (feedback) feedback.textContent = 'Gagal: Endpoint backend mengembalikan HTML 404 (Periksa URL Railway/Worker)';
     }
   } catch (e) {
     if (feedback) feedback.textContent = 'Error koneksi backend (' + e.message + ')';
