@@ -3309,11 +3309,14 @@ function renderKeys(){
   var html='';
   filtered.forEach(function(d){
     var expired=isExpired(d);
-    var deviceSession=allSessions.find(function(sess){
-      return String(sess.key||'').trim().toUpperCase()===String(d.key||'').trim().toUpperCase()
-        && String(sess.platform||'').trim().toLowerCase()==='insanitymax_ios';
-    });
     var isInsanityMax=String(d.project||'').trim().toLowerCase().includes('insanity max');
+    var deviceSession=allSessions.find(function(sess){
+      var sameKey=String(sess.key||'').trim().toUpperCase()===String(d.key||'').trim().toUpperCase();
+      var sessionPlatform=String(sess.platform||'').trim().toLowerCase();
+      return sameKey && (isInsanityMax
+        ? sessionPlatform==='insanitymax_ios'
+        : sessionPlatform!=='insanitymax_ios' && sessionPlatform!=='insanitymax_web');
+    });
     /* Untuk INSANITY MAX iOS, sesi platform iOS menjadi bukti binding
        meskipun kolom licenses.used belum tersinkron oleh RPC. */
     var keyInUse=!!d.used||(isInsanityMax&&!!deviceSession);
