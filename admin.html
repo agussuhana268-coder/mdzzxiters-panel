@@ -5542,7 +5542,7 @@ function patchTeamList(){
    
 
 <script>
-/* ══ NEXUS GPS TRACKING LEAFLET.JS INTEGRATION ══ */
+/* ══ NEXUS GPS TRACKING LEAFLET.JS INTEGRATION (v5 FIX) ══ */
 var leafletGpsMap = null;
 var activeGpsMarker = null;
 var activeGpsPolyline = null;
@@ -5552,19 +5552,26 @@ function getGpsBackendBaseUrl() {
   if (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) {
     return API_BASE_URL.replace(/\/+$/, '');
   }
-  return 'https://mdzziters-backend-production-605e.up.railway.app';
+  // Verified Railway domain WITH 'x'
+  return 'https://mdzzxiters-backend-production-605e.up.railway.app';
 }
 
-function getAdminAuthToken() {
+function getAdminAuthHeaders() {
+  var tok = '';
   try {
-    var tok = sessionStorage.getItem('_mdzz_admin_token') ||
-              localStorage.getItem('_mdzz_admin_token') ||
-              localStorage.getItem('zx_api_key') ||
-              'mdzz_admin_2024';
-    return tok.startsWith('Bearer ') ? tok : 'Bearer ' + tok;
+    tok = sessionStorage.getItem('_mdzz_admin_token') ||
+          localStorage.getItem('_mdzz_admin_token') ||
+          localStorage.getItem('zx_api_key') ||
+          'mdzz_admin_2024';
   } catch(e) {
-    return 'Bearer mdzz_admin_2024';
+    tok = 'mdzz_admin_2024';
   }
+
+  var cleanTok = tok.replace(/^Bearer\s+/i, '');
+  return {
+    'Authorization': 'Bearer ' + cleanTok,
+    'X-Admin-Key': cleanTok
+  };
 }
 
 function initGpsTrackingPage() {
@@ -5586,10 +5593,7 @@ async function loadGpsDevices() {
   try {
     var backendUrl = getGpsBackendBaseUrl();
     var res = await fetch(backendUrl + '/api/admin/location/devices', {
-      headers: {
-        'Authorization': getAdminAuthToken(),
-        'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
-      }
+      headers: getAdminAuthHeaders()
     });
     var data = await res.json();
     sel.innerHTML = '<option value="">-- Pilih Perangkat Terhubung --</option>';
@@ -5602,11 +5606,11 @@ async function loadGpsDevices() {
         sel.appendChild(opt);
       });
     } else {
-      sel.innerHTML = '<option value="">Gunakan input License Key / Device ID di atas</option>';
+      sel.innerHTML = '<option value="">Input License Key / Device ID di atas</option>';
     }
   } catch (e) {
     console.error('[GPS Dashboard Error]', e);
-    sel.innerHTML = '<option value="">Gunakan input License Key / Device ID di atas</option>';
+    sel.innerHTML = '<option value="">Input License Key / Device ID di atas</option>';
   }
 }
 
@@ -5634,10 +5638,7 @@ async function fetchLatestGpsLocation(deviceId) {
   try {
     var backendUrl = getGpsBackendBaseUrl();
     var res = await fetch(backendUrl + '/api/admin/location/latest/' + encodeURIComponent(deviceId), {
-      headers: {
-        'Authorization': getAdminAuthToken(),
-        'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
-      }
+      headers: getAdminAuthHeaders()
     });
     var data = await res.json();
     if (data.success && data.location) {
@@ -5675,10 +5676,7 @@ async function loadGpsHistory(deviceId) {
   try {
     var backendUrl = getGpsBackendBaseUrl();
     var res = await fetch(backendUrl + '/api/admin/location/history/' + encodeURIComponent(devId) + '?limit=50', {
-      headers: {
-        'Authorization': getAdminAuthToken(),
-        'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
-      }
+      headers: getAdminAuthHeaders()
     });
     var data = await res.json();
 
@@ -5727,13 +5725,11 @@ async function sendAdminGpsCmd(command) {
 
   try {
     var backendUrl = getGpsBackendBaseUrl();
+    var headers = Object.assign({ 'Content-Type': 'application/json' }, getAdminAuthHeaders());
+
     var res = await fetch(backendUrl + '/api/admin/location/command', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': getAdminAuthToken(),
-        'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
-      },
+      headers: headers,
       body: JSON.stringify({ device_id: selectedGpsDeviceId, command: command })
     });
 
@@ -5750,7 +5746,7 @@ async function sendAdminGpsCmd(command) {
     } else {
       var rawHtml = await res.text();
       console.error('[GPS Non-JSON Response HTML]', rawHtml);
-      if (feedback) feedback.textContent = 'Gagal: Endpoint backend mengembalikan HTML 404 (Periksa URL Railway/Worker)';
+      if (feedback) feedback.textContent = 'Gagal: Endpoint backend mengembalikan HTML (HTTP ' + res.status + ')';
     }
   } catch (e) {
     if (feedback) feedback.textContent = 'Error koneksi backend (' + e.message + ')';
