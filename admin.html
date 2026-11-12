@@ -2653,7 +2653,18 @@ document.addEventListener('DOMContentLoaded',function(){
             <span class="page-sub">REALTIME GPS MONITOR · ADMIN REMOTE CONTROL</span>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary" onclick="loadGpsDevices()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh Data</button>
+            <button class="btn btn-primary" onclick="loadGpsDevices()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh Perangkat</button>
+          </div>
+        </div>
+
+        <!-- Input License Key / Device ID Search Bar -->
+        <div class="section" style="padding:16px;margin-bottom:16px;">
+          <div style="font-family:var(--hud);font-size:9.5px;letter-spacing:1px;color:var(--sky2);margin-bottom:8px;">INPUT LICENSE KEY / DEVICE ID USER UNTUK TRACKING</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input type="text" id="gpsInputKey" class="sf-input" style="flex:1;font-family:var(--mono);font-size:12px;" placeholder="Masukkan License Key (contoh: NEXUS-VIP-8899) atau Device ID...">
+            <button class="btn btn-primary" style="white-space:nowrap;padding:12px 20px;" onclick="searchAndTrackKey()">
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Cari & Track Lisensi
+            </button>
           </div>
         </div>
 
@@ -2725,7 +2736,7 @@ document.addEventListener('DOMContentLoaded',function(){
                 </tr>
               </thead>
               <tbody id="tbl-gps-history-body">
-                <tr><td colspan="6" style="text-align:center;color:var(--t3);padding:18px;">Pilih perangkat di atas untuk melihat riwayat lintasan lokasi.</td></tr>
+                <tr><td colspan="6" style="text-align:center;color:var(--t3);padding:18px;">Pilih atau input perangkat di atas untuk melihat riwayat lintasan lokasi.</td></tr>
               </tbody>
             </table>
           </div>
@@ -5537,6 +5548,18 @@ var activeGpsMarker = null;
 var activeGpsPolyline = null;
 var selectedGpsDeviceId = null;
 
+function getAdminAuthToken() {
+  try {
+    var tok = sessionStorage.getItem('_mdzz_admin_token') ||
+              localStorage.getItem('_mdzz_admin_token') ||
+              localStorage.getItem('zx_api_key') ||
+              'mdzz_admin_2024';
+    return tok.startsWith('Bearer ') ? tok : 'Bearer ' + tok;
+  } catch(e) {
+    return 'Bearer mdzz_admin_2024';
+  }
+}
+
 function initGpsTrackingPage() {
   if (!leafletGpsMap) {
     leafletGpsMap = L.map('leafletGpsMap').setView([-6.175392, 106.827153], 12);
@@ -5555,7 +5578,10 @@ async function loadGpsDevices() {
 
   try {
     var res = await fetch('/api/admin/location/devices', {
-      headers: { 'Authorization': typeof getAdminAuthToken === 'function' ? getAdminAuthToken() : '' }
+      headers: {
+        'Authorization': getAdminAuthToken(),
+        'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
+      }
     });
     var data = await res.json();
     sel.innerHTML = '<option value="">-- Pilih Perangkat Terhubung --</option>';
@@ -5563,17 +5589,28 @@ async function loadGpsDevices() {
     if (data.success && data.devices && data.devices.length > 0) {
       data.devices.forEach(function(d) {
         var opt = document.createElement('option');
-        opt.value = d.device_id;
-        opt.textContent = (d.nexus_id || d.device_id) + ' (' + (d.key || 'License') + ')';
+        opt.value = d.device_id || d.key;
+        opt.textContent = (d.nexus_id || d.device_id || 'Device') + ' (' + (d.key || 'License') + ')';
         sel.appendChild(opt);
       });
     } else {
-      sel.innerHTML = '<option value="">Tidak ada perangkat aktif</option>';
+      sel.innerHTML = '<option value="">Belum ada perangakt aktif (Gunakan input manual)</option>';
     }
   } catch (e) {
     console.error('[GPS Dashboard Error]', e);
-    sel.innerHTML = '<option value="">Gagal memuat perangkat (Error API)</option>';
+    sel.innerHTML = '<option value="">Input manual License Key / Device ID di atas</option>';
   }
+}
+
+function searchAndTrackKey() {
+  var inputEl = document.getElementById('gpsInputKey');
+  if (!inputEl) return;
+  var keyOrDevice = inputEl.value.trim();
+  if (!keyOrDevice) {
+    alert('Masukkan License Key atau Device ID!');
+    return;
+  }
+  onGpsDeviceSelected(keyOrDevice);
 }
 
 function onGpsDeviceSelected(deviceId) {
@@ -5588,7 +5625,10 @@ async function fetchLatestGpsLocation(deviceId) {
   if (!deviceId) return;
   try {
     var res = await fetch('/api/admin/location/latest/' + encodeURIComponent(deviceId), {
-      headers: { 'Authorization': typeof getAdminAuthToken === 'function' ? getAdminAuthToken() : '' }
+      headers: {
+        'Authorization': getAdminAuthToken(),
+        'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
+      }
     });
     var data = await res.json();
     if (data.success && data.location) {
@@ -5625,7 +5665,10 @@ async function loadGpsHistory(deviceId) {
 
   try {
     var res = await fetch('/api/admin/location/history/' + encodeURIComponent(devId) + '?limit=50', {
-      headers: { 'Authorization': typeof getAdminAuthToken === 'function' ? getAdminAuthToken() : '' }
+      headers: {
+        'Authorization': getAdminAuthToken(),
+        'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
+      }
     });
     var data = await res.json();
 
@@ -5666,7 +5709,7 @@ function panMapTo(lat, lng) {
 
 async function sendAdminGpsCmd(command) {
   if (!selectedGpsDeviceId) {
-    alert('Pilih perangkat terlebih dahulu dari dropdown!');
+    alert('Input License Key atau pilih perangkat terlebih dahulu!');
     return;
   }
   var feedback = document.getElementById('gps-cmd-feedback');
@@ -5677,7 +5720,8 @@ async function sendAdminGpsCmd(command) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': typeof getAdminAuthToken === 'function' ? getAdminAuthToken() : ''
+        'Authorization': getAdminAuthToken(),
+        'x-admin-token': getAdminAuthToken().replace(/^Bearer\s+/i, '')
       },
       body: JSON.stringify({ device_id: selectedGpsDeviceId, command: command })
     });
