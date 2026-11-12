@@ -5542,17 +5542,14 @@ function patchTeamList(){
    
 
 <script>
-/* ══ NEXUS GPS TRACKING LEAFLET.JS INTEGRATION (v5 FIX) ══ */
+/* ══ NEXUS GPS TRACKING LEAFLET.JS INTEGRATION (v6 PRODUCTION FIX) ══ */
 var leafletGpsMap = null;
 var activeGpsMarker = null;
 var activeGpsPolyline = null;
 var selectedGpsDeviceId = null;
 
 function getGpsBackendBaseUrl() {
-  if (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) {
-    return API_BASE_URL.replace(/\/+$/, '');
-  }
-  // Verified Railway domain WITH 'x'
+  // Always point strictly to the verified Railway production domain
   return 'https://mdzzxiters-backend-production-605e.up.railway.app';
 }
 
@@ -5606,11 +5603,11 @@ async function loadGpsDevices() {
         sel.appendChild(opt);
       });
     } else {
-      sel.innerHTML = '<option value="">Input License Key / Device ID di atas</option>';
+      sel.innerHTML = '<option value="">Gunakan input License Key / Device ID di atas</option>';
     }
   } catch (e) {
     console.error('[GPS Dashboard Error]', e);
-    sel.innerHTML = '<option value="">Input License Key / Device ID di atas</option>';
+    sel.innerHTML = '<option value="">Gunakan input License Key / Device ID di atas</option>';
   }
 }
 
@@ -5739,7 +5736,7 @@ async function sendAdminGpsCmd(command) {
       if (res.ok && data.success) {
         if (feedback) feedback.textContent = 'Perintah ' + command + ' dikirim (ID: ' + (data.command_id || 'OK') + ')';
       } else {
-        var errText = data.error || ('HTTP ' + res.status);
+        var errText = data.error || (data.message || ('HTTP ' + res.status));
         if (feedback) feedback.textContent = 'Gagal: ' + errText;
         console.warn('[GPS Admin Command Error]', data);
       }
