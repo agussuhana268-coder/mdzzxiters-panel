@@ -3337,8 +3337,8 @@ function renderKeys(){
     }
     else if(!d.expiresAt){html+='<span class="km-tag km-exp none">no expiry</span>';}
     var phoneLabel=deviceSession&&(deviceSession.deviceName||[deviceSession.deviceManufacturer||deviceSession.deviceBrand,deviceSession.deviceModel].filter(Boolean).join(' '));
-    if(phoneLabel)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Model perangkat yang dilaporkan Android">📱 '+escapeHtml(phoneLabel)+'</span>';
-    else if(d.deviceId)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Device ID: '+escapeHtml(d.deviceId)+'">📱 ...'+escapeHtml(d.deviceId.slice(-8))+'</span>';
+    if(phoneLabel)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="Nama/model perangkat yang dilaporkan aplikasi">📱 '+escapeHtml(phoneLabel)+'</span>';
+    else if(d.deviceId)html+='<span class="km-tag" style="color:#0EA5E9;font-size:8px;" title="ID perangkat tersedia, tetapi nama/model belum dikirim aplikasi">📱 Model belum tersedia</span>';
     html+=ipBadgeHTML(d.key);
     html+='</div></div>';
     html+='<span class="key-status '+sc+'">'+sl+'</span>';
@@ -3714,7 +3714,7 @@ function renderSessions(){
     var deviceLabel=d.deviceName||[d.deviceManufacturer||d.deviceBrand,d.deviceModel].filter(Boolean).join(' ');
     var deviceMeta=deviceLabel
       ? '<span class="dev-tag" title="Model perangkat yang dilaporkan Android">📱 '+escapeHtml(deviceLabel)+'</span>'
-      : '<span class="dev-tag" title="Belum ada metadata perangkat">📱 Model belum tersedia</span>';
+      : '<span class="dev-tag" title="Aplikasi belum mengirim metadata model perangkat">📱 Model belum tersedia</span>';
     var androidMeta=d.androidVersion
       ? '<span class="dev-tag">Android '+escapeHtml(d.androidVersion)+'</span>'
       : '';
