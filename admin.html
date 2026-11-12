@@ -2712,7 +2712,7 @@ document.addEventListener('DOMContentLoaded',function(){
                 <button class="btn btn-primary" style="flex:1;background:linear-gradient(135deg,#dc2626,#ef4444);border-color:#f87171;" onclick="sendAdminGpsCmd('START_TRACKING')">Start Track</button>
                 <button class="btn btn-secondary" style="flex:1;" onclick="sendAdminGpsCmd('STOP_TRACKING')">Stop Track</button>
               </div>
-              <div id="gps-cmd-feedback" style="margin-top:10px;font-family:var(--mono);font-size:9px;color:var(--sky2);text-align:center;"></div>
+              <div id="gps-cmd-feedback" style="margin-top:10px;font-family:var(--mono);font-size:9.5px;color:var(--sky2);text-align:center;"></div>
             </div>
           </div>
         </div>
@@ -5594,11 +5594,11 @@ async function loadGpsDevices() {
         sel.appendChild(opt);
       });
     } else {
-      sel.innerHTML = '<option value="">Belum ada perangakt aktif (Gunakan input manual)</option>';
+      sel.innerHTML = '<option value="">Gunakan input License Key / Device ID di atas</option>';
     }
   } catch (e) {
     console.error('[GPS Dashboard Error]', e);
-    sel.innerHTML = '<option value="">Input manual License Key / Device ID di atas</option>';
+    sel.innerHTML = '<option value="">Gunakan input License Key / Device ID di atas</option>';
   }
 }
 
@@ -5725,14 +5725,18 @@ async function sendAdminGpsCmd(command) {
       },
       body: JSON.stringify({ device_id: selectedGpsDeviceId, command: command })
     });
+
     var data = await res.json();
-    if (data.success) {
+    if (res.ok && data.success) {
       if (feedback) feedback.textContent = 'Perintah ' + command + ' dikirim (ID: ' + (data.command_id || 'OK') + ')';
     } else {
-      if (feedback) feedback.textContent = 'Gagal: ' + (data.error || 'Unknown error');
+      var errText = data.error || ('HTTP ' + res.status);
+      if (feedback) feedback.textContent = 'Gagal: ' + errText;
+      console.warn('[GPS Admin Command Error]', data);
     }
   } catch (e) {
-    if (feedback) feedback.textContent = 'Error koneksi backend';
+    if (feedback) feedback.textContent = 'Error koneksi backend (' + e.message + ')';
+    console.error('[GPS Admin Command Exception]', e);
   }
 }
 </script>
