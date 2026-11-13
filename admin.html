@@ -3032,7 +3032,25 @@ function updateMobileNav(page){
 function navMobile(page){navTo(page);}
 window.navMobile=navMobile;
 
+function isGpsOwner(){
+  return !!(currentAdmin && String(currentAdmin.role || '').toLowerCase() === 'owner');
+}
+
+function applyGpsOwnerAccess(){
+  var allowed = isGpsOwner();
+  var navItem = gi('nav-gps-tracking');
+  var gpsPage = gi('page-gps-tracking');
+  if(navItem) navItem.style.display = allowed ? '' : 'none';
+  if(gpsPage) gpsPage.style.display = allowed ? '' : 'none';
+  if(!allowed && gpsPage) gpsPage.classList.remove('active');
+}
+
 function navTo(page){
+  if(page === 'gps-tracking' && !isGpsOwner()){
+    applyGpsOwnerAccess();
+    toast('Halaman GPS Tracking hanya tersedia untuk Owner.','e');
+    return;
+  }
   if(page==='account'){setTimeout(function(){loadProfile();loadAccountStats();},50);}
   if(page==='support'){setTimeout(initSupport,50);}
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
@@ -4608,6 +4626,7 @@ function enterApp(){
   setTimeout(function(){
     gi('login-page').style.display='none';
     gi('app').style.display='block';
+    applyGpsOwnerAccess();
     var name=currentAdmin.name||currentAdmin.username||'?';
     var ini=name.charAt(0).toUpperCase();
     gi('sb-avatar').textContent=ini;gi('tb-avatar').textContent=ini;
