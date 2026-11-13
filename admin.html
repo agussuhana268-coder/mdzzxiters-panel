@@ -2696,6 +2696,8 @@ document.addEventListener('DOMContentLoaded',function(){
                 <div><span style="color:var(--t3);">Nexus ID:</span> <span id="gps-lbl-nexus-id" style="color:var(--t1);">-</span></div>
                 <div><span style="color:var(--t3);">License Key:</span> <span id="gps-lbl-key" style="color:#f59e0b;">-</span></div>
                 <div><span style="color:var(--t3);">Model HP:</span> <span id="gps-lbl-model" style="color:var(--t1);">-</span></div>
+                <div><span style="color:var(--t3);">Baterai:</span> <span id="gps-lbl-battery" style="color:var(--t1);font-weight:700;">Belum tersedia</span></div>
+                <div><span style="color:var(--t3);">Pengisian:</span> <span id="gps-lbl-charging" style="color:var(--t1);">-</span></div>
                 <div><span style="color:var(--t3);">Status Tracking:</span> <span id="gps-lbl-tracking-status" style="color:var(--sky2);font-weight:700;">BELUM DIMULAI</span></div>
                 <div><span style="color:var(--t3);">Persetujuan Lokasi:</span> <span id="gps-lbl-consent-status" style="color:var(--t1);">-</span></div>
                 <hr style="border-color:var(--bdr3);margin:6px 0;">
@@ -5702,6 +5704,18 @@ async function fetchLatestGpsLocation(deviceId) {
       document.getElementById('gps-lbl-nexus-id').textContent = loc.nexus_id || '-';
       document.getElementById('gps-lbl-key').textContent = loc.license_key || '-';
       document.getElementById('gps-lbl-model').textContent = loc.device_model || 'Android Device';
+      var batteryEl = document.getElementById('gps-lbl-battery');
+      var chargingEl = document.getElementById('gps-lbl-charging');
+      if (batteryEl) {
+        if (Number.isInteger(loc.battery_level)) {
+          batteryEl.textContent = loc.battery_level + '%' + (loc.battery_level <= 20 ? ' — BATERAI LEMAH' : '');
+          batteryEl.style.color = loc.battery_level <= 20 ? '#fb7185' : '#34d399';
+        } else {
+          batteryEl.textContent = 'Belum tersedia';
+          batteryEl.style.color = 'var(--t1)';
+        }
+      }
+      if (chargingEl) chargingEl.textContent = loc.is_charging === true ? 'Sedang mengisi' : (loc.is_charging === false ? 'Tidak mengisi' : '—');
       document.getElementById('gps-lbl-lat').textContent = loc.latitude.toFixed(6);
       document.getElementById('gps-lbl-lng').textContent = loc.longitude.toFixed(6);
       document.getElementById('gps-lbl-accuracy').textContent = loc.accuracy ? loc.accuracy + ' m' : '-';
